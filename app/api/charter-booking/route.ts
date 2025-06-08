@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
     console.log("Database connection successful")
 
-    // Save to database
+    // Save to database - REMOVED vehicle_name field
     const { data, error } = await supabase
       .from("charter_bookings")
       .insert([
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
           time: bookingData.time,
           duration: Number.parseInt(bookingData.duration),
           vehicle: bookingData.vehicle,
-          vehicle_name: bookingData.vehicleName,
+          // vehicle_name removed
           passengers: Number.parseInt(bookingData.passengers),
           special_requests: bookingData.specialRequests,
           total_price: bookingData.totalPrice,
