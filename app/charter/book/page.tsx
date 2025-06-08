@@ -11,16 +11,14 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Calendar, Clock, MapPin, Users, Car, CheckCircle, AlertCircle } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { Calendar, Clock, MapPin, Users, Car, CheckCircle, AlertCircle, Info } from "lucide-react"
 
 const vehicles = [
-  { id: "camry-2006", name: "Toyota Camry (2006)", pricePerHour: 10000, passengers: 4 },
-  { id: "gmc-terrain", name: "GMC Terrain (2011)", pricePerHour: 20000, passengers: 7 },
+  { id: "camry-2006", name: "Toyota Camry (2006)", pricePerHour: 100000, passengers: 4 },
+  { id: "gmc-terrain", name: "GMC Terrain (2011)", pricePerHour: 200000, passengers: 7 },
 ]
 
 export default function BookCharterPage() {
-  const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
@@ -32,7 +30,7 @@ export default function BookCharterPage() {
     destination: "",
     date: "",
     time: "",
-    duration: "",
+    duration: "10", // Default to 10 hours (minimum)
     vehicle: "",
     passengers: "",
     specialRequests: "",
@@ -47,12 +45,21 @@ export default function BookCharterPage() {
     if (!selectedVehicle || !formData.duration) return 0
 
     const duration = Number.parseInt(formData.duration)
-    const basePrice = selectedVehicle.pricePerHour * Math.ceil(duration / 10)
-    return basePrice
+
+    // Base price for first 10 hours
+    const basePrice = selectedVehicle.pricePerHour
+
+    // Additional hours charged at 10% of base price per hour
+    const additionalHours = Math.max(0, duration - 10)
+    const additionalPrice = additionalHours * (selectedVehicle.pricePerHour * 0.2)
+
+    return basePrice + additionalPrice
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log("Form submit triggered!")
+
     setIsSubmitting(true)
     setSubmitStatus(null)
 
@@ -64,7 +71,9 @@ export default function BookCharterPage() {
 
       const totalPrice = calculateTotal()
 
-      // Submit to API
+      console.log("Sending booking data:", { ...formData, totalPrice })
+
+      // Use the existing charter-booking API
       const response = await fetch("/api/charter-booking", {
         method: "POST",
         headers: {
@@ -77,21 +86,21 @@ export default function BookCharterPage() {
         }),
       })
 
+      console.log("Response status:", response.status)
+
       if (!response.ok) {
-        throw new Error("Failed to submit booking")
+        const errorText = await response.text()
+        console.error("API Error Response:", errorText)
+        throw new Error(`Failed to submit booking: ${response.status}`)
       }
 
       const result = await response.json()
+      console.log("Success response:", result)
 
       setSubmitStatus({
         type: "success",
         message:
           "Your charter booking has been submitted successfully! We will contact you shortly to confirm the details.",
-      })
-
-      toast({
-        title: "Booking Submitted",
-        description: "Your charter booking has been submitted successfully!",
       })
 
       // Reset form
@@ -103,21 +112,16 @@ export default function BookCharterPage() {
         destination: "",
         date: "",
         time: "",
-        duration: "",
+        duration: "10", // Reset to minimum 10 hours
         vehicle: "",
         passengers: "",
         specialRequests: "",
       })
     } catch (error: any) {
+      console.error("Submit error:", error)
       setSubmitStatus({
         type: "error",
-        message: error.message || "An error occurred while submitting your booking. Please try again.",
-      })
-
-      toast({
-        title: "Booking Error",
-        description: "Failed to submit booking. Please try again.",
-        variant: "destructive",
+        message: `Error: ${error.message}`,
       })
     } finally {
       setIsSubmitting(false)
@@ -283,13 +287,14 @@ export default function BookCharterPage() {
                       <Input
                         id="duration"
                         type="number"
-                        min="1"
+                        min="10" // Minimum 10 hours
                         max="240"
                         value={formData.duration}
                         onChange={(e) => handleInputChange("duration", e.target.value)}
                         placeholder="e.g., 10"
                         required
                       />
+                      <p className="text-xs text-muted-foreground">Minimum booking: 10 hours</p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="passengers" className="flex items-center gap-2">
@@ -339,19 +344,27 @@ export default function BookCharterPage() {
                         <span>{formData.duration} hours</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Rate:</span>
-                        <span>
-                          ₦{vehicles.find((v) => v.id === formData.vehicle)?.pricePerHour.toLocaleString()}/10hrs
-                        </span>
+                        <span>Base Rate (10 hours):</span>
+                        <span>₦{vehicles.find((v) => v.id === formData.vehicle)?.pricePerHour.toLocaleString()}</span>
                       </div>
+                      {Number.parseInt(formData.duration) > 10 && (
+                        <div className="flex justify-between">
+                          <span>Additional Hours:</span>
+                          <span>{Number.parseInt(formData.duration) - 10} hours</span>
+                        </div>
+                      )}
                       <hr />
                       <div className="flex justify-between font-medium text-lg">
                         <span>Total:</span>
                         <span>₦{calculateTotal().toLocaleString()}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        * Additional charges may apply for trips outside Lagos
-                      </p>
+                      <div className="mt-2 p-2 bg-blue-50 rounded-md flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                        <p className="text-xs text-blue-700">
+                          Minimum booking is 10 hours. Additional hours are charged at 20% of the base rate per hour.
+                          Additional charges may apply for trips outside Lagos.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 )}
