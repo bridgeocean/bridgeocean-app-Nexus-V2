@@ -31,7 +31,7 @@ export default function ContactPage() {
     setSubmitMessage("")
 
     try {
-      const response = await fetch("/api/contact-message", {
+      const response = await fetch("/api/contact-test", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
