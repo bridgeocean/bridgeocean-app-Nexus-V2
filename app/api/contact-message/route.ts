@@ -29,7 +29,6 @@ export async function POST(request: Request) {
           subject: formData.subject,
           message: formData.message,
           status: "new",
-          created_at: new Date().toISOString(),
         },
       ])
       .select()
