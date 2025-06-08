@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Car, DollarSign, Shield, Users, Upload, CheckCircle } from "lucide-react"
+import { Car, DollarSign, Shield, Users, Upload, CheckCircle } from 'lucide-react'
 
 const vehicleTypes = ["Sedan", "SUV", "Luxury Sedan", "Luxury SUV", "Van", "Bus", "Convertible", "Sports Car"]
 
@@ -38,11 +38,85 @@ const benefits = [
 
 export default function PartnerPage() {
   const [formStep, setFormStep] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitMessage, setSubmitMessage] = useState("")
   const [formData, setFormData] = useState({
-    personalInfo: {},
-    vehicleInfo: {},
-    documents: {},
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    make: "",
+    model: "",
+    year: "",
+    vehicleType: "",
+    passengers: "",
+    licensePlate: "",
+    color: "",
+    features: [] as string[],
+    termsAccepted: false,
+    backgroundCheckConsent: false,
   })
+
+  const handleInputChange = (field: string, value: string | boolean | string[]) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleFeatureChange = (feature: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      features: checked 
+        ? [...prev.features, feature]
+        : prev.features.filter(f => f !== feature)
+    }))
+  }
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true)
+    setSubmitMessage("")
+
+    try {
+      const response = await fetch("/api/partner-registration", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        setSubmitMessage("✅ Your partner application has been submitted successfully! We will review your application and contact you within 2-3 business days.")
+        // Reset form
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          address: "",
+          make: "",
+          model: "",
+          year: "",
+          vehicleType: "",
+          passengers: "",
+          licensePlate: "",
+          color: "",
+          features: [],
+          termsAccepted: false,
+          backgroundCheckConsent: false,
+        })
+        setFormStep(1)
+      } else {
+        setSubmitMessage(`❌ Error: ${result.error || "Failed to submit application"}`)
+      }
+    } catch (error) {
+      console.error("Submit error:", error)
+      setSubmitMessage("❌ Network error. Please check your connection and try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -98,6 +172,13 @@ export default function PartnerPage() {
                 </p>
               </div>
 
+              {/* Success/Error Message */}
+              {submitMessage && (
+                <div className="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200">
+                  <p className="text-sm">{submitMessage}</p>
+                </div>
+              )}
+
               {/* Progress Steps */}
               <div className="flex justify-center mb-8">
                 <div className="flex items-center space-x-4">
@@ -127,26 +208,52 @@ export default function PartnerPage() {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="first-name">First Name</Label>
-                        <Input id="first-name" placeholder="Enter your first name" />
+                        <Input 
+                          id="first-name" 
+                          value={formData.firstName}
+                          onChange={(e) => handleInputChange("firstName", e.target.value)}
+                          placeholder="Enter your first name" 
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="last-name">Last Name</Label>
-                        <Input id="last-name" placeholder="Enter your last name" />
+                        <Input 
+                          id="last-name" 
+                          value={formData.lastName}
+                          onChange={(e) => handleInputChange("lastName", e.target.value)}
+                          placeholder="Enter your last name" 
+                        />
                       </div>
                     </div>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="email">Email Address</Label>
-                        <Input id="email" type="email" placeholder="Enter your email" />
+                        <Input 
+                          id="email" 
+                          type="email" 
+                          value={formData.email}
+                          onChange={(e) => handleInputChange("email", e.target.value)}
+                          placeholder="Enter your email" 
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="phone">Phone Number</Label>
-                        <Input id="phone" placeholder="Enter your phone number" />
+                        <Input 
+                          id="phone" 
+                          value={formData.phone}
+                          onChange={(e) => handleInputChange("phone", e.target.value)}
+                          placeholder="Enter your phone number" 
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="address">Address</Label>
-                      <Textarea id="address" placeholder="Enter your full address" />
+                      <Textarea 
+                        id="address" 
+                        value={formData.address}
+                        onChange={(e) => handleInputChange("address", e.target.value)}
+                        placeholder="Enter your full address" 
+                      />
                     </div>
                     <Button onClick={() => setFormStep(2)} className="w-full">
                       Next: Vehicle Information
@@ -165,21 +272,36 @@ export default function PartnerPage() {
                     <div className="grid gap-4 md:grid-cols-3">
                       <div className="space-y-2">
                         <Label htmlFor="make">Make</Label>
-                        <Input id="make" placeholder="e.g., Mercedes-Benz" />
+                        <Input 
+                          id="make" 
+                          value={formData.make}
+                          onChange={(e) => handleInputChange("make", e.target.value)}
+                          placeholder="e.g., Mercedes-Benz" 
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="model">Model</Label>
-                        <Input id="model" placeholder="e.g., S-Class" />
+                        <Input 
+                          id="model" 
+                          value={formData.model}
+                          onChange={(e) => handleInputChange("model", e.target.value)}
+                          placeholder="e.g., S-Class" 
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="year">Year</Label>
-                        <Input id="year" placeholder="e.g., 2022" />
+                        <Input 
+                          id="year" 
+                          value={formData.year}
+                          onChange={(e) => handleInputChange("year", e.target.value)}
+                          placeholder="e.g., 2022" 
+                        />
                       </div>
                     </div>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label>Vehicle Type</Label>
-                        <Select>
+                        <Select value={formData.vehicleType} onValueChange={(value) => handleInputChange("vehicleType", value)}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select vehicle type" />
                           </SelectTrigger>
@@ -194,7 +316,7 @@ export default function PartnerPage() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="passengers">Passenger Capacity</Label>
-                        <Select>
+                        <Select value={formData.passengers} onValueChange={(value) => handleInputChange("passengers", value)}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select capacity" />
                           </SelectTrigger>
@@ -211,11 +333,21 @@ export default function PartnerPage() {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="license-plate">License Plate</Label>
-                        <Input id="license-plate" placeholder="Enter license plate" />
+                        <Input 
+                          id="license-plate" 
+                          value={formData.licensePlate}
+                          onChange={(e) => handleInputChange("licensePlate", e.target.value)}
+                          placeholder="Enter license plate" 
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="color">Color</Label>
-                        <Input id="color" placeholder="Vehicle color" />
+                        <Input 
+                          id="color" 
+                          value={formData.color}
+                          onChange={(e) => handleInputChange("color", e.target.value)}
+                          placeholder="Vehicle color" 
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -233,7 +365,11 @@ export default function PartnerPage() {
                           "USB Charging",
                         ].map((feature) => (
                           <div key={feature} className="flex items-center space-x-2">
-                            <Checkbox id={feature} />
+                            <Checkbox 
+                              id={feature} 
+                              checked={formData.features.includes(feature)}
+                              onCheckedChange={(checked) => handleFeatureChange(feature, checked as boolean)}
+                            />
                             <Label htmlFor={feature} className="text-sm">
                               {feature}
                             </Label>
@@ -260,52 +396,51 @@ export default function PartnerPage() {
                     <CardDescription>Upload the necessary documents for verification</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                      <p className="text-sm text-blue-800">
+                        <strong>Note:</strong> Document upload functionality will be available after initial registration. 
+                        You can submit your application now and we'll contact you with document upload instructions.
+                      </p>
+                    </div>
+
                     <div className="grid gap-6 md:grid-cols-2">
                       <div className="space-y-4">
                         <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <h4 className="font-medium mb-2">Means of Identification</h4>
                           <p className="text-sm text-muted-foreground mb-4">
-                            Upload NIN slip or International Passport
+                            NIN slip or International Passport (Required)
                           </p>
-                          <Button variant="outline" size="sm">
-                            Choose File
-                          </Button>
                         </div>
                         <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <h4 className="font-medium mb-2">Vehicle Registration</h4>
-                          <p className="text-sm text-muted-foreground mb-4">Upload vehicle registration document</p>
-                          <Button variant="outline" size="sm">
-                            Choose File
-                          </Button>
+                          <p className="text-sm text-muted-foreground mb-4">Vehicle registration document (Required)</p>
                         </div>
                       </div>
                       <div className="space-y-4">
                         <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <h4 className="font-medium mb-2">Insurance Certificate</h4>
-                          <p className="text-sm text-muted-foreground mb-4">Upload current insurance certificate</p>
-                          <Button variant="outline" size="sm">
-                            Choose File
-                          </Button>
+                          <p className="text-sm text-muted-foreground mb-4">Current insurance certificate (Required)</p>
                         </div>
                         <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <h4 className="font-medium mb-2">Vehicle Photos</h4>
                           <p className="text-sm text-muted-foreground mb-4">
-                            Upload 4-6 high-quality photos of your vehicle
+                            4-6 high-quality photos of your vehicle (Required)
                           </p>
-                          <Button variant="outline" size="sm">
-                            Choose Files
-                          </Button>
                         </div>
                       </div>
                     </div>
 
                     <div className="space-y-4">
                       <div className="flex items-center space-x-2">
-                        <Checkbox id="terms" />
+                        <Checkbox 
+                          id="terms" 
+                          checked={formData.termsAccepted}
+                          onCheckedChange={(checked) => handleInputChange("termsAccepted", checked as boolean)}
+                        />
                         <Label htmlFor="terms" className="text-sm">
                           I agree to the{" "}
                           <a href="/terms" className="text-primary hover:underline">
@@ -318,7 +453,11 @@ export default function PartnerPage() {
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Checkbox id="background-check" />
+                        <Checkbox 
+                          id="background-check" 
+                          checked={formData.backgroundCheckConsent}
+                          onCheckedChange={(checked) => handleInputChange("backgroundCheckConsent", checked as boolean)}
+                        />
                         <Label htmlFor="background-check" className="text-sm">
                           I consent to a background check and vehicle inspection
                         </Label>
@@ -329,7 +468,13 @@ export default function PartnerPage() {
                       <Button variant="outline" onClick={() => setFormStep(2)} className="flex-1">
                         Back
                       </Button>
-                      <Button className="flex-1">Submit Application</Button>
+                      <Button 
+                        onClick={handleSubmit} 
+                        disabled={!formData.termsAccepted || !formData.backgroundCheckConsent || isSubmitting}
+                        className="flex-1"
+                      >
+                        {isSubmitting ? "Submitting..." : "Submit Application"}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
