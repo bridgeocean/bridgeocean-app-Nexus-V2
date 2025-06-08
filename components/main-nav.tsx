@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
 import { UserNav } from "@/components/user-nav"
-import { Menu, X } from "lucide-react"
+import { Menu, X } from 'lucide-react'
 import { useState } from "react"
 
 export function MainNav() {
