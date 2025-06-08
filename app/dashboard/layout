@@ -1,0 +1,17 @@
+import { AdminAuthProvider } from "@/components/admin-auth-provider"
+import { DashboardHeader } from "@/components/dashboard-header"
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <AdminAuthProvider>
+      <div className="flex min-h-screen flex-col">
+        <DashboardHeader />
+        <main className="flex-1">{children}</main>
+      </div>
+    </AdminAuthProvider>
+  )
+}
