@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { MainNav } from "@/components/main-nav"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Calendar, Clock, MapPin, Users, Car, CheckCircle, AlertCircle } from "lucide-react"
-import { supabase } from "@/lib/supabase"
+import { useToast } from "@/hooks/use-toast"
 
 const vehicles = [
   { id: "camry-2006", name: "Toyota Camry (2006)", pricePerHour: 10000, passengers: 4 },
@@ -21,7 +20,7 @@ const vehicles = [
 ]
 
 export default function BookCharterPage() {
-  const router = useRouter()
+  const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
@@ -48,7 +47,7 @@ export default function BookCharterPage() {
     if (!selectedVehicle || !formData.duration) return 0
 
     const duration = Number.parseInt(formData.duration)
-    const basePrice = selectedVehicle.pricePerHour * Math.ceil(duration / 10) // Price per 10 hours
+    const basePrice = selectedVehicle.pricePerHour * Math.ceil(duration / 10)
     return basePrice
   }
 
@@ -65,33 +64,34 @@ export default function BookCharterPage() {
 
       const totalPrice = calculateTotal()
 
-      const { data, error } = await supabase
-        .from("charter_bookings")
-        .insert({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          pickup_location: formData.pickupLocation,
-          destination: formData.destination,
-          date: formData.date,
-          time: formData.time,
-          duration: Number.parseInt(formData.duration),
-          vehicle: selectedVehicle.name,
-          passengers: Number.parseInt(formData.passengers),
-          special_requests: formData.specialRequests || null,
-          total_price: totalPrice,
-          status: "pending",
-        })
-        .select()
+      // Submit to API
+      const response = await fetch("/api/charter-booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          vehicleName: selectedVehicle.name,
+          totalPrice,
+        }),
+      })
 
-      if (error) {
-        throw error
+      if (!response.ok) {
+        throw new Error("Failed to submit booking")
       }
+
+      const result = await response.json()
 
       setSubmitStatus({
         type: "success",
         message:
           "Your charter booking has been submitted successfully! We will contact you shortly to confirm the details.",
+      })
+
+      toast({
+        title: "Booking Submitted",
+        description: "Your charter booking has been submitted successfully!",
       })
 
       // Reset form
@@ -112,6 +112,12 @@ export default function BookCharterPage() {
       setSubmitStatus({
         type: "error",
         message: error.message || "An error occurred while submitting your booking. Please try again.",
+      })
+
+      toast({
+        title: "Booking Error",
+        description: "Failed to submit booking. Please try again.",
+        variant: "destructive",
       })
     } finally {
       setIsSubmitting(false)

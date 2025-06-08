@@ -1,132 +1,106 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Menu, X, Satellite, Car, Phone, Users, BarChart3 } from "lucide-react"
+import { UserNav } from "@/components/user-nav"
+import { Menu, X } from "lucide-react"
 import { useState } from "react"
 
 export function MainNav() {
-  const pathname = usePathname()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
-  const routes = [
-    {
-      href: "/",
-      label: "Home",
-      icon: <Satellite className="h-4 w-4" />,
-      active: pathname === "/",
-    },
-    {
-      href: "/nexus",
-      label: "Nexus Emergency",
-      icon: <Satellite className="h-4 w-4" />,
-      active: pathname === "/nexus",
-    },
-    {
-      href: "/charter",
-      label: "Charter Services",
-      icon: <Car className="h-4 w-4" />,
-      active: pathname === "/charter",
-    },
-    {
-      href: "/about",
-      label: "About",
-      icon: <Users className="h-4 w-4" />,
-      active: pathname === "/about",
-    },
-    {
-      href: "/contact",
-      label: "Contact",
-      icon: <Phone className="h-4 w-4" />,
-      active: pathname === "/contact",
-    },
-    {
-      href: "/dashboard",
-      label: "Dashboard",
-      icon: <BarChart3 className="h-4 w-4" />,
-      active: pathname.startsWith("/dashboard"),
-    },
-  ]
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center px-4 lg:px-6">
-        <div className="mr-4 hidden md:flex">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Satellite className="h-6 w-6" />
-            <span className="hidden font-bold sm:inline-block">BridgeOcean</span>
-          </Link>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            {routes.map((route) => (
-              <Link
-                key={route.href}
-                href={route.href}
-                className={cn(
-                  "transition-colors hover:text-foreground/80 flex items-center space-x-2",
-                  route.active ? "text-foreground" : "text-foreground/60",
-                )}
-              >
-                {route.icon}
-                <span className="hidden lg:inline-block">{route.label}</span>
-              </Link>
-            ))}
-          </nav>
-        </div>
-
-        {/* Mobile menu button */}
-        <div className="flex md:hidden">
-          <Link href="/" className="mr-4 flex items-center space-x-2">
-            <Satellite className="h-6 w-6" />
-            <span className="font-bold text-sm">BridgeOcean</span>
+    <div className="border-b">
+      <div className="flex h-16 items-center px-4 container mx-auto">
+        <div className="flex items-center space-x-4">
+          <Link href="/" className="flex items-center space-x-3">
+            <Image
+              src="/images/bridgeocean-logo.jpg"
+              alt="Bridgeocean Logo"
+              width={40}
+              height={40}
+              className="h-10 w-auto"
+            />
+            <span className="text-xl font-bold">Bridgeocean</span>
           </Link>
         </div>
 
-        <div className="flex flex-1 items-center justify-end space-x-2">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            {/* Desktop actions */}
-            <div className="hidden md:flex items-center space-x-2">
-              <ModeToggle />
-            </div>
-          </div>
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-6">
+          <Link href="/nexus" className="transition-colors hover:text-foreground/80 text-foreground/60">
+            Nexus Emergency
+          </Link>
+          <Link href="/charter" className="transition-colors hover:text-foreground/80 text-foreground/60">
+            Charter Services
+          </Link>
+          <Link href="/charter/partner" className="transition-colors hover:text-foreground/80 text-foreground/60">
+            Partner With Us
+          </Link>
+          <Link href="/about" className="transition-colors hover:text-foreground/80 text-foreground/60">
+            About
+          </Link>
+          <Link href="/contact" className="transition-colors hover:text-foreground/80 text-foreground/60">
+            Contact
+          </Link>
+        </nav>
 
-          {/* Mobile menu button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        {/* Mobile Menu Button */}
+        <div className="md:hidden ml-auto">
+          <Button variant="ghost" size="sm" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
+        </div>
+
+        <div className="ml-auto hidden md:flex items-center space-x-4">
+          <ModeToggle />
+          <UserNav />
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {isMobileMenuOpen && (
+      {/* Mobile Navigation */}
+      {isMenuOpen && (
         <div className="md:hidden border-t bg-background">
-          <nav className="flex flex-col space-y-1 p-4">
-            {routes.map((route) => (
-              <Link
-                key={route.href}
-                href={route.href}
-                className={cn(
-                  "flex items-center space-x-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground break-words",
-                  route.active ? "bg-accent text-accent-foreground" : "text-foreground/60",
-                )}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {route.icon}
-                <span className="flex-1 min-w-0 break-words">{route.label}</span>
-              </Link>
-            ))}
-            <div className="pt-2 border-t">
-              <div className="flex items-center justify-between px-3 py-2">
-                <span className="text-sm font-medium">Theme</span>
-                <ModeToggle />
-              </div>
+          <nav className="flex flex-col space-y-2 p-4">
+            <Link
+              href="/nexus"
+              className="text-sm font-medium transition-colors hover:text-foreground/80 text-foreground/60 py-2"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Nexus Emergency
+            </Link>
+            <Link
+              href="/charter"
+              className="text-sm font-medium transition-colors hover:text-foreground/80 text-foreground/60 py-2"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Charter Services
+            </Link>
+            <Link
+              href="/charter/partner"
+              className="text-sm font-medium transition-colors hover:text-foreground/80 text-foreground/60 py-2"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Partner With Us
+            </Link>
+            <Link
+              href="/about"
+              className="text-sm font-medium transition-colors hover:text-foreground/80 text-foreground/60 py-2"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              About
+            </Link>
+            <Link
+              href="/contact"
+              className="text-sm font-medium transition-colors hover:text-foreground/80 text-foreground/60 py-2"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Contact
+            </Link>
+            <div className="flex items-center space-x-4 pt-2">
+              <ModeToggle />
+              <UserNav />
             </div>
           </nav>
         </div>

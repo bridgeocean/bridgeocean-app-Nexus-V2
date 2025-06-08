@@ -55,6 +55,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: 16px; /* Prevents zoom on iOS */
   }
 }
 
@@ -170,6 +171,17 @@
     min-width: 0 !important;
     flex-shrink: 1 !important;
   }
+
+  /* Hero section mobile adjustments */
+  .hero-title {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Grid responsive adjustments */
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 /* Touch-friendly improvements */
@@ -198,19 +210,62 @@
   }
 }
 
-/* Simple mobile responsiveness */
-@media (max-width: 768px) {
+/* Tablet adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
   .container {
-    padding: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 
-  h1,
-  h2,
-  h3 {
+  h1 {
+    font-size: 3rem;
+  }
+
+  h2 {
+    font-size: 2.5rem;
+  }
+}
+
+/* Large screen adjustments */
+@media (min-width: 1025px) {
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+/* Flexible grid system */
+.responsive-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Responsive text sizes */
+.responsive-text-xl {
+  font-size: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-text-xl {
     font-size: 1.5rem;
   }
+}
 
-  .card {
-    margin: 0.5rem;
+@media (min-width: 1024px) {
+  .responsive-text-xl {
+    font-size: 1.75rem;
   }
 }

@@ -15,14 +15,14 @@ export default function Home() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <Badge variant="outline" className="w-fit border-red-500 text-red-500">
                     Satellite-Powered Technology
                   </Badge>
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+                  <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-7xl/none">
                     Routing as a Service & Emergency Logistics
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
@@ -61,7 +61,7 @@ export default function Home() {
 
         {/* Services Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Our Core Services</h2>
@@ -149,9 +149,6 @@ export default function Home() {
                     <Link href="/charter/book">
                       <Button>Book Charter</Button>
                     </Link>
-                    <Link href="/dashboard">
-                      <Button variant="outline">Driver Management</Button>
-                    </Link>
                   </div>
                 </CardContent>
               </Card>
@@ -161,7 +158,7 @@ export default function Home() {
 
         {/* Fleet Showcase Section */}
         <section className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Our Premium Fleet</h2>
@@ -241,7 +238,7 @@ export default function Home() {
 
         {/* Partner Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Partner With Us</h2>
@@ -266,9 +263,15 @@ export default function Home() {
         </section>
       </main>
       <footer className="border-t py-6 md:py-0">
-        <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
+        <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row mx-auto px-4">
           <div className="flex items-center gap-2">
-            <Image src="/images/logo.png" alt="Bridgeocean Logo" width={24} height={24} className="h-6 w-auto" />
+            <Image
+              src="/images/bridgeocean-logo.jpg"
+              alt="Bridgeocean Logo"
+              width={24}
+              height={24}
+              className="h-6 w-auto"
+            />
             <p className="text-sm text-muted-foreground">© 2025 Bridgeocean Limited. All rights reserved.</p>
           </div>
           <div className="flex gap-4 text-sm text-muted-foreground">
