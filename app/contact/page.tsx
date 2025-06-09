@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { MainNav } from "@/components/main-nav"
 import { Button } from "@/components/ui/button"
@@ -7,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Phone, Mail, MessageCircle, Instagram, Facebook } from 'lucide-react'
+import { Phone, Mail, MessageCircle, Instagram, Facebook } from "lucide-react"
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -31,7 +33,7 @@ export default function ContactPage() {
     setSubmitMessage("")
 
     try {
-      const response = await fetch("/api/contact-test", {
+      const response = await fetch("/api/contact-message", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

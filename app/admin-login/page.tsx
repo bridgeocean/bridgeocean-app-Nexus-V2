@@ -1,76 +1,75 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Shield } from 'lucide-react'
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
-export default function AdminLoginPage() {
+export default function AdminLogin() {
   const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
 
-    try {
-      const response = await fetch("/api/admin-auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      })
+    // Check password
+    if (password === "bridgeocean2024") {
+      // Set authentication in localStorage
+      localStorage.setItem("bridgeoceanAdminAuth", "true")
+      localStorage.setItem("adminLoginTime", Date.now().toString())
 
-      const result = await response.json()
-
-      if (response.ok) {
-        localStorage.setItem("adminAuth", "true")
-        router.push("/dashboard")
-      } else {
-        setError(result.error || "Invalid password")
-      }
-    } catch (error) {
-      setError("Network error. Please try again.")
-    } finally {
-      setIsLoading(false)
+      // Redirect to dashboard
+      router.push("/dashboard")
+    } else {
+      setError("Invalid password. Please try again.")
     }
+
+    setIsLoading(false)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-black p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-            <Shield className="h-6 w-6 text-primary" />
-          </div>
-          <CardTitle className="text-2xl">Admin Access</CardTitle>
-          <CardDescription>Enter your admin password to continue</CardDescription>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">Bridgeocean Admin Login</CardTitle>
+          <CardDescription className="text-center">Access your admin dashboard</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 className="font-semibold text-blue-800 mb-2">Admin Credentials:</h3>
+            <p className="text-sm text-blue-700">Password: bridgeocean2024</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Password:</Label>
               <Input
                 id="password"
                 type="password"
+                placeholder="Enter admin password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter admin password"
                 required
               />
             </div>
+
             {error && (
-              <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
-                {error}
-              </div>
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
-            <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? "Verifying..." : "Access Dashboard"}
+
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
         </CardContent>
