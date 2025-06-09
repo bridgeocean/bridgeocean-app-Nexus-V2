@@ -27,8 +27,18 @@ export default function AdminLogin() {
       localStorage.setItem("bridgeoceanAdminAuth", "true")
       localStorage.setItem("adminLoginTime", Date.now().toString())
 
-      // Redirect to dashboard
-      router.push("/dashboard")
+      // Set user data for the auth provider
+      const adminUser = {
+        email: "admin@bridgeocean.com",
+        name: "Admin User",
+        role: "admin",
+      }
+      localStorage.setItem("user", JSON.stringify(adminUser))
+
+      // Small delay to ensure localStorage is set
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 100)
     } else {
       setError("Invalid password. Please try again.")
     }
