@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -16,6 +16,19 @@ export function AdvancedWhatsApp() {
   const [selectedContact, setSelectedContact] = useState("")
   const [messageTemplate, setMessageTemplate] = useState("")
   const [scheduledTime, setScheduledTime] = useState("")
+  const [selectedFromNumber, setSelectedFromNumber] = useState("+234 906 918 3165") // Default to primary
+
+  // Load WhatsApp settings from localStorage
+  useEffect(() => {
+    const savedSettings = localStorage.getItem("bridgeocean_whatsapp_settings")
+    if (savedSettings) {
+      const settings = JSON.parse(savedSettings)
+      const defaultNumber = settings.numbers?.find((n) => n.isDefault)
+      if (defaultNumber) {
+        setSelectedFromNumber(defaultNumber.number)
+      }
+    }
+  }, [])
 
   // E-hailing drivers for inspections and services
   const ehailingDrivers = [
@@ -185,14 +198,15 @@ Bridgeocean Drive Team`,
     { id: "pending_partners", name: "Pending Partners", count: 12, description: "Awaiting approval" },
   ]
 
-  const sendMessage = (phone: string, message: string) => {
+  const sendMessage = (phone: string, message: string, fromNumber?: string) => {
+    const numberToUse = fromNumber || selectedFromNumber
     const formattedPhone = phone.replace(/\s+/g, "").replace("+", "")
     const encodedMessage = encodeURIComponent(message)
     window.open(`https://wa.me/${formattedPhone}?text=${encodedMessage}`, "_blank")
 
     toast({
       title: "Message Sent",
-      description: `WhatsApp opened for ${phone}`,
+      description: `WhatsApp opened for ${phone} from ${numberToUse}`,
     })
   }
 
@@ -428,6 +442,19 @@ Bridgeocean Drive Team`,
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Send From Number</Label>
+                <Select value={selectedFromNumber} onValueChange={setSelectedFromNumber}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select WhatsApp number" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="+234 906 918 3165">+234 906 918 3165 (Primary Business Line)</SelectItem>
+                    <SelectItem value="+234 913 563 0154">+234 913 563 0154 (WhatsApp Only Line)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
