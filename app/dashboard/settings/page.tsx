@@ -333,39 +333,77 @@ export default function SettingsPage() {
           <TabsContent value="templates" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Message Templates</CardTitle>
-                <CardDescription>
-                  These templates are used when sending automated messages to candidates
-                </CardDescription>
+                <CardTitle>Email Templates</CardTitle>
+                <CardDescription>Click any template to copy to clipboard</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-base font-semibold">Email Templates</Label>
-                    <div className="mt-2 space-y-2">
-                      <Badge variant="secondary">Candidate Screening Email</Badge>
-                      <Badge variant="secondary">Interview Invitation</Badge>
-                      <Badge variant="secondary">Contract Signing Email</Badge>
-                      <Badge variant="secondary">Booking Confirmation</Badge>
-                      <Badge variant="secondary">Partner Welcome</Badge>
+              <CardContent className="space-y-2">
+                {[
+                  { name: "Candidate Screening Email", key: "screening" },
+                  { name: "Interview Invitation", key: "interview" },
+                  { name: "Contract Signing Email", key: "contract" },
+                  { name: "Booking Confirmation", key: "booking" },
+                  { name: "Partner Welcome", key: "welcome" },
+                ].map((template) => (
+                  <Button
+                    key={template.key}
+                    variant="outline"
+                    className="w-full justify-start h-auto p-4"
+                    onClick={() => {
+                      // Copy template to clipboard
+                      const templateText = `Template: ${template.name}\nClick to use in Email tab`
+                      navigator.clipboard.writeText(templateText)
+                      toast({
+                        title: "Template Copied",
+                        description: `${template.name} copied to clipboard`,
+                      })
+                    }}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">{template.name}</div>
+                      <div className="text-sm text-muted-foreground">Click to copy template</div>
                     </div>
-                  </div>
+                  </Button>
+                ))}
+              </CardContent>
+            </Card>
 
-                  <div>
-                    <Label className="text-base font-semibold">WhatsApp Templates</Label>
-                    <div className="mt-2 space-y-2">
-                      <Badge variant="secondary">Candidate Screening</Badge>
-                      <Badge variant="secondary">Interview Scheduling</Badge>
-                      <Badge variant="secondary">Document Requirements</Badge>
-                      <Badge variant="secondary">Onboarding Welcome</Badge>
-                      <Badge variant="secondary">Contract Signing</Badge>
-                      <Badge variant="secondary">Inspection Reminder</Badge>
-                      <Badge variant="secondary">Service Reminder</Badge>
-                      <Badge variant="secondary">Remittance Reminder</Badge>
-                      <Badge variant="secondary">General Notification</Badge>
+            <Card>
+              <CardHeader>
+                <CardTitle>WhatsApp Templates</CardTitle>
+                <CardDescription>Click any template to copy WhatsApp message</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {[
+                  { name: "Candidate Screening", key: "wa-screening" },
+                  { name: "Interview Scheduling", key: "wa-interview" },
+                  { name: "Document Requirements", key: "wa-docs" },
+                  { name: "Onboarding Welcome", key: "wa-welcome" },
+                  { name: "Contract Signing", key: "wa-contract" },
+                  { name: "Inspection Reminder", key: "wa-inspection" },
+                  { name: "Service Reminder", key: "wa-service" },
+                  { name: "Remittance Reminder", key: "wa-remittance" },
+                ].map((template) => (
+                  <Button
+                    key={template.key}
+                    variant="outline"
+                    className="w-full justify-start h-auto p-4"
+                    onClick={() => {
+                      // Open WhatsApp with template
+                      const whatsappMessage = `Hello! This is a ${template.name} message from Bridgeocean Drive.`
+                      const whatsappUrl = `https://wa.me/2349069183165?text=${encodeURIComponent(whatsappMessage)}`
+                      window.open(whatsappUrl, "_blank")
+                      toast({
+                        title: "WhatsApp Opened",
+                        description: `${template.name} template opened in WhatsApp`,
+                      })
+                    }}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">{template.name}</div>
+                      <div className="text-sm text-muted-foreground">Click to open in WhatsApp</div>
                     </div>
-                  </div>
-                </div>
+                  </Button>
+                ))}
               </CardContent>
             </Card>
           </TabsContent>

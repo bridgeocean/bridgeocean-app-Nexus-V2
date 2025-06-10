@@ -25,72 +25,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-
-const data: Candidate[] = [
-  {
-    id: "c001",
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+1234567890",
-    stage: "Interview",
-    status: "Active",
-    lastContact: "2025-06-07",
-  },
-  {
-    id: "c002",
-    name: "Sarah Davis",
-    email: "sarah.davis@example.com",
-    phone: "+1234567891",
-    stage: "Selection",
-    status: "Active",
-    lastContact: "2025-06-06",
-  },
-  {
-    id: "c003",
-    name: "Robert Johnson",
-    email: "robert.johnson@example.com",
-    phone: "+1234567892",
-    stage: "Screening",
-    status: "Active",
-    lastContact: "2025-06-07",
-  },
-  {
-    id: "c004",
-    name: "Maria Lopez",
-    email: "maria.lopez@example.com",
-    phone: "+1234567893",
-    stage: "Onboarding",
-    status: "Active",
-    lastContact: "2025-06-05",
-  },
-  {
-    id: "c005",
-    name: "David Wilson",
-    email: "david.wilson@example.com",
-    phone: "+1234567894",
-    stage: "Screening",
-    status: "Active",
-    lastContact: "2025-06-06",
-  },
-  {
-    id: "c006",
-    name: "Emily Brown",
-    email: "emily.brown@example.com",
-    phone: "+1234567895",
-    stage: "Selection",
-    status: "Inactive",
-    lastContact: "2025-06-04",
-  },
-  {
-    id: "c007",
-    name: "Michael Smith",
-    email: "michael.smith@example.com",
-    phone: "+1234567896",
-    stage: "Interview",
-    status: "Active",
-    lastContact: "2025-06-05",
-  },
-]
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
 
 export type Candidate = {
   id: string
@@ -176,6 +112,43 @@ export function CandidateTable() {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [data, setData] = useState<Candidate[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadCandidates()
+  }, [])
+
+  const loadCandidates = async () => {
+    try {
+      const { data: candidates, error } = await supabase
+        .from("candidates")
+        .select("*")
+        .order("created_at", { ascending: false })
+
+      if (!error && candidates) {
+        const formattedCandidates = candidates.map((candidate) => ({
+          id: candidate.id,
+          name: candidate.name,
+          email: candidate.email,
+          phone: candidate.phone,
+          stage: candidate.stage || "Screening",
+          status: candidate.status || "Active",
+          lastContact: candidate.updated_at?.split("T")[0] || new Date().toISOString().split("T")[0],
+        }))
+        setData(formattedCandidates)
+      }
+    } catch (error) {
+      console.error("Error loading candidates:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const refreshCandidates = () => {
+    setLoading(true)
+    loadCandidates()
+  }
 
   const table = useReactTable({
     data,
@@ -203,6 +176,9 @@ export function CandidateTable() {
           onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
           className="max-w-sm"
         />
+        <Button onClick={refreshCandidates} variant="outline" className="ml-2">
+          🔄 Refresh
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
