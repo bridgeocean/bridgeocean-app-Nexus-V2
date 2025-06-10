@@ -139,6 +139,108 @@ export default function EmailPage() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="template">Email Template (Optional)</Label>
+                <Select
+                  onValueChange={(value) => {
+                    const templates = {
+                      candidate_screening: `Subject: Welcome to Bridgeocean Drive - Next Steps
+
+Dear {{candidateName}},
+
+Thank you for your interest in joining Bridgeocean Drive as a partner driver.
+
+NEXT STEPS:
+- Complete application review
+- Phone screening call scheduled for {{screeningDate}} at {{screeningTime}}
+
+REQUIRED DOCUMENTS:
+✓ Valid Driver's License
+✓ LASRRA Card  
+✓ LASDRI Card
+✓ 2 Guarantors
+✓ 3 Referees
+✓ Passport photographs
+
+CONTACT INFORMATION:
+WhatsApp: +234 906 918 3165
+Email: bridgeocean@cyberservices.com
+
+We look forward to working with you!
+
+Best regards,
+Bridgeocean Drive Team`,
+
+                      interview_invitation: `Subject: Interview Invitation - Bridgeocean Drive
+
+Dear {{candidateName}},
+
+Congratulations! You've passed our initial screening.
+
+INTERVIEW DETAILS:
+Date: {{interviewDate}}
+Time: {{interviewTime}}
+Location: Ajah Office
+Interviewer: Ms Yetunde & Mr Fatai
+
+WHAT TO BRING:
+- All required documents
+- Professional attire
+- Valid phone number
+
+Please confirm your attendance by replying to this email.
+
+Best regards,
+Bridgeocean Drive Team`,
+
+                      contract_signing: `Subject: Contract Signing Appointment - Bridgeocean Drive
+
+Dear {{candidateName}},
+
+Your contract signing is scheduled:
+
+Date: {{contractDate}}
+Time: 12:00 PM
+Location: Ajah Office
+Contact: Ms Yetunde & Mr Fatai
+
+FINAL REQUIREMENTS:
+✓ All documents verified
+✓ Guarantors present  
+✓ Caution fee: ₦350,000
+✓ Valid bank account details
+
+Please arrive 15 minutes early.
+
+Best regards,
+Bridgeocean Drive Team`,
+                    }
+
+                    if (templates[value]) {
+                      const template = templates[value]
+                      const subjectMatch = template.match(/Subject: (.+)/)
+                      const bodyMatch = template.match(/Subject: .+\n\n([\s\S]+)/)
+
+                      if (subjectMatch) {
+                        setEmailData({ ...emailData, subject: subjectMatch[1] })
+                      }
+                      if (bodyMatch) {
+                        setEmailData({ ...emailData, body: bodyMatch[1] })
+                      }
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose email template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="candidate_screening">Candidate Screening</SelectItem>
+                    <SelectItem value="interview_invitation">Interview Invitation</SelectItem>
+                    <SelectItem value="contract_signing">Contract Signing</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="attachment">Attachment</Label>
                 <div className="flex items-center gap-4">
                   <Label

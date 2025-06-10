@@ -344,7 +344,7 @@ export default function SettingsPage() {
                     <Label className="text-base font-semibold">Email Templates</Label>
                     <div className="mt-2 space-y-2">
                       <Badge variant="secondary">Candidate Screening Email</Badge>
-                      <Badge variant="secondary">First Congratulatory Email</Badge>
+                      <Badge variant="secondary">Interview Invitation</Badge>
                       <Badge variant="secondary">Contract Signing Email</Badge>
                       <Badge variant="secondary">Booking Confirmation</Badge>
                       <Badge variant="secondary">Partner Welcome</Badge>
@@ -354,6 +354,11 @@ export default function SettingsPage() {
                   <div>
                     <Label className="text-base font-semibold">WhatsApp Templates</Label>
                     <div className="mt-2 space-y-2">
+                      <Badge variant="secondary">Candidate Screening</Badge>
+                      <Badge variant="secondary">Interview Scheduling</Badge>
+                      <Badge variant="secondary">Document Requirements</Badge>
+                      <Badge variant="secondary">Onboarding Welcome</Badge>
+                      <Badge variant="secondary">Contract Signing</Badge>
                       <Badge variant="secondary">Inspection Reminder</Badge>
                       <Badge variant="secondary">Service Reminder</Badge>
                       <Badge variant="secondary">Remittance Reminder</Badge>

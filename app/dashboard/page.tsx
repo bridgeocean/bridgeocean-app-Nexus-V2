@@ -6,7 +6,7 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CalendarDays, MessageSquare, UserPlus, Users, Mail, Calendar, Bot, BarChart3 } from "lucide-react"
+import { CalendarDays, MessageSquare, UserPlus, Users, Mail, Calendar, Bot, BarChart3, Settings } from "lucide-react"
 import { CandidateTable } from "./components/candidate-table"
 import { RecentActivity } from "./components/recent-activity"
 import { Overview } from "./components/overview"
@@ -48,11 +48,17 @@ export default function DashboardPage() {
                 Add Candidate
               </Button>
             </Link>
+            <Link href="/dashboard/settings">
+              <Button variant="outline">
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </Button>
+            </Link>
           </div>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="email">📧 Email</TabsTrigger>
             <TabsTrigger value="calendar">📅 Calendar</TabsTrigger>
@@ -60,6 +66,9 @@ export default function DashboardPage() {
             <TabsTrigger value="whatsapp">📱 WhatsApp</TabsTrigger>
             <TabsTrigger value="analytics">📊 Analytics</TabsTrigger>
             <TabsTrigger value="candidates">Candidates</TabsTrigger>
+            <TabsTrigger value="settings" onClick={() => router.push("/dashboard/settings")}>
+              ⚙️ Settings
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -209,6 +218,28 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <CandidateTable />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  System Settings
+                </CardTitle>
+                <CardDescription>Configure system preferences and integrations</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-center">
+                  <Link href="/dashboard/settings">
+                    <Button>
+                      <Settings className="mr-2 h-4 w-4" />
+                      Go to Settings
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
