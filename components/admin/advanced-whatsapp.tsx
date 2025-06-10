@@ -112,6 +112,7 @@ Your vehicle is due for bi-monthly general service:
 *Service Requirements:*
 - Engine oil change
 - Brake inspection
+- Tire inspection
 - Tire rotation
 - General maintenance check
 
@@ -186,6 +187,161 @@ Your partnership application has been approved. Here are your next steps:
 *Caution Fee:* ₦350,000 (refundable)
 
 We look forward to a successful partnership!
+
+Bridgeocean Drive Team`,
+    },
+    // Candidate screening and onboarding templates
+    candidate_screening: {
+      title: "Candidate Screening Message",
+      content: `🚗 *Welcome to Bridgeocean Drive!*
+
+Hello {{candidateName}},
+
+Thank you for your interest in joining Bridgeocean Drive as a partner driver.
+
+*Next Steps:*
+📋 Complete application review
+📞 Phone screening call
+📅 Schedule: {{screeningDate}}
+🕐 Time: {{screeningTime}}
+
+*Required Documents:*
+✅ Valid Driver's License
+✅ LASRRA Card
+✅ LASDRI Card
+✅ 2 Guarantors
+✅ 3 Referees
+✅ Passport photographs
+
+*Contact Information:*
+📱 WhatsApp: +234 906 918 3165
+📧 Email: bridgeocean@cyberservices.com
+
+We look forward to working with you!
+
+Bridgeocean Drive Team`,
+    },
+
+    interview_scheduling: {
+      title: "Interview Scheduling",
+      content: `📅 *Bridgeocean Drive Interview Invitation*
+
+Hello {{candidateName}},
+
+Congratulations! You've passed our initial screening.
+
+*Interview Details:*
+📅 Date: {{interviewDate}}
+🕐 Time: {{interviewTime}}
+📍 Location: Ajah Office
+👥 Interviewer: Ms Yetunde & Mr Fatai
+
+*What to Bring:*
+📄 All required documents
+💼 Professional attire
+📱 Valid phone number
+
+*Address:*
+Bridgeocean Drive Office
+Ajah, Lagos
+
+Please confirm your attendance by replying to this message.
+
+Best regards,
+Bridgeocean Drive Team`,
+    },
+
+    document_requirements: {
+      title: "Document Requirements Reminder",
+      content: `📋 *Document Requirements - Bridgeocean Drive*
+
+Hello {{candidateName}},
+
+Please ensure you have the following documents ready:
+
+*Mandatory Documents:*
+🆔 Valid Driver's License
+🏛️ LASRRA Card
+🚗 LASDRI Card
+📸 2 Passport Photographs
+
+*Guarantor Requirements:*
+👥 2 Guarantors with valid ID
+📞 Contact information for each
+📍 Residential addresses
+
+*Referee Requirements:*
+👨‍💼 3 Professional References
+📞 Contact numbers
+💼 Relationship to candidate
+
+*Caution Fee:*
+💰 ₦350,000 (Refundable)
+
+Submit all documents during your interview.
+
+Bridgeocean Drive Team`,
+    },
+
+    onboarding_welcome: {
+      title: "Onboarding Welcome Message",
+      content: `🎉 *Welcome to Bridgeocean Family!*
+
+Hello {{candidateName}},
+
+Congratulations! You are now officially a Bridgeocean Drive partner.
+
+*Your Onboarding Schedule:*
+📅 Orientation: {{orientationDate}}
+🕐 Time: 9:00 AM
+📍 Location: Ajah Office
+
+*What You'll Learn:*
+🚗 Vehicle inspection procedures
+📱 App usage and navigation
+💰 Payment and remittance system
+📋 Company policies and procedures
+
+*Daily Operations:*
+⏰ Weekly inspections: Tuesdays 10am
+🔧 Bi-monthly service: Saturdays 9am
+💵 Weekly remittance: Sundays
+💰 Daily contribution: ₦1,000
+
+*Contact Support:*
+📱 WhatsApp: +234 906 918 3165
+📧 Email: bridgeocean@cyberservices.com
+
+Welcome aboard!
+Bridgeocean Drive Team`,
+    },
+
+    contract_signing: {
+      title: "Contract Signing Reminder",
+      content: `📝 *Contract Signing - Bridgeocean Drive*
+
+Hello {{candidateName}},
+
+Your contract signing is scheduled:
+
+📅 Date: {{contractDate}}
+🕐 Time: 12:00 PM
+📍 Location: Ajah Office
+👥 Contact: Ms Yetunde & Mr Fatai
+
+*Final Requirements:*
+✅ All documents verified
+✅ Guarantors present
+✅ Caution fee: ₦350,000
+✅ Valid bank account details
+
+*Contract Terms:*
+📋 Partnership agreement
+💰 Revenue sharing model
+🚗 Vehicle maintenance responsibilities
+📱 Technology usage guidelines
+
+Please arrive 15 minutes early.
 
 Bridgeocean Drive Team`,
     },
@@ -437,6 +593,11 @@ Bridgeocean Drive Team`,
                       <SelectValue placeholder="Choose template" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="candidate_screening">Candidate Screening</SelectItem>
+                      <SelectItem value="interview_scheduling">Interview Scheduling</SelectItem>
+                      <SelectItem value="document_requirements">Document Requirements</SelectItem>
+                      <SelectItem value="onboarding_welcome">Onboarding Welcome</SelectItem>
+                      <SelectItem value="contract_signing">Contract Signing</SelectItem>
                       <SelectItem value="booking_confirmation">Booking Confirmation</SelectItem>
                       <SelectItem value="partner_welcome">Partner Welcome</SelectItem>
                     </SelectContent>

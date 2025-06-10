@@ -40,17 +40,25 @@ export function DashboardHeader() {
         </Link>
         <div className="ml-auto flex items-center space-x-4">
           {user?.role === "admin" && (
-            <Link href="/admin/approvals">
-              <Button variant="outline" size="sm" className="relative">
-                <UserCheck className="h-4 w-4 mr-2" />
-                Approvals
-                {pendingCount > 0 && (
-                  <Badge variant="destructive" className="ml-2 px-1 py-0 text-xs">
-                    {pendingCount}
-                  </Badge>
-                )}
-              </Button>
-            </Link>
+            <>
+              <Link href="/admin/approvals">
+                <Button variant="outline" size="sm" className="relative">
+                  <UserCheck className="h-4 w-4 mr-2" />
+                  Approvals
+                  {pendingCount > 0 && (
+                    <Badge variant="destructive" className="ml-2 px-1 py-0 text-xs">
+                      {pendingCount}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
+              <Link href="/dashboard/settings">
+                <Button variant="outline" size="sm">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </Button>
+              </Link>
+            </>
           )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -72,9 +80,11 @@ export function DashboardHeader() {
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/settings">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logout}>
