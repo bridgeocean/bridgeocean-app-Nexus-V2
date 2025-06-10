@@ -90,7 +90,7 @@ try {
 export const supabase = supabaseClient
 export const supabaseAdmin = supabaseAdminClient
 
-// Database types
+// Database types (keep your existing types)
 export type Database = {
   public: {
     Tables: {
