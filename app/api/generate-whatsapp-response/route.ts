@@ -1,27 +1,26 @@
 import { NextResponse } from "next/server"
 
-// This would use the actual Grok API in production
 export async function POST(request: Request) {
   try {
     const { message, companyInfo } = await request.json()
-
-    // In production, this would call the actual Grok API
-    // For now, we'll use a more sophisticated response generator
-
-    const response = await generateBetterResponse(message, companyInfo)
-
-    return NextResponse.json({ text: response })
+    
+    // Generate response using fallback logic
+    const responseText = generateBetterResponse(message, companyInfo)
+    
+    return NextResponse.json({ text: responseText })
   } catch (error) {
-    console.error("Error generating response:", error)
-    return NextResponse.json({ error: "Failed to generate response" }, { status: 500 })
+    console.error("Error in generate-whatsapp-response:", error)
+    
+    // Return a safe fallback response
+    return NextResponse.json({ 
+      text: "🚗 *BridgeOcean Response*\n\nThank you for contacting us. We're experiencing technical difficulties. Please contact us directly at +234 906 918 3165 or email bridgeocean@cyberservices.com for immediate assistance." 
+    })
   }
 }
 
-// More sophisticated response generator
-async function generateBetterResponse(message: string, companyInfo: any) {
+// Enhanced response generator
+function generateBetterResponse(message: string, companyInfo: any) {
   const lowerMessage = message.toLowerCase()
-
-  // Create a more detailed context for responses
   const { name, services, contact, pricing } = companyInfo
 
   // Emergency responses
@@ -57,37 +56,6 @@ async function generateBetterResponse(message: string, companyInfo: any) {
     response += `3️⃣ Duration of service\n`
     response += `4️⃣ Number of passengers\n\n`
 
-    // Extract location information if available
-    if (lowerMessage.includes("from") && lowerMessage.includes("to")) {
-      const fromIndex = lowerMessage.indexOf("from") + 5
-      const toIndex = lowerMessage.indexOf("to", fromIndex)
-
-      if (fromIndex > 5 && toIndex > fromIndex) {
-        const fromLocation = lowerMessage.substring(fromIndex, toIndex).trim()
-        const toLocation = lowerMessage
-          .substring(toIndex + 3)
-          .split(" ")[0]
-          .trim()
-
-        response += `I see you're interested in traveling from *${fromLocation}* to *${toLocation}*. `
-
-        // Add specific information for common routes
-        if (
-          (fromLocation.includes("lagos") && toLocation.includes("ibadan")) ||
-          (fromLocation.includes("ibadan") && toLocation.includes("lagos"))
-        ) {
-          response += `For the Lagos-Ibadan route, we recommend our GMC Terrain for comfort on the expressway.\n\n`
-        }
-      }
-    }
-
-    // Add date information if available
-    if (lowerMessage.includes("tomorrow")) {
-      response += `For your booking tomorrow, please confirm the exact time you'll need the vehicle.\n\n`
-    } else if (lowerMessage.includes("today")) {
-      response += `For same-day bookings, please note we require at least 3 hours notice.\n\n`
-    }
-
     response += `You can also book directly on our website: ${contact.website}/charter/book\n\nWe look forward to serving you!`
 
     return response
@@ -103,7 +71,6 @@ async function generateBetterResponse(message: string, companyInfo: any) {
   ) {
     let response = `💰 *${name} Pricing Information*\n\n*Our current rates:*\n\n`
 
-    // Add pricing information
     Object.entries(pricing).forEach(([vehicle, price]) => {
       response += `• ${vehicle}: ${price}\n`
     })
