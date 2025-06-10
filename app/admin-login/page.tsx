@@ -54,14 +54,9 @@ export default function AdminLogin() {
           <CardDescription className="text-center">Access your admin dashboard</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h3 className="font-semibold text-blue-800 mb-2">Admin Credentials:</h3>
-            <p className="text-sm text-blue-700">Password: bridgeocean2024</p>
-          </div>
-
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password">Password:</Label>
+              <Label htmlFor="password">Admin Password:</Label>
               <Input
                 id="password"
                 type="password"
@@ -82,6 +77,10 @@ export default function AdminLogin() {
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
+
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg text-center">
+            <p className="text-xs text-gray-600">Contact system administrator for access credentials</p>
+          </div>
         </CardContent>
       </Card>
     </div>

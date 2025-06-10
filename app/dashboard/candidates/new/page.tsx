@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,10 +12,16 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, User, Mail, Phone, MapPin, FileText } from "lucide-react"
+import { ArrowLeft, User, Mail, Phone, MapPin, FileText, CheckCircle } from "lucide-react"
 import Link from "next/link"
+import { useToast } from "@/hooks/use-toast"
 
 export default function NewCandidatePage() {
+  const router = useRouter()
+  const { toast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [success, setSuccess] = useState(false)
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -22,16 +29,83 @@ export default function NewCandidatePage() {
     stage: "Screening",
     status: "Active",
     address: "",
-    experience: "",
     licenseNumber: "",
     vehicleOwned: false,
     notes: "",
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission
-    console.log("Form submitted:", formData)
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch("/api/candidates", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        setSuccess(true)
+        toast({
+          title: "Success!",
+          description: "New candidate added successfully",
+        })
+
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          stage: "Screening",
+          status: "Active",
+          address: "",
+          licenseNumber: "",
+          vehicleOwned: false,
+          notes: "",
+        })
+
+        // Redirect after 2 seconds
+        setTimeout(() => {
+          router.push("/dashboard")
+        }, 2000)
+      } else {
+        throw new Error(result.error || "Failed to add candidate")
+      }
+    } catch (error) {
+      console.error("Error adding candidate:", error)
+      toast({
+        title: "Error",
+        description: "Failed to add candidate. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (success) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <DashboardHeader />
+        <div className="flex-1 flex items-center justify-center p-8">
+          <Card className="w-full max-w-md text-center">
+            <CardContent className="pt-6">
+              <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Candidate Added!</h2>
+              <p className="text-muted-foreground mb-4">
+                The new candidate has been successfully added to the database.
+              </p>
+              <p className="text-sm text-muted-foreground">Redirecting to dashboard...</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -190,12 +264,12 @@ export default function NewCandidatePage() {
 
                 <div className="flex gap-4">
                   <Link href="/dashboard" className="flex-1">
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full" disabled={isSubmitting}>
                       Cancel
                     </Button>
                   </Link>
-                  <Button type="submit" className="flex-1">
-                    Add Candidate
+                  <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                    {isSubmitting ? "Adding Candidate..." : "Add Candidate"}
                   </Button>
                 </div>
               </form>
