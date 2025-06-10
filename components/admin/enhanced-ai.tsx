@@ -2,13 +2,69 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Bot, Save, Send, Copy, MessageSquare, FileText, User } from "lucide-react"
+
+const AIAssistantGuide = () => (
+  <Card className="mb-6 bg-blue-50 border-blue-200">
+    <CardHeader>
+      <CardTitle className="text-blue-800">🤖 How to Use the AI Assistant Effectively</CardTitle>
+    </CardHeader>
+    <CardContent className="text-blue-700">
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <h4 className="font-semibold mb-2">📝 Input Examples:</h4>
+          <ul className="text-sm space-y-1">
+            <li>• "Explain caution fees to new candidate"</li>
+            <li>• "How to get LASRRA card quickly"</li>
+            <li>• "Guarantor requirements for Tobi"</li>
+            <li>• "Weekly inspection reminder message"</li>
+            <li>• "Contract signing appointment details"</li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-semibold mb-2">🎯 AI Modes Explained:</h4>
+          <ul className="text-sm space-y-1">
+            <li>
+              • <strong>Customer Service:</strong> Friendly, helpful responses
+            </li>
+            <li>
+              • <strong>Partner Onboarding:</strong> Detailed requirement explanations
+            </li>
+            <li>
+              • <strong>Emergency:</strong> Urgent, direct communication
+            </li>
+            <li>
+              • <strong>Business:</strong> Professional analysis and insights
+            </li>
+            <li>
+              • <strong>Content:</strong> Marketing and promotional messages
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div className="mt-4 p-3 bg-blue-100 rounded">
+        <h4 className="font-semibold mb-2">💡 Pro Tips:</h4>
+        <p className="text-sm">
+          1. <strong>Be Specific:</strong> "Explain caution fees to nervous candidate" vs "caution fees"
+          <br />
+          2. <strong>Use Context:</strong> "Tobi asking about guarantor requirements" vs "guarantors"
+          <br />
+          3. <strong>Save Templates:</strong> Click save button to reuse good responses
+          <br />
+          4. <strong>Edit Output:</strong> Modify AI response before copying/using
+          <br />
+          5. <strong>Switch Modes:</strong> Different modes for different situations
+        </p>
+      </div>
+    </CardContent>
+  </Card>
+)
 
 export function EnhancedAI() {
   const [inputText, setInputText] = useState("")
@@ -136,11 +192,12 @@ export function EnhancedAI() {
   }
 
   const handleTemplateClick = (content) => {
-    useTemplate(content)
+    setOutputText(content)
   }
 
   return (
     <div className="space-y-6">
+      <AIAssistantGuide />
       <div className="flex flex-col md:flex-row gap-4 items-start">
         <div className="w-full md:w-1/2 space-y-4">
           <div className="flex items-center justify-between">

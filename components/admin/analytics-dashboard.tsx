@@ -4,36 +4,109 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp, Users, Car, DollarSign, AlertTriangle } from "lucide-react"
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
 
 export function AnalyticsDashboard() {
-  // Sample data - in real app, this would come from your database
-  const businessMetrics = {
-    // Charter service metrics
-    charterBookings: 245,
-    charterRevenue: 33500000,
-    charterGrowth: 12.5,
-
-    // E-hailing metrics
-    ehailingDrivers: 25,
-    ehailingRevenue: 45200000,
-    ehailingGrowth: 18.3,
-
-    // Partner metrics
-    activePartners: 25,
-    pendingPartners: 8,
-    partnerGrowth: 8.7,
-
-    // Financial metrics
-    totalCautionFees: 8750000, // 25 drivers × ₦350,000
-    dailyContributions: 750000, // 25 drivers × ₦1,000 × 30 days
-    weeklyRemittances: 2500000,
-
-    // Operational metrics
-    inspectionCompliance: 96,
-    serviceCompliance: 88,
-    customerSatisfaction: 94,
+  // Add at the top of the component:
+  const [businessMetrics, setBusinessMetrics] = useState({
+    charterBookings: 0,
+    charterRevenue: 0,
+    charterGrowth: 0,
+    ehailingDrivers: 0,
+    ehailingRevenue: 0,
+    ehailingGrowth: 0,
+    activePartners: 0,
+    pendingPartners: 0,
+    partnerGrowth: 0,
+    totalCautionFees: 0,
+    dailyContributions: 0,
+    weeklyRemittances: 0,
+    inspectionCompliance: 0,
+    serviceCompliance: 0,
+    customerSatisfaction: 0,
     avgResponseTime: "15 min",
+  })
+
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadBusinessMetrics()
+  }, [])
+
+  const loadBusinessMetrics = async () => {
+    try {
+      // Get charter bookings
+      const { data: bookings } = await supabase.from("charter_bookings").select("*")
+
+      // Get active drivers
+      const { data: drivers } = await supabase.from("candidates").select("*").eq("status", "active")
+
+      // Get partners
+      const { data: partners } = await supabase.from("candidates").select("*").eq("status", "partner")
+
+      // Get pending partners
+      const { data: pending } = await supabase.from("candidates").select("*").eq("status", "pending")
+
+      // Calculate metrics
+      const charterBookings = bookings?.length || 0
+      const ehailingDrivers = drivers?.filter((d) => d.service_type === "ehailing").length || 0
+      const activePartners = partners?.length || 0
+      const pendingPartners = pending?.length || 0
+
+      setBusinessMetrics({
+        charterBookings,
+        charterRevenue: charterBookings * 45000, // Average booking value
+        charterGrowth: 12.5,
+        ehailingDrivers,
+        ehailingRevenue: ehailingDrivers * 1800000, // Average monthly revenue per driver
+        ehailingGrowth: 18.3,
+        activePartners,
+        pendingPartners,
+        partnerGrowth: 8.7,
+        totalCautionFees: ehailingDrivers * 350000,
+        dailyContributions: ehailingDrivers * 30000, // 30 days * 1000
+        weeklyRemittances: ehailingDrivers * 100000, // Average weekly
+        inspectionCompliance: 96,
+        serviceCompliance: 88,
+        customerSatisfaction: 94,
+        avgResponseTime: "15 min",
+      })
+    } catch (error) {
+      console.error("Error loading business metrics:", error)
+    } finally {
+      setLoading(false)
+    }
   }
+
+  // Sample data - in real app, this would come from your database
+  // const businessMetrics = {
+  //   // Charter service metrics
+  //   charterBookings: 245,
+  //   charterRevenue: 33500000,
+  //   charterGrowth: 12.5,
+
+  //   // E-hailing metrics
+  //   ehailingDrivers: 25,
+  //   ehailingRevenue: 45200000,
+  //   ehailingGrowth: 18.3,
+
+  //   // Partner metrics
+  //   activePartners: 25,
+  //   pendingPartners: 8,
+  //   partnerGrowth: 8.7,
+
+  //   // Financial metrics
+  //   totalCautionFees: 8750000, // 25 drivers × ₦350,000
+  //   dailyContributions: 750000, // 25 drivers × ₦1,000 × 30 days
+  //   weeklyRemittances: 2500000,
+
+  //   // Operational metrics
+  //   inspectionCompliance: 96,
+  //   serviceCompliance: 88,
+  //   customerSatisfaction: 94,
+  //   avgResponseTime: "15 min",
+  // }
 
   const monthlyData = [
     { month: "Jan", charter: 45, ehailing: 180, partners: 20, revenue: 12500000 },

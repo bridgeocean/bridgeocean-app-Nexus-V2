@@ -21,6 +21,9 @@ export function EmailAutomation() {
     reminderEmails: true,
   })
 
+  const [selectedRecipient, setSelectedRecipient] = useState("")
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null)
+
   const emailTemplates = {
     candidateScreening: {
       subject: "Bridgeocean Limited - Driver Partnership Opportunity",
@@ -70,6 +73,50 @@ We look forward to building a successful partnership with you.
 Best regards,
 
 Bridgeocean Drive
+For
+Bridgeocean Limited`,
+    },
+
+    interviewInvitation: {
+      subject: "Interview Invitation - Bridgeocean Drive Partnership",
+      body: `Dear {{candidateName}},
+
+Congratulations! You have successfully passed our initial screening process.
+
+We are pleased to invite you for an interview to discuss your partnership with Bridgeocean Drive.
+
+📅 **Interview Details:**
+• Date: {{interviewDate}}
+• Time: {{interviewTime}}
+• Location: Ajah Office, Lagos
+• Duration: Approximately 30-45 minutes
+• Interviewer: Ms. Yetunde & Mr. Fatai
+
+📋 **What to Bring:**
+• Valid Driver's License
+• LASRRA Card (or application receipt)
+• LASDRI Card (or application receipt)
+• Passport photographs (2 copies)
+• Guarantor contact information
+• Any questions you may have
+
+🏢 **Office Address:**
+[Your Ajah Office Address]
+Lagos, Nigeria
+
+📞 **Contact Information:**
+• WhatsApp: +234 906 918 3165
+• Phone: +234 913 563 0154
+
+**Please confirm your attendance by replying to this email or sending a WhatsApp message.**
+
+If you need to reschedule, please contact us at least 24 hours in advance.
+
+We look forward to meeting you and discussing this exciting opportunity.
+
+Best regards,
+
+Bridgeocean Drive Team
 For
 Bridgeocean Limited`,
     },
@@ -305,10 +352,37 @@ Bridgeocean Limited`,
     },
   }
 
-  const sendTestEmail = async (templateType: string) => {
+  const sendTestEmail = async (templateType: string, recipientEmail?: string) => {
+    const template = emailTemplates[templateType]
+    if (!template) return
+
+    const emailSettings = JSON.parse(localStorage.getItem("bridgeocean_email_settings") || "{}")
+    const fromName = emailSettings.fromName || "Bridgeocean Drive Team"
+    const fromEmail = emailSettings.fromEmail || "bridgeocean@cyberservices.com"
+
+    // Get recipient email or use default
+    const toEmail = recipientEmail || "candidate@example.com"
+
+    // Replace template variables with sample data
+    const emailBody = template.body
+      .replace(/{{candidateName}}/g, "John Doe")
+      .replace(/{{interviewDate}}/g, "Monday, June 15, 2025")
+      .replace(/{{interviewTime}}/g, "10:00 AM")
+      .replace(/{{contractDate}}/g, "Friday, June 19, 2025")
+      .replace(/{{contractLocation}}/g, "Ajah Office, Lagos")
+      .replace(/{{contractTime}}/g, "12:00 PM")
+      .replace(/{{signingOfficer}}/g, "Ms. Yetunde")
+      .replace(/{{witnessName}}/g, "Mr. Fatai")
+
+    // Create mailto link
+    const mailtoLink = `mailto:${toEmail}?subject=${encodeURIComponent(template.subject)}&body=${encodeURIComponent(emailBody)}`
+
+    // Open default email client
+    window.open(mailtoLink, "_blank")
+
     toast({
-      title: "Test Email Sent",
-      description: `${templateType} template sent to your email`,
+      title: "Email Client Opened",
+      description: `${templateType} template opened in your default email client`,
     })
   }
 
@@ -386,15 +460,47 @@ Bridgeocean Limited`,
         </TabsList>
 
         <TabsContent value="templates" className="space-y-4">
+          <div className="mb-6 p-4 border rounded-lg bg-gray-50">
+            <h4 className="font-semibold mb-3">Email Composition</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="space-y-2">
+                <Label htmlFor="recipient">Recipient Email</Label>
+                <Input
+                  id="recipient"
+                  type="email"
+                  placeholder="candidate@example.com"
+                  value={selectedRecipient}
+                  onChange={(e) => setSelectedRecipient(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="attachment">Attachment (Optional)</Label>
+                <Input
+                  id="attachment"
+                  type="file"
+                  onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)}
+                  accept=".pdf,.doc,.docx,.jpg,.png"
+                />
+              </div>
+            </div>
+            {attachmentFile && (
+              <div className="text-sm text-blue-600">
+                📎 Attachment: {attachmentFile.name} ({Math.round(attachmentFile.size / 1024)}KB)
+                <Button variant="ghost" size="sm" onClick={() => setAttachmentFile(null)} className="ml-2 text-red-500">
+                  Remove
+                </Button>
+              </div>
+            )}
+          </div>
           <div className="grid gap-4">
             {Object.entries(emailTemplates).map(([key, template]) => (
               <Card key={key}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg capitalize">{key.replace(/([A-Z])/g, " $1").trim()}</CardTitle>
-                    <Button variant="outline" size="sm" onClick={() => sendTestEmail(key)}>
+                    <Button variant="outline" size="sm" onClick={() => sendTestEmail(key, selectedRecipient)}>
                       <Send className="h-4 w-4 mr-2" />
-                      Test Send
+                      Open in Email Client
                     </Button>
                   </div>
                 </CardHeader>
