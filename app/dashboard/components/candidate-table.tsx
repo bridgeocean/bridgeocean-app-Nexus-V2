@@ -26,7 +26,6 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
 
 export type Candidate = {
   id: string
@@ -36,13 +35,14 @@ export type Candidate = {
   stage: "Screening" | "Selection" | "Interview" | "Onboarding"
   status: "Active" | "Inactive"
   lastContact: string
+  notes?: string
 }
 
 export const columns: ColumnDef<Candidate>[] = [
   {
     accessorKey: "name",
     header: "Name",
-    cell: ({ row }) => <div>{row.getValue("name")}</div>,
+    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
   },
   {
     accessorKey: "email",
@@ -93,8 +93,8 @@ export const columns: ColumnDef<Candidate>[] = [
 
       return (
         <Badge
-          variant={status === "Active" ? "default" : "secondary"}
-          className={status === "Active" ? "bg-green-500" : ""}
+          variant={status === "active" ? "default" : "secondary"}
+          className={status === "active" ? "bg-green-500" : ""}
         >
           {status}
         </Badge>
@@ -114,6 +114,7 @@ export function CandidateTable() {
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [data, setData] = useState<Candidate[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     loadCandidates()
@@ -121,25 +122,43 @@ export function CandidateTable() {
 
   const loadCandidates = async () => {
     try {
-      const { data: candidates, error } = await supabase
-        .from("candidates")
-        .select("*")
-        .order("created_at", { ascending: false })
+      setError(null)
+      console.log("Loading candidates...")
 
-      if (!error && candidates) {
-        const formattedCandidates = candidates.map((candidate) => ({
+      // Use the API endpoint instead of direct Supabase call
+      const response = await fetch("/api/candidates")
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to load candidates")
+      }
+
+      console.log("API response:", result)
+
+      if (result.candidates && Array.isArray(result.candidates)) {
+        const formattedCandidates: Candidate[] = result.candidates.map((candidate: any) => ({
           id: candidate.id,
-          name: candidate.name,
-          email: candidate.email,
-          phone: candidate.phone,
+          name: candidate.name || "Unknown",
+          email: candidate.email || "No email",
+          phone: candidate.phone || "No phone",
           stage: candidate.stage || "Screening",
-          status: candidate.status || "Active",
-          lastContact: candidate.updated_at?.split("T")[0] || new Date().toISOString().split("T")[0],
+          status: candidate.status || "active",
+          lastContact: candidate.created_at
+            ? new Date(candidate.created_at).toLocaleDateString()
+            : new Date().toLocaleDateString(),
+          notes: candidate.notes || "",
         }))
+
+        console.log("Formatted candidates:", formattedCandidates)
         setData(formattedCandidates)
+      } else {
+        console.log("No candidates found or invalid format")
+        setData([])
       }
     } catch (error) {
       console.error("Error loading candidates:", error)
+      setError(error instanceof Error ? error.message : "Failed to load candidates")
+      setData([])
     } finally {
       setLoading(false)
     }
@@ -167,6 +186,30 @@ export function CandidateTable() {
     },
   })
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Loading candidates...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error: {error}</p>
+          <Button onClick={refreshCandidates} variant="outline">
+            Try Again
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
@@ -176,8 +219,8 @@ export function CandidateTable() {
           onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
           className="max-w-sm"
         />
-        <Button onClick={refreshCandidates} variant="outline" className="ml-2">
-          🔄 Refresh
+        <Button onClick={refreshCandidates} variant="outline" className="ml-2" disabled={loading}>
+          {loading ? "..." : "🔄"} Refresh
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -231,7 +274,7 @@ export function CandidateTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  {data.length === 0 ? "No candidates found. Add some candidates to get started!" : "No results."}
                 </TableCell>
               </TableRow>
             )}
