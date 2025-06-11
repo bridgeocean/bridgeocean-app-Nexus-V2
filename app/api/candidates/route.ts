@@ -1,5 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
-import { supabase, isSupabaseConfigured } from "@/lib/supabase"
+import { createClient } from "@supabase/supabase-js"
+
+// Create a Supabase client with service role for server-side operations
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+})
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,11 +27,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if Supabase is configured
-    if (!isSupabaseConfigured()) {
+    // Check if environment variables are configured
+    if (!supabaseUrl || !supabaseServiceKey) {
       console.log("Supabase not configured - demo mode")
       
-      // Return success response for demo mode
       const demoCandidate = {
         id: `demo_${Date.now()}`,
         name,
@@ -34,8 +44,6 @@ export async function POST(request: NextRequest) {
         updated_at: new Date().toISOString(),
       }
 
-      console.log("Demo mode - would create candidate:", demoCandidate)
-      
       return NextResponse.json(
         { 
           message: "Candidate added successfully (Demo Mode)", 
@@ -46,9 +54,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Try to insert into Supabase
-    console.log("Attempting to insert into Supabase...")
-    
+    // Prepare candidate data
     const candidateData = {
       name: name.trim(),
       email: email.trim().toLowerCase(),
@@ -59,32 +65,21 @@ export async function POST(request: NextRequest) {
       notes: notes || "",
     }
 
-    console.log("Inserting candidate data:", candidateData)
+    console.log("Inserting candidate data with service role:", candidateData)
 
-    const { data, error } = await supabase
+    // Use the admin client with service role
+    const { data, error } = await supabaseAdmin
       .from("candidates")
       .insert([candidateData])
       .select()
 
     if (error) {
       console.error("Supabase error:", error)
-      
-      // Check if it's a table not found error
-      if (error.message.includes("relation") && error.message.includes("does not exist")) {
-        return NextResponse.json(
-          { 
-            error: "Database table not found. Please run the database setup scripts first.",
-            details: error.message,
-            suggestion: "Run the SQL scripts in the Scripts section to create the required tables."
-          },
-          { status: 500 }
-        )
-      }
-      
       return NextResponse.json(
         { 
           error: "Failed to save candidate to database", 
-          details: error.message 
+          details: error.message,
+          hint: "Check RLS policies and service role permissions"
         },
         { status: 500 }
       )
@@ -114,11 +109,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    // Check if Supabase is configured
-    if (!isSupabaseConfigured()) {
-      console.log("Supabase not configured - returning demo data")
-      
-      // Return demo candidates
+    if (!supabaseUrl || !supabaseServiceKey) {
       const demoCandidates = [
         {
           id: "demo_1",
@@ -131,25 +122,13 @@ export async function GET() {
           notes: "Demo candidate data",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        },
-        {
-          id: "demo_2",
-          name: "Jane Smith",
-          email: "jane@example.com",
-          phone: "+234 902 345 6789",
-          stage: "Onboarding",
-          status: "active",
-          last_contact: new Date().toISOString(),
-          notes: "Demo candidate data",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
         }
       ]
       
       return NextResponse.json({ candidates: demoCandidates, demo: true })
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("candidates")
       .select("*")
       .order("created_at", { ascending: false })
