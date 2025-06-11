@@ -1,35 +1,34 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
-// Create a Supabase client with service role for server-side operations
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-})
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    console.log("API received data:", body)
+    console.log("=== CANDIDATE API DEBUG ===")
+    console.log("1. API received data:", body)
 
     const { name, email, phone, stage, status, last_contact, notes } = body
 
     // Validate required fields
     if (!name || !email || !phone) {
+      console.log("2. Validation failed - missing required fields")
       return NextResponse.json(
         { error: "Missing required fields: name, email, and phone are required" },
         { status: 400 }
       )
     }
 
-    // Check if environment variables are configured
+    // Check environment variables
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    console.log("3. Environment check:")
+    console.log("   - Supabase URL exists:", !!supabaseUrl)
+    console.log("   - Service key exists:", !!supabaseServiceKey)
+    console.log("   - Service key length:", supabaseServiceKey?.length || 0)
+
     if (!supabaseUrl || !supabaseServiceKey) {
-      console.log("Supabase not configured - demo mode")
+      console.log("4. Environment variables missing - using demo mode")
       
       const demoCandidate = {
         id: `demo_${Date.now()}`,
@@ -54,6 +53,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Create Supabase client
+    console.log("5. Creating Supabase client...")
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+
     // Prepare candidate data
     const candidateData = {
       name: name.trim(),
@@ -65,27 +73,56 @@ export async function POST(request: NextRequest) {
       notes: notes || "",
     }
 
-    console.log("Inserting candidate data with service role:", candidateData)
+    console.log("6. Prepared candidate data:", candidateData)
 
-    // Use the admin client with service role
+    // Test connection first
+    console.log("7. Testing Supabase connection...")
+    const { data: testData, error: testError } = await supabaseAdmin
+      .from("candidates")
+      .select("count", { count: "exact", head: true })
+
+    if (testError) {
+      console.log("8. Connection test failed:", testError)
+      return NextResponse.json(
+        { 
+          error: "Database connection failed", 
+          details: testError.message,
+          code: testError.code,
+          hint: testError.hint
+        },
+        { status: 500 }
+      )
+    }
+
+    console.log("8. Connection test successful, existing records:", testData)
+
+    // Try to insert
+    console.log("9. Attempting to insert candidate...")
     const { data, error } = await supabaseAdmin
       .from("candidates")
       .insert([candidateData])
       .select()
 
     if (error) {
-      console.error("Supabase error:", error)
+      console.log("10. Insert failed with error:", {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      })
+      
       return NextResponse.json(
         { 
           error: "Failed to save candidate to database", 
           details: error.message,
-          hint: "Check RLS policies and service role permissions"
+          code: error.code,
+          hint: error.hint || "Check RLS policies and service role permissions"
         },
         { status: 500 }
       )
     }
 
-    console.log("Successfully inserted candidate:", data)
+    console.log("10. Insert successful:", data)
 
     return NextResponse.json(
       { 
@@ -96,7 +133,7 @@ export async function POST(request: NextRequest) {
     )
 
   } catch (error) {
-    console.error("API error:", error)
+    console.log("ERROR: Unexpected error:", error)
     return NextResponse.json(
       { 
         error: "Internal server error", 
@@ -107,8 +144,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Keep the GET method the same
 export async function GET() {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
     if (!supabaseUrl || !supabaseServiceKey) {
       const demoCandidates = [
         {
@@ -127,6 +168,13 @@ export async function GET() {
       
       return NextResponse.json({ candidates: demoCandidates, demo: true })
     }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
 
     const { data, error } = await supabaseAdmin
       .from("candidates")
