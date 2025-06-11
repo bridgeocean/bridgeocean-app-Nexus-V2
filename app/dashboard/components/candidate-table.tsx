@@ -35,7 +35,7 @@ export type Candidate = {
   stage: "Screening" | "Selection" | "Interview" | "Onboarding"
   status: "Active" | "Inactive"
   lastContact: string
-  notes?: string
+  notes: string // Remove the ? to make it required
 }
 
 export const columns: ColumnDef<Candidate>[] = [
@@ -105,6 +105,20 @@ export const columns: ColumnDef<Candidate>[] = [
     accessorKey: "lastContact",
     header: "Last Contact",
     cell: ({ row }) => <div>{row.getValue("lastContact")}</div>,
+  },
+  {
+    accessorKey: "notes",
+    header: "Additional Notes",
+    cell: ({ row }) => {
+      const notes = row.getValue("notes") as string
+      return (
+        <div className="max-w-xs">
+          <div className="truncate text-sm" title={notes}>
+            {notes || "No notes"}
+          </div>
+        </div>
+      )
+    },
   },
 ]
 
