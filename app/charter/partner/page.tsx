@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useToast } from "@/hooks/use-toast"
 import { Car, DollarSign, Shield, Users, Upload, CheckCircle } from 'lucide-react'
 
 const vehicleTypes = ["Sedan", "SUV", "Luxury Sedan", "Luxury SUV", "Van", "Bus", "Convertible", "Sports Car"]
@@ -39,9 +38,7 @@ const benefits = [
 
 export default function PartnerPage() {
   const [formStep, setFormStep] = useState(1)
-  const { toast } = useToast()
   
-  // UPDATED formData state with documents
   const [formData, setFormData] = useState({
     personalInfo: {
       firstName: "",
@@ -392,7 +389,7 @@ export default function PartnerPage() {
                 </Card>
               )}
 
-              {/* UPDATED STEP 3 - DOCUMENT UPLOADS */}
+              {/* FIXED DOCUMENT UPLOAD SECTION */}
               {formStep === 3 && (
                 <Card>
                   <CardHeader>
@@ -403,7 +400,7 @@ export default function PartnerPage() {
                     <div className="grid gap-6 md:grid-cols-2">
                       <div className="space-y-4">
                         {/* Identification Upload */}
-                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <h4 className="font-medium mb-2">Means of Identification</h4>
                           <p className="text-sm text-muted-foreground mb-4">
@@ -411,123 +408,54 @@ export default function PartnerPage() {
                           </p>
                           <input
                             type="file"
-                            id="identification-upload"
-                            className="hidden"
                             accept=".pdf,.jpg,.jpeg,.png"
                             onChange={(e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                const file = e.target.files[0]
-                                setFormData(prev => ({
-                                  ...prev,
-                                  documents: {
-                                    ...prev.documents,
-                                    identification: file
-                                  }
-                                }))
-                                toast({
-                                  title: "File Selected",
-                                  description: `Selected: ${file.name}`,
-                                })
+                              if (e.target.files?.[0]) {
+                                alert(`File selected: ${e.target.files[0].name}`)
                               }
                             }}
+                            className="block mx-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                           />
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            type="button"
-                            onClick={() => document.getElementById('identification-upload')?.click()}
-                          >
-                            {formData.documents?.identification ? 
-                              `✓ ${formData.documents.identification.name}` : 
-                              "Choose File"
-                            }
-                          </Button>
                         </div>
 
                         {/* Vehicle Registration Upload */}
-                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <h4 className="font-medium mb-2">Vehicle Registration</h4>
                           <p className="text-sm text-muted-foreground mb-4">Upload vehicle registration document</p>
                           <input
                             type="file"
-                            id="registration-upload"
-                            className="hidden"
                             accept=".pdf,.jpg,.jpeg,.png"
                             onChange={(e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                const file = e.target.files[0]
-                                setFormData(prev => ({
-                                  ...prev,
-                                  documents: {
-                                    ...prev.documents,
-                                    registration: file
-                                  }
-                                }))
-                                toast({
-                                  title: "File Selected",
-                                  description: `Selected: ${file.name}`,
-                                })
+                              if (e.target.files?.[0]) {
+                                alert(`File selected: ${e.target.files[0].name}`)
                               }
                             }}
+                            className="block mx-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                           />
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            type="button"
-                            onClick={() => document.getElementById('registration-upload')?.click()}
-                          >
-                            {formData.documents?.registration ? 
-                              `✓ ${formData.documents.registration.name}` : 
-                              "Choose File"
-                            }
-                          </Button>
                         </div>
                       </div>
 
                       <div className="space-y-4">
                         {/* Insurance Certificate Upload */}
-                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <h4 className="font-medium mb-2">Insurance Certificate</h4>
                           <p className="text-sm text-muted-foreground mb-4">Upload current insurance certificate</p>
                           <input
                             type="file"
-                            id="insurance-upload"
-                            className="hidden"
                             accept=".pdf,.jpg,.jpeg,.png"
                             onChange={(e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                const file = e.target.files[0]
-                                setFormData(prev => ({
-                                  ...prev,
-                                  documents: {
-                                    ...prev.documents,
-                                    insurance: file
-                                  }
-                                }))
-                                toast({
-                                  title: "File Selected",
-                                  description: `Selected: ${file.name}`,
-                                })
+                              if (e.target.files?.[0]) {
+                                alert(`File selected: ${e.target.files[0].name}`)
                               }
                             }}
+                            className="block mx-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                           />
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            type="button"
-                            onClick={() => document.getElementById('insurance-upload')?.click()}
-                          >
-                            {formData.documents?.insurance ? 
-                              `✓ ${formData.documents.insurance.name}` : 
-                              "Choose File"
-                            }
-                          </Button>
                         </div>
 
                         {/* Vehicle Photos Upload */}
-                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <h4 className="font-medium mb-2">Vehicle Photos</h4>
                           <p className="text-sm text-muted-foreground mb-4">
@@ -535,38 +463,15 @@ export default function PartnerPage() {
                           </p>
                           <input
                             type="file"
-                            id="photos-upload"
-                            className="hidden"
                             accept=".jpg,.jpeg,.png"
                             multiple
                             onChange={(e) => {
-                              if (e.target.files && e.target.files.length > 0) {
-                                const files = Array.from(e.target.files)
-                                setFormData(prev => ({
-                                  ...prev,
-                                  documents: {
-                                    ...prev.documents,
-                                    photos: files
-                                  }
-                                }))
-                                toast({
-                                  title: "Files Selected",
-                                  description: `Selected ${files.length} photo(s)`,
-                                })
+                              if (e.target.files?.length > 0) {
+                                alert(`${e.target.files.length} photo(s) selected`)
                               }
                             }}
+                            className="block mx-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                           />
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            type="button"
-                            onClick={() => document.getElementById('photos-upload')?.click()}
-                          >
-                            {formData.documents?.photos?.length > 0 ? 
-                              `✓ ${formData.documents.photos.length} photo(s)` : 
-                              "Choose Files"
-                            }
-                          </Button>
                         </div>
                       </div>
                     </div>
@@ -600,12 +505,7 @@ export default function PartnerPage() {
                       <Button 
                         className="flex-1"
                         onClick={() => {
-                          // Handle form submission
-                          console.log("Form data:", formData)
-                          toast({
-                            title: "Application Submitted!",
-                            description: "Your partner application has been submitted for review. We'll contact you within 48 hours.",
-                          })
+                          alert("Application Submitted! Your partner application has been submitted for review. We'll contact you within 48 hours.")
                         }}
                       >
                         Submit Application
