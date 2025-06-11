@@ -6,7 +6,18 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CalendarDays, MessageSquare, UserPlus, Users, Mail, Calendar, Bot, BarChart3 } from "lucide-react"
+import {
+  CalendarDays,
+  MessageSquare,
+  UserPlus,
+  Users,
+  Mail,
+  Calendar,
+  Bot,
+  BarChart3,
+  AlertCircle,
+  Briefcase,
+} from "lucide-react"
 import { CandidateTable } from "./components/candidate-table"
 import { RecentActivity } from "./components/recent-activity"
 import { Overview } from "./components/overview"
@@ -15,8 +26,10 @@ import { CalendarIntegration } from "@/components/admin/calendar-integration"
 import { EnhancedAI } from "@/components/admin/enhanced-ai"
 import { AdvancedWhatsApp } from "@/components/admin/advanced-whatsapp"
 import { AnalyticsDashboard } from "@/components/admin/analytics-dashboard"
+import { MeetingAssistant } from "./components/meeting-assistant"
 import Link from "next/link"
-import { supabase } from "@/lib/supabase"
+import { supabase, isSupabaseConfigured } from "@/lib/supabase"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function DashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -27,48 +40,76 @@ export default function DashboardPage() {
     whatsappMessages: 127,
   })
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    // Check authentication
-    const authStatus = localStorage.getItem("bridgeoceanAdminAuth")
-    if (authStatus === "true") {
-      setIsAuthenticated(true)
-      loadDashboardStats()
-    } else {
-      router.push("/admin-login")
+    try {
+      // Check authentication
+      const authStatus = localStorage.getItem("bridgeoceanAdminAuth")
+      if (authStatus === "true") {
+        setIsAuthenticated(true)
+        loadDashboardStats()
+      } else {
+        router.push("/admin-login")
+      }
+    } catch (err) {
+      console.error("Authentication check failed:", err)
+      setError("Authentication system error")
+      setLoading(false)
     }
   }, [router])
 
   const loadDashboardStats = async () => {
     try {
-      // Get total candidates
-      const { data: candidates, error: candidatesError } = await supabase
-        .from("candidates")
-        .select("id", { count: "exact" })
+      setError(null)
 
-      // Get charter bookings
-      const { data: bookings, error: bookingsError } = await supabase
-        .from("charter_bookings")
-        .select("id", { count: "exact" })
-
-      // Get active drivers (candidates with status 'active')
-      const { data: drivers, error: driversError } = await supabase
-        .from("candidates")
-        .select("id", { count: "exact" })
-        .eq("status", "active")
-
-      if (!candidatesError && !bookingsError && !driversError) {
+      // Check if Supabase is configured
+      if (!isSupabaseConfigured()) {
+        console.warn("Supabase not configured, using demo data")
         setStats({
-          totalCandidates: candidates?.length || 0,
-          charterBookings: bookings?.length || 0,
-          activeDrivers: drivers?.length || 0,
-          whatsappMessages: 127, // This could also come from a messages table
+          totalCandidates: 245,
+          charterBookings: 18,
+          activeDrivers: 64,
+          whatsappMessages: 127,
         })
+        setLoading(false)
+        return
       }
+
+      // Try to load real data
+      const [candidatesResult, bookingsResult, driversResult] = await Promise.allSettled([
+        supabase.from("candidates").select("id", { count: "exact" }),
+        supabase.from("charter_bookings").select("id", { count: "exact" }),
+        supabase.from("candidates").select("id", { count: "exact" }).eq("status", "active"),
+      ])
+
+      let totalCandidates = 245
+      let charterBookings = 18
+      let activeDrivers = 64
+
+      if (candidatesResult.status === "fulfilled" && !candidatesResult.value.error) {
+        totalCandidates = candidatesResult.value.data?.length || 0
+      }
+
+      if (bookingsResult.status === "fulfilled" && !bookingsResult.value.error) {
+        charterBookings = bookingsResult.value.data?.length || 0
+      }
+
+      if (driversResult.status === "fulfilled" && !driversResult.value.error) {
+        activeDrivers = driversResult.value.data?.length || 0
+      }
+
+      setStats({
+        totalCandidates,
+        charterBookings,
+        activeDrivers,
+        whatsappMessages: 127,
+      })
     } catch (error) {
       console.error("Error loading dashboard stats:", error)
-      // Fallback to demo data if database fails
+      setError("Failed to load some data, showing demo values")
+      // Use demo data as fallback
       setStats({
         totalCandidates: 245,
         charterBookings: 18,
@@ -80,13 +121,37 @@ export default function DashboardPage() {
     }
   }
 
-  // Refresh stats when returning to overview tab
   const refreshStats = () => {
+    setLoading(true)
     loadDashboardStats()
   }
 
-  if (!isAuthenticated) {
-    return <div>Loading...</div>
+  if (!isAuthenticated && !error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <Alert className="max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {error}
+            <br />
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
   }
 
   return (
@@ -102,11 +167,20 @@ export default function DashboardPage() {
                 Add Candidate
               </Button>
             </Link>
-            <Button variant="outline" onClick={refreshStats}>
-              🔄 Refresh Data
+            <Button variant="outline" onClick={refreshStats} disabled={loading}>
+              {loading ? "..." : "🔄"} Refresh Data
             </Button>
           </div>
         </div>
+
+        {!isSupabaseConfigured() && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Database not configured. Showing demo data. Configure Supabase environment variables for live data.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Tabs
           defaultValue="overview"
@@ -115,8 +189,9 @@ export default function DashboardPage() {
             if (value === "overview") refreshStats()
           }}
         >
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="meeting-assistant">🎯 Interviews</TabsTrigger>
             <TabsTrigger value="email">📧 Email</TabsTrigger>
             <TabsTrigger value="calendar">📅 Calendar</TabsTrigger>
             <TabsTrigger value="ai">🤖 AI Assistant</TabsTrigger>
@@ -192,6 +267,21 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="meeting-assistant" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Briefcase className="h-5 w-5" />
+                  Meeting Assistant MVP
+                </CardTitle>
+                <CardDescription>AI-powered interview preparation for driver candidates</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <MeetingAssistant />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="email" className="space-y-4">
