@@ -3,15 +3,13 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Calendar, Clock, User, CheckCircle, AlertCircle, FileText, Phone, MapPin, Users, Shield, Car, DollarSign, MessageSquare, Bot, Copy, Save, Send } from 'lucide-react'
+import { User, CheckCircle, FileText, Phone, MessageSquare, Bot, Copy, Save, Send, Calendar } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface Candidate {
@@ -34,47 +32,179 @@ interface InterviewChecklist {
 
 const INTERVIEW_PHASES = {
   screening: "Screening Call",
-  interview: "Interview Call", 
+  interview: "Interview Call",
   visitation: "Home Visitation",
-  contract: "Contract Signing"
+  contract: "Contract Signing",
 }
 
 const INTERVIEW_CHECKLIST: InterviewChecklist[] = [
   // Safety & Introduction
   { id: "1", item: "Introduce yourself professionally", completed: false, phase: "interview", category: "safety" },
-  { id: "2", item: "SAFETY REMINDER: Don't share address or personal information", completed: false, phase: "interview", category: "safety" },
-  
+  {
+    id: "2",
+    item: "SAFETY REMINDER: Don't share address or personal information",
+    completed: false,
+    phase: "interview",
+    category: "safety",
+  },
+
   // Document Verification
-  { id: "3", item: "Confirm accuracy of documents sent over", completed: false, phase: "interview", category: "documents" },
-  { id: "4", item: "Verify Uber/Bolt profile and experience", completed: false, phase: "interview", category: "documents" },
-  { id: "5", item: "Confirm marital status with evidence (family photos)", completed: false, phase: "interview", category: "requirements" },
-  
+  {
+    id: "3",
+    item: "Confirm accuracy of documents sent over",
+    completed: false,
+    phase: "interview",
+    category: "documents",
+  },
+  {
+    id: "4",
+    item: "Verify Uber/Bolt profile and experience",
+    completed: false,
+    phase: "interview",
+    category: "documents",
+  },
+  {
+    id: "5",
+    item: "Confirm marital status with evidence (family photos)",
+    completed: false,
+    phase: "interview",
+    category: "requirements",
+  },
+
   // Business Terms
-  { id: "6", item: "Explain the aim - delivery service, not hire purchase", completed: false, phase: "interview", category: "requirements" },
-  { id: "7", item: "Explain ₦350,000 caution fee & payment conditions", completed: false, phase: "interview", category: "requirements" },
-  { id: "8", item: "Request proof of initial caution fee (₦150,000 minimum)", completed: false, phase: "interview", category: "requirements" },
-  { id: "9", item: "Discuss weekly delivery amount and expectations", completed: false, phase: "interview", category: "requirements" },
-  
+  {
+    id: "6",
+    item: "Explain the aim - delivery service, not hire purchase",
+    completed: false,
+    phase: "interview",
+    category: "requirements",
+  },
+  {
+    id: "7",
+    item: "Explain ₦350,000 caution fee & payment conditions",
+    completed: false,
+    phase: "interview",
+    category: "requirements",
+  },
+  {
+    id: "8",
+    item: "Request proof of initial caution fee (₦150,000 minimum)",
+    completed: false,
+    phase: "interview",
+    category: "requirements",
+  },
+  {
+    id: "9",
+    item: "Discuss weekly delivery amount and expectations",
+    completed: false,
+    phase: "interview",
+    category: "requirements",
+  },
+
   // Logistics & Operations
-  { id: "10", item: "Discuss parking spot & designated location terms", completed: false, phase: "interview", category: "logistics" },
-  { id: "11", item: "Inform about vehicle trackers installation", completed: false, phase: "interview", category: "logistics" },
-  { id: "12", item: "Discuss drive route limits & speed delimiter", completed: false, phase: "interview", category: "logistics" },
-  { id: "13", item: "Explain vehicle inspection requirements", completed: false, phase: "interview", category: "logistics" },
-  { id: "14", item: "Discuss maintenance and repair responsibilities", completed: false, phase: "interview", category: "logistics" },
-  
+  {
+    id: "10",
+    item: "Discuss parking spot & designated location terms",
+    completed: false,
+    phase: "interview",
+    category: "logistics",
+  },
+  {
+    id: "11",
+    item: "Inform about vehicle trackers installation",
+    completed: false,
+    phase: "interview",
+    category: "logistics",
+  },
+  {
+    id: "12",
+    item: "Discuss drive route limits & speed delimiter",
+    completed: false,
+    phase: "interview",
+    category: "logistics",
+  },
+  {
+    id: "13",
+    item: "Explain vehicle inspection requirements",
+    completed: false,
+    phase: "interview",
+    category: "logistics",
+  },
+  {
+    id: "14",
+    item: "Discuss maintenance and repair responsibilities",
+    completed: false,
+    phase: "interview",
+    category: "logistics",
+  },
+
   // Guarantors & References
-  { id: "15", item: "Explain guarantor requirements (2 guarantors needed)", completed: false, phase: "interview", category: "requirements" },
-  { id: "16", item: "Guarantor must know applicant for 8+ years", completed: false, phase: "interview", category: "requirements" },
-  { id: "17", item: "Guarantor must have 10+ years field experience", completed: false, phase: "interview", category: "requirements" },
-  { id: "18", item: "Guarantor must have ₦1M+ asset base", completed: false, phase: "interview", category: "requirements" },
+  {
+    id: "15",
+    item: "Explain guarantor requirements (2 guarantors needed)",
+    completed: false,
+    phase: "interview",
+    category: "requirements",
+  },
+  {
+    id: "16",
+    item: "Guarantor must know applicant for 8+ years",
+    completed: false,
+    phase: "interview",
+    category: "requirements",
+  },
+  {
+    id: "17",
+    item: "Guarantor must have 10+ years field experience",
+    completed: false,
+    phase: "interview",
+    category: "requirements",
+  },
+  {
+    id: "18",
+    item: "Guarantor must have ₦1M+ asset base",
+    completed: false,
+    phase: "interview",
+    category: "requirements",
+  },
   { id: "19", item: "Guarantor must be 50+ years old", completed: false, phase: "interview", category: "requirements" },
-  { id: "20", item: "Explain referee requirements (3 referees)", completed: false, phase: "interview", category: "requirements" },
-  { id: "21", item: "Referees should know applicant 2+ years", completed: false, phase: "interview", category: "requirements" },
-  { id: "22", item: "Clarify referees are NOT guarantors", completed: false, phase: "interview", category: "requirements" },
-  
+  {
+    id: "20",
+    item: "Explain referee requirements (3 referees)",
+    completed: false,
+    phase: "interview",
+    category: "requirements",
+  },
+  {
+    id: "21",
+    item: "Referees should know applicant 2+ years",
+    completed: false,
+    phase: "interview",
+    category: "requirements",
+  },
+  {
+    id: "22",
+    item: "Clarify referees are NOT guarantors",
+    completed: false,
+    phase: "interview",
+    category: "requirements",
+  },
+
   // Follow-up & Next Steps
-  { id: "23", item: "Discuss 6 forms/documents to be sent after call", completed: false, phase: "interview", category: "follow-up" },
-  { id: "24", item: "Explain next steps if interview is successful", completed: false, phase: "interview", category: "follow-up" },
+  {
+    id: "23",
+    item: "Discuss 6 forms/documents to be sent after call",
+    completed: false,
+    phase: "interview",
+    category: "follow-up",
+  },
+  {
+    id: "24",
+    item: "Explain next steps if interview is successful",
+    completed: false,
+    phase: "interview",
+    category: "follow-up",
+  },
   { id: "25", item: "Mention WhatsApp group inclusion", completed: false, phase: "interview", category: "follow-up" },
   { id: "26", item: "Allow time for candidate questions", completed: false, phase: "interview", category: "follow-up" },
 ]
@@ -110,18 +240,10 @@ export default function MeetingAssistant() {
 
     setLoading(true)
     try {
-      const candidateInfo = `
-Name: ${selectedCandidate.name}
-Stage: ${selectedCandidate.stage}
-Status: ${selectedCandidate.status}
-Notes: ${selectedCandidate.notes}
-Phase: ${INTERVIEW_PHASES[interviewPhase]}
-      `
-
       // In a real implementation, this would call your AI API
       setTimeout(() => {
         let suggestions = ""
-        
+
         if (interviewPhase === "interview") {
           suggestions = `🤖 AI Interview Suggestions for ${selectedCandidate.name}:
 
@@ -184,22 +306,18 @@ Phase: ${INTERVIEW_PHASES[interviewPhase]}
   }
 
   const toggleChecklistItem = (id: string) => {
-    setChecklist(prev => 
-      prev.map(item => 
-        item.id === id ? { ...item, completed: !item.completed } : item
-      )
-    )
+    setChecklist((prev) => prev.map((item) => (item.id === id ? { ...item, completed: !item.completed } : item)))
   }
 
   const getCompletionStats = () => {
-    const total = checklist.filter(item => item.phase === interviewPhase).length
-    const completed = checklist.filter(item => item.phase === interviewPhase && item.completed).length
+    const total = checklist.filter((item) => item.phase === interviewPhase).length
+    const completed = checklist.filter((item) => item.phase === interviewPhase && item.completed).length
     return { total, completed, percentage: Math.round((completed / total) * 100) }
   }
 
   const saveMeetingNotes = () => {
     if (!selectedCandidate) return
-    
+
     // In a real implementation, this would save to the database
     toast({
       title: "Meeting Notes Saved",
@@ -243,10 +361,12 @@ Phase: ${INTERVIEW_PHASES[interviewPhase]}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label>Candidate</Label>
-              <Select onValueChange={(value) => {
-                const candidate = candidates.find(c => c.id === value)
-                setSelectedCandidate(candidate || null)
-              }}>
+              <Select
+                onValueChange={(value) => {
+                  const candidate = candidates.find((c) => c.id === value)
+                  setSelectedCandidate(candidate || null)
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a candidate" />
                 </SelectTrigger>
@@ -262,7 +382,10 @@ Phase: ${INTERVIEW_PHASES[interviewPhase]}
 
             <div className="space-y-2">
               <Label>Interview Phase</Label>
-              <Select value={interviewPhase} onValueChange={(value: keyof typeof INTERVIEW_PHASES) => setInterviewPhase(value)}>
+              <Select
+                value={interviewPhase}
+                onValueChange={(value: keyof typeof INTERVIEW_PHASES) => setInterviewPhase(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -281,7 +404,8 @@ Phase: ${INTERVIEW_PHASES[interviewPhase]}
             <Alert>
               <User className="h-4 w-4" />
               <AlertDescription>
-                <strong>{selectedCandidate.name}</strong> - {selectedCandidate.stage} | {selectedCandidate.email} | {selectedCandidate.phone}
+                <strong>{selectedCandidate.name}</strong> - {selectedCandidate.stage} | {selectedCandidate.email} |{" "}
+                {selectedCandidate.phone}
               </AlertDescription>
             </Alert>
           )}
@@ -340,8 +464,8 @@ Phase: ${INTERVIEW_PHASES[interviewPhase]}
               <div className="space-y-4">
                 {/* Progress Bar */}
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${stats.percentage}%` }}
                   ></div>
                 </div>
@@ -349,7 +473,7 @@ Phase: ${INTERVIEW_PHASES[interviewPhase]}
                 {/* Checklist Items */}
                 <div className="space-y-2 max-h-[400px] overflow-y-auto">
                   {checklist
-                    .filter(item => item.phase === interviewPhase)
+                    .filter((item) => item.phase === interviewPhase)
                     .map((item) => (
                       <div key={item.id} className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50">
                         <Checkbox
@@ -363,4 +487,87 @@ Phase: ${INTERVIEW_PHASES[interviewPhase]}
                             item.completed ? "line-through text-gray-500" : ""
                           }`}
                         >
-                          {item.ite
+                          {item.item}
+                        </label>
+                        <Badge variant="outline" className="text-xs">
+                          {item.category}
+                        </Badge>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Meeting Notes */}
+      {selectedCandidate && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Meeting Notes
+            </CardTitle>
+            <CardDescription>Record important points and observations from the interview</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Textarea
+              value={meetingNotes}
+              onChange={(e) => setMeetingNotes(e.target.value)}
+              placeholder="Record your meeting notes here..."
+              className="min-h-[150px]"
+            />
+            <div className="flex gap-2">
+              <Button onClick={saveMeetingNotes}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Notes
+              </Button>
+              <Button variant="outline" onClick={() => copyToClipboard(meetingNotes)}>
+                <Copy className="h-4 w-4 mr-2" />
+                Copy Notes
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quick Actions */}
+      {selectedCandidate && (
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardContent className="p-4 text-center">
+              <Phone className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+              <h3 className="font-semibold">Start Call</h3>
+              <p className="text-sm text-muted-foreground">Begin interview</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardContent className="p-4 text-center">
+              <Calendar className="h-8 w-8 mx-auto mb-2 text-green-600" />
+              <h3 className="font-semibold">Schedule Visit</h3>
+              <p className="text-sm text-muted-foreground">Book visitation</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardContent className="p-4 text-center">
+              <Send className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+              <h3 className="font-semibold">Send Forms</h3>
+              <p className="text-sm text-muted-foreground">Email documents</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardContent className="p-4 text-center">
+              <MessageSquare className="h-8 w-8 mx-auto mb-2 text-orange-600" />
+              <h3 className="font-semibold">WhatsApp</h3>
+              <p className="text-sm text-muted-foreground">Add to group</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  )
+}
