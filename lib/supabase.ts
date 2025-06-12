@@ -1,82 +1,83 @@
 import { createClient } from "@supabase/supabase-js"
 
-// Safe environment variable handling
-const getEnvVar = (key: string, fallback = "") => {
-  if (typeof window !== "undefined") {
-    // Client-side: only access NEXT_PUBLIC_ variables
-    return key.startsWith("NEXT_PUBLIC_") ? process.env[key] || fallback : fallback
-  }
-  // Server-side: can access all variables
-  return process.env[key] || fallback
-}
+// Check if we're in a browser environment
+const isBrowser = typeof window !== "undefined"
 
-const supabaseUrl = getEnvVar("NEXT_PUBLIC_SUPABASE_URL", "https://placeholder.supabase.co")
-const supabaseAnonKey = getEnvVar("NEXT_PUBLIC_SUPABASE_ANON_KEY", "placeholder-key")
-const supabaseServiceKey = getEnvVar("SUPABASE_SERVICE_ROLE_KEY", "placeholder-service-key")
+// Get environment variables safely
+const supabaseUrl = isBrowser
+  ? process.env.NEXT_PUBLIC_SUPABASE_URL
+  : process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 
-// More lenient validation - since candidates work, Supabase IS configured
-const isValidUrl = (url: string) => {
-  try {
-    new URL(url)
-    return url.includes("supabase.co") && !url.includes("placeholder")
-  } catch {
-    return false
-  }
-}
+const supabaseAnonKey = isBrowser
+  ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
 
-const isValidKey = (key: string) => {
-  return key.length > 20 && !key.includes("placeholder")
-}
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
+// Validate configuration
 export const isSupabaseConfigured = () => {
-  const urlValid = isValidUrl(supabaseUrl)
-  const keyValid = isValidKey(supabaseAnonKey)
+  const hasUrl =
+    supabaseUrl &&
+    supabaseUrl.length > 10 &&
+    !supabaseUrl.includes("placeholder") &&
+    supabaseUrl.includes("supabase.co")
 
-  // If candidates API works, consider it configured regardless of validation
-  if (!urlValid || !keyValid) {
-    console.warn("Supabase validation failed, but may still work:", { urlValid, keyValid })
-    // Return true anyway since candidates are working
-    return true
-  }
+  const hasKey = supabaseAnonKey && supabaseAnonKey.length > 20 && !supabaseAnonKey.includes("placeholder")
 
-  return true
+  return hasUrl && hasKey
 }
 
-// Create clients with error handling
-let supabaseClient: any = null
-let supabaseAdminClient: any = null
-
-try {
-  supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-  })
-
-  supabaseAdminClient = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  })
-} catch (error) {
-  console.warn("Supabase initialization failed:", error)
-  // Create mock clients that don't throw errors
-  supabaseClient = {
-    from: () => ({
-      select: () => ({ data: [], error: new Error("Supabase not configured") }),
-      insert: () => ({ data: null, error: new Error("Supabase not configured") }),
-      update: () => ({ data: null, error: new Error("Supabase not configured") }),
-      delete: () => ({ data: null, error: new Error("Supabase not configured") }),
+// Create mock client for when Supabase is not configured
+const createMockClient = () => ({
+  from: (table: string) => ({
+    select: (columns?: string, options?: any) => Promise.resolve({ data: [], error: null, count: 0 }),
+    insert: (data: any) => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
+    update: (data: any) => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
+    delete: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
+    eq: (column: string, value: any) => ({
+      select: (columns?: string, options?: any) => Promise.resolve({ data: [], error: null, count: 0 }),
     }),
-    auth: {
-      signIn: () => Promise.resolve({ data: null, error: new Error("Supabase not configured") }),
-      signOut: () => Promise.resolve({ error: null }),
-      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-    },
+  }),
+  auth: {
+    signIn: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
+    signOut: () => Promise.resolve({ error: null }),
+    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    onAuthStateChange: () => ({ data: { subscription: null } }),
+  },
+})
+
+// Create clients
+let supabaseClient: any
+let supabaseAdminClient: any
+
+if (isSupabaseConfigured()) {
+  try {
+    supabaseClient = createClient(supabaseUrl!, supabaseAnonKey!, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    })
+
+    if (supabaseServiceKey) {
+      supabaseAdminClient = createClient(supabaseUrl!, supabaseServiceKey, {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      })
+    } else {
+      supabaseAdminClient = supabaseClient
+    }
+  } catch (error) {
+    console.warn("Supabase client creation failed:", error)
+    supabaseClient = createMockClient()
+    supabaseAdminClient = createMockClient()
   }
-  supabaseAdminClient = supabaseClient
+} else {
+  console.warn("Supabase not configured - using mock client")
+  supabaseClient = createMockClient()
+  supabaseAdminClient = createMockClient()
 }
 
 export const supabase = supabaseClient
