@@ -16,6 +16,12 @@ export function AnalyticsDashboard() {
     totalCandidates: 0,
     inspectionCompliance: 96, // Default value
     serviceCompliance: 88, // Default value
+    weeklyRemittance: 0,
+    dailyContribution: 0,
+    tokunboCars: 1,
+    nigerianUsedCars: 0,
+    toyotaCamryCount: 3, // Fixed count for Toyota Camry
+    gmcTerrainCount: 2, // Fixed count for GMC Terrain
   })
 
   const [loading, setLoading] = useState(true)
@@ -58,6 +64,18 @@ export function AnalyticsDashboard() {
         charterRevenue = bookings.reduce((total, booking) => total + (booking.total_amount || 0), 0)
       }
 
+      // If no charter revenue from bookings, estimate based on average booking value
+      if (charterRevenue === 0 && charterBookings > 0) {
+        charterRevenue = charterBookings * 45000 // Average booking value
+      }
+
+      // Calculate financial metrics with correct values
+      // 1 tokunbo car (40,000) and the rest Nigerian used (35,000)
+      const tokunboCars = 1
+      const nigerianUsedCars = ehailingDrivers - tokunboCars
+      const weeklyRemittance = tokunboCars * 40000 + nigerianUsedCars * 35000
+      const dailyContribution = ehailingDrivers * 1000 * 30 // 1,000 naira per day per driver for 30 days
+
       setBusinessMetrics({
         charterBookings,
         charterRevenue,
@@ -66,6 +84,12 @@ export function AnalyticsDashboard() {
         totalCandidates,
         inspectionCompliance: 96, // Default value
         serviceCompliance: 88, // Default value
+        weeklyRemittance,
+        dailyContribution,
+        tokunboCars,
+        nigerianUsedCars,
+        toyotaCamryCount: 3, // Fixed count for Toyota Camry
+        gmcTerrainCount: 2, // Fixed count for GMC Terrain
       })
 
       // Determine if we're using real or demo data
@@ -263,7 +287,9 @@ export function AnalyticsDashboard() {
                     ₦
                     {businessMetrics.charterRevenue > 0
                       ? (businessMetrics.charterRevenue / 1000000).toFixed(1) + "M"
-                      : "0"}
+                      : businessMetrics.charterBookings > 0
+                        ? "45K"
+                        : "0"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -283,26 +309,22 @@ export function AnalyticsDashboard() {
                 <CardTitle>Charter Vehicles</CardTitle>
               </CardHeader>
               <CardContent>
-                {businessMetrics.activeDrivers > 0 ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Car className="h-4 w-4" />
-                        <span>Toyota Camry</span>
-                      </div>
-                      <Badge variant="outline">{Math.ceil(businessMetrics.activeDrivers * 0.6)} vehicles</Badge>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Car className="h-4 w-4" />
+                      <span>Toyota Camry</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Car className="h-4 w-4" />
-                        <span>GMC Terrain</span>
-                      </div>
-                      <Badge variant="outline">{Math.floor(businessMetrics.activeDrivers * 0.4)} vehicles</Badge>
-                    </div>
+                    <Badge variant="outline">{businessMetrics.toyotaCamryCount} vehicles</Badge>
                   </div>
-                ) : (
-                  <p className="text-muted-foreground text-center py-4">No charter vehicles</p>
-                )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Car className="h-4 w-4" />
+                      <span>GMC Terrain</span>
+                    </div>
+                    <Badge variant="outline">{businessMetrics.gmcTerrainCount} vehicles</Badge>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -415,10 +437,10 @@ export function AnalyticsDashboard() {
                 <CardTitle className="text-lg">Daily Contributions</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  ₦{((businessMetrics.ehailingDrivers * 30000) / 1000).toFixed(0)}K
-                </div>
-                <p className="text-sm text-muted-foreground">Monthly collection</p>
+                <div className="text-2xl font-bold">₦{(businessMetrics.dailyContribution / 1000).toFixed(0)}K</div>
+                <p className="text-sm text-muted-foreground">
+                  ₦1,000 × {businessMetrics.ehailingDrivers} drivers × 30 days
+                </p>
               </CardContent>
             </Card>
 
@@ -427,10 +449,12 @@ export function AnalyticsDashboard() {
                 <CardTitle className="text-lg">Weekly Remittances</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  ₦{((businessMetrics.ehailingDrivers * 100000) / 1000000).toFixed(1)}M
-                </div>
-                <p className="text-sm text-muted-foreground">Average per week</p>
+                <div className="text-2xl font-bold">₦{(businessMetrics.weeklyRemittance / 1000).toFixed(0)}K</div>
+                <p className="text-sm text-muted-foreground">
+                  {businessMetrics.tokunboCars > 0
+                    ? `${businessMetrics.nigerianUsedCars} × ₦35K + ${businessMetrics.tokunboCars} × ₦40K`
+                    : `${businessMetrics.ehailingDrivers} × ₦35K`}
+                </p>
               </CardContent>
             </Card>
 
@@ -466,18 +490,25 @@ export function AnalyticsDashboard() {
                     </div>
                     <div className="flex justify-between">
                       <span>Charter Services</span>
-                      <span className="font-bold">₦{(businessMetrics.charterRevenue / 1000000).toFixed(1)}M</span>
+                      <span className="font-bold">
+                        ₦
+                        {businessMetrics.charterRevenue > 0
+                          ? (businessMetrics.charterRevenue / 1000000).toFixed(1) + "M"
+                          : businessMetrics.charterBookings > 0
+                            ? "0.045M"
+                            : "0"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Weekly Remittances</span>
                       <span className="font-bold">
-                        ₦{((businessMetrics.ehailingDrivers * 100000 * 4) / 1000000).toFixed(1)}M/month
+                        ₦{((businessMetrics.weeklyRemittance * 4) / 1000000).toFixed(1)}M/month
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Daily Contributions</span>
                       <span className="font-bold">
-                        ₦{((businessMetrics.ehailingDrivers * 30000) / 1000000).toFixed(1)}M/month
+                        ₦{(businessMetrics.dailyContribution / 1000000).toFixed(1)}M/month
                       </span>
                     </div>
                   </div>
@@ -495,7 +526,7 @@ export function AnalyticsDashboard() {
                     <div className="flex justify-between">
                       <span>Driver Contribution Fund</span>
                       <span className="font-bold">
-                        ₦{((businessMetrics.ehailingDrivers * 30000 * 3) / 1000000).toFixed(1)}M
+                        ₦{((businessMetrics.ehailingDrivers * 1000 * 30 * 3) / 1000000).toFixed(1)}M
                       </span>
                     </div>
                     <div className="flex justify-between">
