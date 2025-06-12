@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Phone, Settings, MessageCircle, ExternalLink, Bot, Sparkles } from "lucide-react"
+import { MeetingAssistant } from "@/app/dashboard/components/meeting-assistant"
 
 export default function WhatsAppPage() {
   return (
@@ -31,6 +32,10 @@ export default function WhatsAppPage() {
               <Sparkles className="h-4 w-4 mr-2" />
               Grok AI
             </TabsTrigger>
+            <TabsTrigger value="meeting-ai">
+              <Bot className="h-4 w-4 mr-2" />
+              Meeting AI
+            </TabsTrigger>
             <TabsTrigger value="business">Business Setup</TabsTrigger>
             <TabsTrigger value="api">API Integration</TabsTrigger>
           </TabsList>
@@ -45,6 +50,10 @@ export default function WhatsAppPage() {
 
           <TabsContent value="grok-ai" className="space-y-4">
             <WhatsAppGrokAI />
+          </TabsContent>
+
+          <TabsContent value="meeting-ai" className="space-y-4">
+            <MeetingAssistant />
           </TabsContent>
 
           <TabsContent value="business" className="space-y-4">
