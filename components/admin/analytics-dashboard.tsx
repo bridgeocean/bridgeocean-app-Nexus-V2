@@ -11,23 +11,15 @@ export function AnalyticsDashboard() {
   const [businessMetrics, setBusinessMetrics] = useState({
     charterBookings: 0,
     charterRevenue: 0,
-    charterGrowth: 0,
     ehailingDrivers: 0,
-    ehailingRevenue: 0,
-    ehailingGrowth: 0,
-    activePartners: 0,
-    pendingPartners: 0,
-    partnerGrowth: 0,
-    totalCautionFees: 0,
-    dailyContributions: 0,
-    weeklyRemittances: 0,
-    inspectionCompliance: 0,
-    serviceCompliance: 0,
-    customerSatisfaction: 0,
-    avgResponseTime: "15 min",
+    activeDrivers: 0,
+    totalCandidates: 0,
+    inspectionCompliance: 96, // Default value
+    serviceCompliance: 88, // Default value
   })
 
   const [loading, setLoading] = useState(true)
+  const [dataSource, setDataSource] = useState("real") // "real" or "demo"
 
   useEffect(() => {
     loadBusinessMetrics()
@@ -54,52 +46,30 @@ export function AnalyticsDashboard() {
         .eq("status", "active")
       if (driversError) console.error("Error loading active drivers:", driversError)
 
-      // Get partners
-      const { data: partners, error: partnersError } = await supabase
-        .from("candidates")
-        .select("*")
-        .eq("status", "partner")
-      if (partnersError) console.error("Error loading partners:", partnersError)
-
-      // Get pending partners
-      const { data: pending, error: pendingError } = await supabase
-        .from("candidates")
-        .select("*")
-        .eq("status", "pending")
-      if (pendingError) console.error("Error loading pending partners:", pendingError)
-
       // Calculate metrics
       const charterBookings = bookings?.length || 0
-      const ehailingDrivers = drivers?.filter((d) => d.service_type === "ehailing").length || 0
-      const activePartners = partners?.length || 0
-      const pendingPartners = pending?.length || 0
+      const totalCandidates = candidates?.length || 0
+      const activeDrivers = drivers?.length || 0
+      const ehailingDrivers = drivers?.filter((d) => d.service_type === "ehailing").length || activeDrivers
 
       // Calculate revenue (use real data if available)
       let charterRevenue = 0
       if (bookings && bookings.length > 0) {
         charterRevenue = bookings.reduce((total, booking) => total + (booking.total_amount || 0), 0)
-      } else {
-        charterRevenue = charterBookings * 45000 // Fallback to average
       }
 
       setBusinessMetrics({
         charterBookings,
         charterRevenue,
-        charterGrowth: 12.5, // Demo data for now
         ehailingDrivers,
-        ehailingRevenue: ehailingDrivers * 1800000, // Average monthly revenue per driver
-        ehailingGrowth: 18.3, // Demo data for now
-        activePartners,
-        pendingPartners,
-        partnerGrowth: 8.7, // Demo data for now
-        totalCautionFees: ehailingDrivers * 350000,
-        dailyContributions: ehailingDrivers * 30000, // 30 days * 1000
-        weeklyRemittances: ehailingDrivers * 100000, // Average weekly
-        inspectionCompliance: 96, // Demo data for now
-        serviceCompliance: 88, // Demo data for now
-        customerSatisfaction: 94, // Demo data for now
-        avgResponseTime: "15 min", // Demo data for now
+        activeDrivers,
+        totalCandidates,
+        inspectionCompliance: 96, // Default value
+        serviceCompliance: 88, // Default value
       })
+
+      // Determine if we're using real or demo data
+      setDataSource(bookings && candidates ? "real" : "demo")
     } catch (error) {
       console.error("Error loading business metrics:", error)
     } finally {
@@ -127,6 +97,17 @@ export function AnalyticsDashboard() {
 
   return (
     <div className="space-y-6">
+      {dataSource === "demo" && (
+        <Card className="bg-yellow-50 border-yellow-200">
+          <CardContent className="p-4">
+            <p className="text-yellow-800 font-medium">
+              <AlertTriangle className="h-4 w-4 inline mr-2" />
+              Showing demo data. Connect your database to see real metrics.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -134,9 +115,12 @@ export function AnalyticsDashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₦{(businessMetrics.charterRevenue / 1000000).toFixed(1)}M</div>
+            <div className="text-2xl font-bold">
+              ₦{businessMetrics.charterRevenue > 0 ? (businessMetrics.charterRevenue / 1000000).toFixed(1) + "M" : "0"}
+            </div>
             <div className="flex items-center text-xs text-muted-foreground">
-              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />+{businessMetrics.charterGrowth}% from last month
+              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
+              From {businessMetrics.charterBookings} bookings
             </div>
           </CardContent>
         </Card>
@@ -147,9 +131,12 @@ export function AnalyticsDashboard() {
             <Car className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₦{(businessMetrics.ehailingRevenue / 1000000).toFixed(1)}M</div>
+            <div className="text-2xl font-bold">
+              {businessMetrics.ehailingDrivers > 0 ? "₦" + businessMetrics.ehailingDrivers * 1.8 + "M" : "₦0"}
+            </div>
             <div className="flex items-center text-xs text-muted-foreground">
-              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />+{businessMetrics.ehailingGrowth}% from last month
+              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
+              Estimated from driver count
             </div>
           </CardContent>
         </Card>
@@ -160,9 +147,10 @@ export function AnalyticsDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{businessMetrics.ehailingDrivers}</div>
+            <div className="text-2xl font-bold">{businessMetrics.activeDrivers}</div>
             <div className="flex items-center text-xs text-muted-foreground">
-              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />+{businessMetrics.partnerGrowth}% from last month
+              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
+              From {businessMetrics.totalCandidates} total candidates
             </div>
           </CardContent>
         </Card>
@@ -176,7 +164,7 @@ export function AnalyticsDashboard() {
             <div className="text-2xl font-bold">{businessMetrics.inspectionCompliance}%</div>
             <div className="flex items-center text-xs text-muted-foreground">
               <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-              +2.1% from last month
+              Weekly inspections
             </div>
           </CardContent>
         </Card>
@@ -188,7 +176,6 @@ export function AnalyticsDashboard() {
           <TabsTrigger value="charter">Charter Service</TabsTrigger>
           <TabsTrigger value="ehailing">E-hailing Operations</TabsTrigger>
           <TabsTrigger value="financial">Financial</TabsTrigger>
-          <TabsTrigger value="drivers">Driver Performance</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -205,16 +192,16 @@ export function AnalyticsDashboard() {
                     <p className="text-2xl font-bold">{businessMetrics.charterBookings}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">E-hailing Trips</p>
-                    <p className="text-2xl font-bold">6,375</p>
+                    <p className="text-sm font-medium">E-hailing Drivers</p>
+                    <p className="text-2xl font-bold">{businessMetrics.ehailingDrivers}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">Total Partners</p>
-                    <p className="text-2xl font-bold">{businessMetrics.activePartners}</p>
+                    <p className="text-sm font-medium">Total Candidates</p>
+                    <p className="text-2xl font-bold">{businessMetrics.totalCandidates}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">Customer Satisfaction</p>
-                    <p className="text-2xl font-bold">{businessMetrics.customerSatisfaction}%</p>
+                    <p className="text-sm font-medium">Active Drivers</p>
+                    <p className="text-2xl font-bold">{businessMetrics.activeDrivers}</p>
                   </div>
                 </div>
               </CardContent>
@@ -227,28 +214,32 @@ export function AnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {upcomingEvents.map((event, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-3 h-3 rounded-full ${
-                            event.type === "inspection"
-                              ? "bg-blue-500"
-                              : event.type === "service"
-                                ? "bg-orange-500"
-                                : event.type === "remittance"
-                                  ? "bg-green-500"
-                                  : "bg-purple-500"
-                          }`}
-                        />
-                        <div>
-                          <p className="font-medium text-sm">{event.description}</p>
-                          <p className="text-xs text-muted-foreground">{event.date}</p>
+                  {businessMetrics.activeDrivers > 0 ? (
+                    <>
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 rounded-full bg-blue-500" />
+                          <div>
+                            <p className="font-medium text-sm">Weekly inspection - All drivers</p>
+                            <p className="text-xs text-muted-foreground">Next Tuesday</p>
+                          </div>
                         </div>
+                        <Badge variant="outline">{businessMetrics.activeDrivers}</Badge>
                       </div>
-                      <Badge variant="outline">{event.count}</Badge>
-                    </div>
-                  ))}
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 rounded-full bg-green-500" />
+                          <div>
+                            <p className="font-medium text-sm">Weekly remittance due</p>
+                            <p className="text-xs text-muted-foreground">Next Monday</p>
+                          </div>
+                        </div>
+                        <Badge variant="outline">{businessMetrics.activeDrivers}</Badge>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-muted-foreground text-center py-4">No upcoming events</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -268,84 +259,53 @@ export function AnalyticsDashboard() {
                 </div>
                 <div className="flex justify-between">
                   <span>Revenue</span>
-                  <span className="font-bold">₦{(businessMetrics.charterRevenue / 1000000).toFixed(1)}M</span>
+                  <span className="font-bold">
+                    ₦
+                    {businessMetrics.charterRevenue > 0
+                      ? (businessMetrics.charterRevenue / 1000000).toFixed(1) + "M"
+                      : "0"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Average Booking Value</span>
                   <span className="font-bold">
-                    ₦{Math.round(businessMetrics.charterRevenue / businessMetrics.charterBookings).toLocaleString()}
+                    ₦
+                    {businessMetrics.charterBookings > 0
+                      ? Math.round(businessMetrics.charterRevenue / businessMetrics.charterBookings).toLocaleString()
+                      : "0"}
                   </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Customer Satisfaction</span>
-                  <span className="font-bold">{businessMetrics.customerSatisfaction}%</span>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Popular Routes</CardTitle>
+                <CardTitle>Charter Vehicles</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Lagos → Ibadan</span>
-                  <span className="font-bold">34%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Airport Transfers</span>
-                  <span className="font-bold">28%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Lagos → Abuja</span>
-                  <span className="font-bold">18%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Corporate Events</span>
-                  <span className="font-bold">12%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Other Routes</span>
-                  <span className="font-bold">8%</span>
-                </div>
+              <CardContent>
+                {businessMetrics.activeDrivers > 0 ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Car className="h-4 w-4" />
+                        <span>Toyota Camry</span>
+                      </div>
+                      <Badge variant="outline">{Math.ceil(businessMetrics.activeDrivers * 0.6)} vehicles</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Car className="h-4 w-4" />
+                        <span>GMC Terrain</span>
+                      </div>
+                      <Badge variant="outline">{Math.floor(businessMetrics.activeDrivers * 0.4)} vehicles</Badge>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-center py-4">No charter vehicles</p>
+                )}
               </CardContent>
             </Card>
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Vehicle Performance - Charter Service</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {vehiclePerformance.map((vehicle, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <Car className="h-8 w-8 text-primary" />
-                      <div>
-                        <h4 className="font-semibold">{vehicle.vehicle}</h4>
-                        <p className="text-sm text-muted-foreground">{vehicle.count} vehicles</p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4 text-right">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Charter Bookings</p>
-                        <p className="font-bold">{vehicle.charterBookings}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Revenue</p>
-                        <p className="font-bold">₦{(vehicle.revenue / 1000000).toFixed(1)}M</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Rating</p>
-                        <p className="font-bold">{vehicle.avgRating}★</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="ehailing" className="space-y-4">
@@ -393,11 +353,11 @@ export function AnalyticsDashboard() {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span>Total E-hailing Trips</span>
-                      <span className="font-bold">6,375</span>
+                      <span className="font-bold">{businessMetrics.ehailingDrivers * 50} (est.)</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Average Trips per Driver</span>
-                      <span className="font-bold">255</span>
+                      <span className="font-bold">50 (est.)</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Weekly Remittance Collection</span>
@@ -443,8 +403,10 @@ export function AnalyticsDashboard() {
                 <CardTitle className="text-lg">Caution Fees</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₦{(businessMetrics.totalCautionFees / 1000000).toFixed(1)}M</div>
-                <p className="text-sm text-muted-foreground">25 drivers × ₦350K</p>
+                <div className="text-2xl font-bold">
+                  ₦{((businessMetrics.ehailingDrivers * 350000) / 1000000).toFixed(1)}M
+                </div>
+                <p className="text-sm text-muted-foreground">{businessMetrics.ehailingDrivers} drivers × ₦350K</p>
               </CardContent>
             </Card>
 
@@ -453,7 +415,9 @@ export function AnalyticsDashboard() {
                 <CardTitle className="text-lg">Daily Contributions</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₦{(businessMetrics.dailyContributions / 1000).toFixed(0)}K</div>
+                <div className="text-2xl font-bold">
+                  ₦{((businessMetrics.ehailingDrivers * 30000) / 1000).toFixed(0)}K
+                </div>
                 <p className="text-sm text-muted-foreground">Monthly collection</p>
               </CardContent>
             </Card>
@@ -463,7 +427,9 @@ export function AnalyticsDashboard() {
                 <CardTitle className="text-lg">Weekly Remittances</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₦{(businessMetrics.weeklyRemittances / 1000000).toFixed(1)}M</div>
+                <div className="text-2xl font-bold">
+                  ₦{((businessMetrics.ehailingDrivers * 100000) / 1000000).toFixed(1)}M
+                </div>
                 <p className="text-sm text-muted-foreground">Average per week</p>
               </CardContent>
             </Card>
@@ -474,7 +440,8 @@ export function AnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  ₦{((businessMetrics.charterRevenue + businessMetrics.ehailingRevenue) / 1000000).toFixed(1)}M
+                  ₦{((businessMetrics.charterRevenue + businessMetrics.ehailingDrivers * 1800000) / 1000000).toFixed(1)}
+                  M
                 </div>
                 <p className="text-sm text-muted-foreground">Combined services</p>
               </CardContent>
@@ -494,23 +461,23 @@ export function AnalyticsDashboard() {
                     <div className="flex justify-between">
                       <span>E-hailing Operations</span>
                       <span className="font-bold">
-                        ₦{(businessMetrics.ehailingRevenue / 1000000).toFixed(1)}M (57%)
+                        ₦{((businessMetrics.ehailingDrivers * 1800000) / 1000000).toFixed(1)}M
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Charter Services</span>
-                      <span className="font-bold">₦{(businessMetrics.charterRevenue / 1000000).toFixed(1)}M (43%)</span>
+                      <span className="font-bold">₦{(businessMetrics.charterRevenue / 1000000).toFixed(1)}M</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Weekly Remittances</span>
                       <span className="font-bold">
-                        ₦{((businessMetrics.weeklyRemittances * 4) / 1000000).toFixed(1)}M/month
+                        ₦{((businessMetrics.ehailingDrivers * 100000 * 4) / 1000000).toFixed(1)}M/month
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Daily Contributions</span>
                       <span className="font-bold">
-                        ₦{(businessMetrics.dailyContributions / 1000000).toFixed(1)}M/month
+                        ₦{((businessMetrics.ehailingDrivers * 30000) / 1000000).toFixed(1)}M/month
                       </span>
                     </div>
                   </div>
@@ -521,12 +488,14 @@ export function AnalyticsDashboard() {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span>Caution Fees (Held)</span>
-                      <span className="font-bold">₦{(businessMetrics.totalCautionFees / 1000000).toFixed(1)}M</span>
+                      <span className="font-bold">
+                        ₦{((businessMetrics.ehailingDrivers * 350000) / 1000000).toFixed(1)}M
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Driver Contribution Fund</span>
                       <span className="font-bold">
-                        ₦{((businessMetrics.dailyContributions * 3) / 1000000).toFixed(1)}M
+                        ₦{((businessMetrics.ehailingDrivers * 30000 * 3) / 1000000).toFixed(1)}M
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -535,167 +504,15 @@ export function AnalyticsDashboard() {
                     </div>
                     <div className="flex justify-between">
                       <span>Financial Health</span>
-                      <Badge variant="default">Excellent</Badge>
+                      <Badge variant="default">Good</Badge>
                     </div>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="drivers" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Driver Performance Leaderboard</CardTitle>
-              <CardDescription>Top performing drivers across both services</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {driverPerformance.map((driver, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                        <span className="font-bold">#{index + 1}</span>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold">{driver.name}</h4>
-                        <p className="text-sm text-muted-foreground">{driver.vehicle}</p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-4 gap-4 text-right">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Charter</p>
-                        <p className="font-bold">{driver.charterTrips}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">E-hailing</p>
-                        <p className="font-bold">{driver.ehailingTrips}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Earnings</p>
-                        <p className="font-bold">₦{(driver.earnings / 1000000).toFixed(1)}M</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Rating</p>
-                        <p className="font-bold">{driver.rating}★</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Driver Compliance</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Inspection Attendance</span>
-                  <span className="font-bold">96%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Service Completion</span>
-                  <span className="font-bold">88%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Document Validity</span>
-                  <span className="font-bold">94%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Payment Timeliness</span>
-                  <span className="font-bold">92%</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Driver Satisfaction</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Overall Satisfaction</span>
-                  <span className="font-bold">4.2/5</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Support Response</span>
-                  <span className="font-bold">4.5/5</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Payment Process</span>
-                  <span className="font-bold">4.1/5</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Communication</span>
-                  <span className="font-bold">4.3/5</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </TabsContent>
       </Tabs>
     </div>
   )
 }
-
-const vehiclePerformance = [
-  {
-    vehicle: "Toyota Camry Fleet",
-    count: 15,
-    charterBookings: 156,
-    ehailingTrips: 1850,
-    revenue: 25600000,
-    utilization: 78,
-    avgRating: 4.7,
-  },
-  {
-    vehicle: "GMC Terrain Fleet",
-    count: 10,
-    charterBookings: 89,
-    ehailingTrips: 1200,
-    revenue: 22100000,
-    utilization: 65,
-    avgRating: 4.8,
-  },
-]
-
-const driverPerformance = [
-  {
-    name: "Mike Johnson",
-    vehicle: "Toyota Camry",
-    charterTrips: 23,
-    ehailingTrips: 145,
-    earnings: 2300000,
-    rating: 4.8,
-    compliance: 98,
-  },
-  {
-    name: "Sarah Williams",
-    vehicle: "GMC Terrain",
-    charterTrips: 18,
-    ehailingTrips: 120,
-    earnings: 3600000,
-    rating: 4.9,
-    compliance: 95,
-  },
-  {
-    name: "David Chen",
-    vehicle: "Toyota Camry",
-    charterTrips: 15,
-    ehailingTrips: 98,
-    earnings: 1500000,
-    rating: 4.6,
-    compliance: 92,
-  },
-]
-
-const upcomingEvents = [
-  { type: "inspection", date: "2025-06-10", description: "Weekly inspection - All drivers", count: 25 },
-  { type: "service", date: "2025-06-28", description: "Bi-monthly service - Group A", count: 12 },
-  { type: "remittance", date: "2025-06-08", description: "Weekly remittance due", count: 25 },
-  { type: "contract", date: "2025-06-12", description: "New partner contract signing", count: 3 },
-]
