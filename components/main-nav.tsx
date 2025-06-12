@@ -38,9 +38,6 @@ export function MainNav() {
           <Link href="/charter/partner" className="transition-colors hover:text-foreground/80 text-foreground/60">
             Partner With Us
           </Link>
-          <Link href="/meeting-assistant" className="transition-colors hover:text-foreground/80 text-foreground/60">
-            Meeting Assistant
-          </Link>
           <Link href="/about" className="transition-colors hover:text-foreground/80 text-foreground/60">
             About
           </Link>
@@ -86,13 +83,6 @@ export function MainNav() {
               onClick={() => setIsMenuOpen(false)}
             >
               Partner With Us
-            </Link>
-            <Link
-              href="/meeting-assistant"
-              className="text-sm font-medium transition-colors hover:text-foreground/80 text-foreground/60 py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Meeting Assistant
             </Link>
             <Link
               href="/about"
