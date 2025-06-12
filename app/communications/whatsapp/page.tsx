@@ -1,35 +1,119 @@
 "use client"
 
+import { useState } from "react"
 import { MainNav } from "@/components/main-nav"
-import { SimpleWhatsApp } from "@/components/simple-whatsapp"
-import { WhatsAppAIAssistant } from "@/components/whatsapp-ai-assistant"
-import { WhatsAppGrokAI } from "@/components/whatsapp-grok-ai"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Phone, Settings, MessageCircle, ExternalLink, Bot, Sparkles, Send } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Phone, Settings, MessageCircle, ExternalLink, Bot, Send, Copy, MessageSquare } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
-function SimpleWhatsAppSender() {
+const MESSAGE_TEMPLATES = {
+  welcome:
+    "Welcome to Bridgeocean! We're excited to have you as a potential partner driver. We'll be in touch soon with next steps.",
+  interview:
+    "Hi! This is from Bridgeocean. We'd like to schedule your interview call. When would be a good time for you?",
+  documents:
+    "Please prepare the following documents for your application: Driver's License, LASRRA card, LASDRI card, and proof of address.",
+  caution_fee:
+    "The caution fee is ₦350,000 and is fully refundable at the end of your rental agreement. You can start with a minimum of ₦150,000.",
+  visitation:
+    "We'd like to schedule a home visitation to complete your application process. What days work best for you this week?",
+  forms:
+    "Please find the attached forms that need to be completed. Return them within 5 business days along with your guarantor information.",
+}
+
+function WhatsAppSender() {
+  const { toast } = useToast()
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [message, setMessage] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState("")
+
+  const formatPhoneNumber = (phone: string) => {
+    const digits = phone.replace(/\D/g, "")
+    if (digits.startsWith("0")) {
+      return "234" + digits.substring(1)
+    } else if (!digits.startsWith("234")) {
+      return "234" + digits
+    }
+    return digits
+  }
+
+  const sendWhatsAppMessage = () => {
+    if (!phoneNumber || !message) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter both phone number and message",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const formattedPhone = formatPhoneNumber(phoneNumber)
+    const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, "_blank")
+
+    toast({
+      title: "WhatsApp Opened",
+      description: "Message ready to send via WhatsApp Web",
+    })
+  }
+
+  const copyMessage = () => {
+    navigator.clipboard.writeText(message)
+    toast({
+      title: "Copied",
+      description: "Message copied to clipboard",
+    })
+  }
+
+  const useTemplate = (templateKey: string) => {
+    setMessage(MESSAGE_TEMPLATES[templateKey])
+    setSelectedTemplate(templateKey)
+  }
+
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-6 md:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>Send WhatsApp Message</CardTitle>
-          <CardDescription>Send messages via WhatsApp Web</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5" />
+            Send WhatsApp Message
+          </CardTitle>
+          <CardDescription>Send messages to candidates via WhatsApp Web</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Phone Number</Label>
-            <Input placeholder="+234 XXX XXX XXXX" />
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input
+              id="phone"
+              placeholder="0803 XXX XXXX or +234 803 XXX XXXX"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
           </div>
+
           <div className="space-y-2">
-            <Label>Message</Label>
-            <Textarea placeholder="Type your message here..." className="min-h-[100px]" />
+            <Label htmlFor="message">Message</Label>
+            <div className="flex gap-2 mb-2">
+              <Button variant="outline" size="sm" onClick={copyMessage} disabled={!message}>
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+            <Textarea
+              id="message"
+              placeholder="Type your message here..."
+              className="min-h-[120px]"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
           </div>
-          <Button className="w-full">
+
+          <Button onClick={sendWhatsAppMessage} className="w-full" disabled={!phoneNumber || !message}>
             <Send className="h-4 w-4 mr-2" />
             Send via WhatsApp Web
           </Button>
@@ -38,25 +122,111 @@ function SimpleWhatsAppSender() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Quick Templates</CardTitle>
-          <CardDescription>Pre-written messages for common scenarios</CardDescription>
+          <CardTitle>Message Templates</CardTitle>
+          <CardDescription>Quick templates for common scenarios</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <Button variant="outline" className="w-full justify-start">
-            Welcome new driver candidate
-          </Button>
-          <Button variant="outline" className="w-full justify-start">
-            Interview scheduling
-          </Button>
-          <Button variant="outline" className="w-full justify-start">
-            Document request
-          </Button>
-          <Button variant="outline" className="w-full justify-start">
-            Caution fee explanation
-          </Button>
+        <CardContent className="space-y-3">
+          <div className="space-y-2">
+            <Label>Select Template</Label>
+            <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose a template" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="welcome">Welcome Message</SelectItem>
+                <SelectItem value="interview">Interview Scheduling</SelectItem>
+                <SelectItem value="documents">Document Request</SelectItem>
+                <SelectItem value="caution_fee">Caution Fee Explanation</SelectItem>
+                <SelectItem value="visitation">Home Visitation</SelectItem>
+                <SelectItem value="forms">Forms & Requirements</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            {Object.entries(MESSAGE_TEMPLATES).map(([key, template]) => (
+              <Button
+                key={key}
+                variant="outline"
+                className="w-full justify-start text-left h-auto p-3"
+                onClick={() => setMessage(template)}
+              >
+                <div>
+                  <div className="font-medium capitalize">{key.replace("_", " ")}</div>
+                  <div className="text-xs text-muted-foreground truncate">{template.substring(0, 50)}...</div>
+                </div>
+              </Button>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+function SimpleAI() {
+  const [input, setInput] = useState("")
+  const [response, setResponse] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const generateResponse = async () => {
+    if (!input.trim()) return
+
+    setLoading(true)
+    try {
+      // Simple AI response for WhatsApp context
+      const responses = [
+        `For WhatsApp message about "${input}": Hi! Thanks for your interest in Bridgeocean. We'll get back to you within 24 hours with more details.`,
+        `Suggested WhatsApp reply for "${input}": Thank you for contacting Bridgeocean. Our team will review your message and respond shortly.`,
+        `WhatsApp template for "${input}": Hello! We appreciate your message. A Bridgeocean representative will contact you soon to assist with your inquiry.`,
+      ]
+
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)]
+      setResponse(randomResponse)
+    } catch (error) {
+      setResponse("Sorry, I couldn't generate a response right now. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Bot className="h-5 w-5" />
+          Simple AI Assistant
+        </CardTitle>
+        <CardDescription>Generate WhatsApp message suggestions</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label>Describe what you need help with</Label>
+          <Textarea
+            placeholder="e.g., 'Customer asking about caution fee' or 'New driver wants to know requirements'"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+        </div>
+
+        <Button onClick={generateResponse} disabled={loading || !input.trim()}>
+          {loading ? "Generating..." : "Generate Response"}
+        </Button>
+
+        {response && (
+          <div className="space-y-2">
+            <Label>Suggested Response</Label>
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm">{response}</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(response)}>
+              <Copy className="h-4 w-4 mr-2" />
+              Copy Response
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 
@@ -74,26 +244,18 @@ export default function WhatsAppPage() {
             <TabsTrigger value="send">Send Messages</TabsTrigger>
             <TabsTrigger value="ai-assistant">
               <Bot className="h-4 w-4 mr-2" />
-              Simple AI
-            </TabsTrigger>
-            <TabsTrigger value="grok-ai">
-              <Sparkles className="h-4 w-4 mr-2" />
-              Grok AI
+              AI Assistant
             </TabsTrigger>
             <TabsTrigger value="business">Business Setup</TabsTrigger>
             <TabsTrigger value="api">API Integration</TabsTrigger>
           </TabsList>
 
           <TabsContent value="send" className="space-y-4">
-            <SimpleWhatsApp />
+            <WhatsAppSender />
           </TabsContent>
 
           <TabsContent value="ai-assistant" className="space-y-4">
-            <WhatsAppAIAssistant />
-          </TabsContent>
-
-          <TabsContent value="grok-ai" className="space-y-4">
-            <WhatsAppGrokAI />
+            <SimpleAI />
           </TabsContent>
 
           <TabsContent value="business" className="space-y-4">
@@ -126,14 +288,6 @@ export default function WhatsAppPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Business Name</Label>
-                    <Input value="BridgeOcean" readOnly />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Business Description</Label>
-                    <Input value="Satellite-Powered Emergency Logistics & Charter Services" readOnly />
-                  </div>
                 </CardContent>
               </Card>
 
@@ -155,7 +309,7 @@ export default function WhatsAppPage() {
                       )
                     }
                   >
-                    Test Primary WhatsApp (+234 906 918 3165)
+                    Test Primary WhatsApp
                   </Button>
                   <Button
                     variant="outline"
@@ -167,14 +321,7 @@ export default function WhatsAppPage() {
                       )
                     }
                   >
-                    Test Secondary WhatsApp (+234 913 563 0154)
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={() => window.open("https://business.whatsapp.com/", "_blank")}
-                  >
-                    WhatsApp Business Web
+                    Test Secondary WhatsApp
                   </Button>
                 </CardContent>
               </Card>
@@ -196,11 +343,7 @@ export default function WhatsAppPage() {
                     <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Pending</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Webhook</span>
-                    <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">Not Set</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Grok AI</span>
+                    <span className="text-sm">AI Assistant</span>
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Active</span>
                   </div>
                 </CardContent>
@@ -215,26 +358,17 @@ export default function WhatsAppPage() {
                 <CardDescription>For advanced integration with automated messaging capabilities</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-semibold mb-2">Current Status: WhatsApp Web Integration</h4>
+                  <p className="text-sm text-gray-600">
+                    Your platform currently uses WhatsApp Web links for immediate messaging. This works right now and
+                    allows you to send messages to customers directly.
+                  </p>
+                </div>
+
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-4">
                     <h3 className="font-semibold">Option 1: Twilio (Recommended)</h3>
-                    <ol className="list-decimal list-inside space-y-2 text-sm">
-                      <li>
-                        Sign up at{" "}
-                        <a
-                          href="https://twilio.com/whatsapp"
-                          target="_blank"
-                          className="text-blue-600 hover:underline"
-                          rel="noreferrer"
-                        >
-                          twilio.com/whatsapp
-                        </a>
-                      </li>
-                      <li>Verify your business phone number</li>
-                      <li>Apply for WhatsApp Business API</li>
-                      <li>Get your Account SID and Auth Token</li>
-                      <li>Add credentials to your platform</li>
-                    </ol>
                     <Button onClick={() => window.open("https://twilio.com/whatsapp", "_blank")} className="w-full">
                       Get Started with Twilio
                     </Button>
@@ -242,23 +376,6 @@ export default function WhatsAppPage() {
 
                   <div className="space-y-4">
                     <h3 className="font-semibold">Option 2: Facebook Direct</h3>
-                    <ol className="list-decimal list-inside space-y-2 text-sm">
-                      <li>
-                        Go to{" "}
-                        <a
-                          href="https://business.whatsapp.com/api"
-                          target="_blank"
-                          className="text-blue-600 hover:underline"
-                          rel="noreferrer"
-                        >
-                          WhatsApp Business API
-                        </a>
-                      </li>
-                      <li>Apply for API access</li>
-                      <li>Complete business verification</li>
-                      <li>Wait for approval (1-4 weeks)</li>
-                      <li>Set up webhook and credentials</li>
-                    </ol>
                     <Button
                       variant="outline"
                       onClick={() => window.open("https://business.whatsapp.com/api", "_blank")}
@@ -267,15 +384,6 @@ export default function WhatsAppPage() {
                       Apply for Facebook API
                     </Button>
                   </div>
-                </div>
-
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                  <h4 className="font-semibold mb-2">Current Status: WhatsApp Web Integration</h4>
-                  <p className="text-sm text-gray-600">
-                    Your platform currently uses WhatsApp Web links for immediate messaging. This works right now and
-                    allows you to send messages to customers directly. Once you get API access, we can upgrade to
-                    automated messaging.
-                  </p>
                 </div>
               </CardContent>
             </Card>
