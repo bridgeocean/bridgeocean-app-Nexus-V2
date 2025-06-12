@@ -20,8 +20,9 @@ export function AnalyticsDashboard() {
     dailyContribution: 0,
     tokunboCars: 1,
     nigerianUsedCars: 0,
-    toyotaCamryCount: 3, // Fixed count for Toyota Camry
-    gmcTerrainCount: 2, // Fixed count for GMC Terrain
+    toyotaCamryCount: 1, // Default value, will be updated from Supabase
+    gmcTerrainCount: 1, // Default value, will be updated from Supabase
+    fleetVehicles: [], // Will store all fleet vehicles
   })
 
   const [loading, setLoading] = useState(true)
@@ -51,6 +52,41 @@ export function AnalyticsDashboard() {
         .select("*")
         .eq("status", "active")
       if (driversError) console.error("Error loading active drivers:", driversError)
+
+      // Try to get fleet vehicles from the fleetvehicles table
+      let toyotaCamryCount = 1 // Default fallback
+      let gmcTerrainCount = 1 // Default fallback
+      let fleetVehicles = []
+
+      try {
+        const { data: vehicles, error: vehiclesError } = await supabase.from("fleetvehicles").select("*")
+
+        if (vehiclesError) {
+          console.error("Error loading fleet vehicles:", vehiclesError)
+        } else if (vehicles && vehicles.length > 0) {
+          fleetVehicles = vehicles
+
+          // Count vehicles by type
+          toyotaCamryCount = vehicles.filter(
+            (v) => v.model?.toLowerCase().includes("camry") || v.name?.toLowerCase().includes("camry"),
+          ).length
+
+          gmcTerrainCount = vehicles.filter(
+            (v) =>
+              v.model?.toLowerCase().includes("terrain") ||
+              v.name?.toLowerCase().includes("terrain") ||
+              v.model?.toLowerCase().includes("gmc") ||
+              v.name?.toLowerCase().includes("gmc"),
+          ).length
+
+          // Ensure we have at least 1 of each for display purposes
+          toyotaCamryCount = Math.max(1, toyotaCamryCount)
+          gmcTerrainCount = Math.max(1, gmcTerrainCount)
+        }
+      } catch (error) {
+        console.error("Error in fleet vehicles query:", error)
+        // Fallback to default values already set
+      }
 
       // Calculate metrics
       const charterBookings = bookings?.length || 0
@@ -88,8 +124,9 @@ export function AnalyticsDashboard() {
         dailyContribution,
         tokunboCars,
         nigerianUsedCars,
-        toyotaCamryCount: 3, // Fixed count for Toyota Camry
-        gmcTerrainCount: 2, // Fixed count for GMC Terrain
+        toyotaCamryCount,
+        gmcTerrainCount,
+        fleetVehicles,
       })
 
       // Determine if we're using real or demo data
@@ -307,6 +344,7 @@ export function AnalyticsDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Charter Vehicles</CardTitle>
+                <CardDescription>Connected to fleetvehicles table</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -315,15 +353,26 @@ export function AnalyticsDashboard() {
                       <Car className="h-4 w-4" />
                       <span>Toyota Camry</span>
                     </div>
-                    <Badge variant="outline">{businessMetrics.toyotaCamryCount} vehicles</Badge>
+                    <Badge variant="outline">
+                      {businessMetrics.toyotaCamryCount} vehicle{businessMetrics.toyotaCamryCount !== 1 ? "s" : ""}
+                    </Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Car className="h-4 w-4" />
                       <span>GMC Terrain</span>
                     </div>
-                    <Badge variant="outline">{businessMetrics.gmcTerrainCount} vehicles</Badge>
+                    <Badge variant="outline">
+                      {businessMetrics.gmcTerrainCount} vehicle{businessMetrics.gmcTerrainCount !== 1 ? "s" : ""}
+                    </Badge>
                   </div>
+                  {businessMetrics.fleetVehicles.length > 0 && (
+                    <div className="mt-4 pt-4 border-t">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Total fleet vehicles: {businessMetrics.fleetVehicles.length}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
