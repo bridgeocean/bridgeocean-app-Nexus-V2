@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Car, DollarSign, Shield, Users, Upload, CheckCircle } from 'lucide-react'
+import { Car, DollarSign, Shield, Users, Upload, CheckCircle } from "lucide-react"
 
 const vehicleTypes = ["Sedan", "SUV", "Luxury Sedan", "Luxury SUV", "Van", "Bus", "Convertible", "Sports Car"]
 
@@ -38,31 +38,10 @@ const benefits = [
 
 export default function PartnerPage() {
   const [formStep, setFormStep] = useState(1)
-  
   const [formData, setFormData] = useState({
-    personalInfo: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      address: ""
-    },
-    vehicleInfo: {
-      make: "",
-      model: "",
-      year: "",
-      type: "",
-      passengers: "",
-      licensePlate: "",
-      color: "",
-      features: []
-    },
-    documents: {
-      identification: null,
-      registration: null,
-      insurance: null,
-      photos: []
-    },
+    personalInfo: {},
+    vehicleInfo: {},
+    documents: {},
   })
 
   return (
@@ -148,67 +127,26 @@ export default function PartnerPage() {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="first-name">First Name</Label>
-                        <Input 
-                          id="first-name" 
-                          placeholder="Enter your first name"
-                          value={formData.personalInfo.firstName}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            personalInfo: { ...prev.personalInfo, firstName: e.target.value }
-                          }))}
-                        />
+                        <Input id="first-name" placeholder="Enter your first name" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="last-name">Last Name</Label>
-                        <Input 
-                          id="last-name" 
-                          placeholder="Enter your last name"
-                          value={formData.personalInfo.lastName}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            personalInfo: { ...prev.personalInfo, lastName: e.target.value }
-                          }))}
-                        />
+                        <Input id="last-name" placeholder="Enter your last name" />
                       </div>
                     </div>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="email">Email Address</Label>
-                        <Input 
-                          id="email" 
-                          type="email" 
-                          placeholder="Enter your email"
-                          value={formData.personalInfo.email}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            personalInfo: { ...prev.personalInfo, email: e.target.value }
-                          }))}
-                        />
+                        <Input id="email" type="email" placeholder="Enter your email" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="phone">Phone Number</Label>
-                        <Input 
-                          id="phone" 
-                          placeholder="Enter your phone number"
-                          value={formData.personalInfo.phone}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            personalInfo: { ...prev.personalInfo, phone: e.target.value }
-                          }))}
-                        />
+                        <Input id="phone" placeholder="Enter your phone number" />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="address">Address</Label>
-                      <Textarea 
-                        id="address" 
-                        placeholder="Enter your full address"
-                        value={formData.personalInfo.address}
-                        onChange={(e) => setFormData(prev => ({
-                          ...prev,
-                          personalInfo: { ...prev.personalInfo, address: e.target.value }
-                        }))}
-                      />
+                      <Textarea id="address" placeholder="Enter your full address" />
                     </div>
                     <Button onClick={() => setFormStep(2)} className="w-full">
                       Next: Vehicle Information
@@ -227,51 +165,21 @@ export default function PartnerPage() {
                     <div className="grid gap-4 md:grid-cols-3">
                       <div className="space-y-2">
                         <Label htmlFor="make">Make</Label>
-                        <Input 
-                          id="make" 
-                          placeholder="e.g., Mercedes-Benz"
-                          value={formData.vehicleInfo.make}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            vehicleInfo: { ...prev.vehicleInfo, make: e.target.value }
-                          }))}
-                        />
+                        <Input id="make" placeholder="e.g., Mercedes-Benz" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="model">Model</Label>
-                        <Input 
-                          id="model" 
-                          placeholder="e.g., S-Class"
-                          value={formData.vehicleInfo.model}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            vehicleInfo: { ...prev.vehicleInfo, model: e.target.value }
-                          }))}
-                        />
+                        <Input id="model" placeholder="e.g., S-Class" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="year">Year</Label>
-                        <Input 
-                          id="year" 
-                          placeholder="e.g., 2022"
-                          value={formData.vehicleInfo.year}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            vehicleInfo: { ...prev.vehicleInfo, year: e.target.value }
-                          }))}
-                        />
+                        <Input id="year" placeholder="e.g., 2022" />
                       </div>
                     </div>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label>Vehicle Type</Label>
-                        <Select 
-                          value={formData.vehicleInfo.type}
-                          onValueChange={(value) => setFormData(prev => ({
-                            ...prev,
-                            vehicleInfo: { ...prev.vehicleInfo, type: value }
-                          }))}
-                        >
+                        <Select>
                           <SelectTrigger>
                             <SelectValue placeholder="Select vehicle type" />
                           </SelectTrigger>
@@ -286,13 +194,7 @@ export default function PartnerPage() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="passengers">Passenger Capacity</Label>
-                        <Select 
-                          value={formData.vehicleInfo.passengers}
-                          onValueChange={(value) => setFormData(prev => ({
-                            ...prev,
-                            vehicleInfo: { ...prev.vehicleInfo, passengers: value }
-                          }))}
-                        >
+                        <Select>
                           <SelectTrigger>
                             <SelectValue placeholder="Select capacity" />
                           </SelectTrigger>
@@ -309,27 +211,11 @@ export default function PartnerPage() {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="license-plate">License Plate</Label>
-                        <Input 
-                          id="license-plate" 
-                          placeholder="Enter license plate"
-                          value={formData.vehicleInfo.licensePlate}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            vehicleInfo: { ...prev.vehicleInfo, licensePlate: e.target.value }
-                          }))}
-                        />
+                        <Input id="license-plate" placeholder="Enter license plate" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="color">Color</Label>
-                        <Input 
-                          id="color" 
-                          placeholder="Vehicle color"
-                          value={formData.vehicleInfo.color}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            vehicleInfo: { ...prev.vehicleInfo, color: e.target.value }
-                          }))}
-                        />
+                        <Input id="color" placeholder="Vehicle color" />
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -347,29 +233,7 @@ export default function PartnerPage() {
                           "USB Charging",
                         ].map((feature) => (
                           <div key={feature} className="flex items-center space-x-2">
-                            <Checkbox 
-                              id={feature}
-                              checked={formData.vehicleInfo.features.includes(feature)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setFormData(prev => ({
-                                    ...prev,
-                                    vehicleInfo: {
-                                      ...prev.vehicleInfo,
-                                      features: [...prev.vehicleInfo.features, feature]
-                                    }
-                                  }))
-                                } else {
-                                  setFormData(prev => ({
-                                    ...prev,
-                                    vehicleInfo: {
-                                      ...prev.vehicleInfo,
-                                      features: prev.vehicleInfo.features.filter(f => f !== feature)
-                                    }
-                                  }))
-                                }
-                              }}
-                            />
+                            <Checkbox id={feature} />
                             <Label htmlFor={feature} className="text-sm">
                               {feature}
                             </Label>
@@ -389,7 +253,6 @@ export default function PartnerPage() {
                 </Card>
               )}
 
-              {/* FIXED DOCUMENT UPLOAD SECTION */}
               {formStep === 3 && (
                 <Card>
                   <CardHeader>
@@ -399,79 +262,43 @@ export default function PartnerPage() {
                   <CardContent className="space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
                       <div className="space-y-4">
-                        {/* Identification Upload */}
                         <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <h4 className="font-medium mb-2">Means of Identification</h4>
                           <p className="text-sm text-muted-foreground mb-4">
                             Upload NIN slip or International Passport
                           </p>
-                          <input
-                            type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            onChange={(e) => {
-                              if (e.target.files?.[0]) {
-                                alert(`File selected: ${e.target.files[0].name}`)
-                              }
-                            }}
-                            className="block mx-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                          />
+                          <Button variant="outline" size="sm">
+                            Choose File
+                          </Button>
                         </div>
-
-                        {/* Vehicle Registration Upload */}
                         <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <h4 className="font-medium mb-2">Vehicle Registration</h4>
                           <p className="text-sm text-muted-foreground mb-4">Upload vehicle registration document</p>
-                          <input
-                            type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            onChange={(e) => {
-                              if (e.target.files?.[0]) {
-                                alert(`File selected: ${e.target.files[0].name}`)
-                              }
-                            }}
-                            className="block mx-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                          />
+                          <Button variant="outline" size="sm">
+                            Choose File
+                          </Button>
                         </div>
                       </div>
-
                       <div className="space-y-4">
-                        {/* Insurance Certificate Upload */}
                         <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <h4 className="font-medium mb-2">Insurance Certificate</h4>
                           <p className="text-sm text-muted-foreground mb-4">Upload current insurance certificate</p>
-                          <input
-                            type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            onChange={(e) => {
-                              if (e.target.files?.[0]) {
-                                alert(`File selected: ${e.target.files[0].name}`)
-                              }
-                            }}
-                            className="block mx-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                          />
+                          <Button variant="outline" size="sm">
+                            Choose File
+                          </Button>
                         </div>
-
-                        {/* Vehicle Photos Upload */}
                         <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                           <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                           <h4 className="font-medium mb-2">Vehicle Photos</h4>
                           <p className="text-sm text-muted-foreground mb-4">
                             Upload 4-6 high-quality photos of your vehicle
                           </p>
-                          <input
-                            type="file"
-                            accept=".jpg,.jpeg,.png"
-                            multiple
-                            onChange={(e) => {
-                              if (e.target.files?.length > 0) {
-                                alert(`${e.target.files.length} photo(s) selected`)
-                              }
-                            }}
-                            className="block mx-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                          />
+                          <Button variant="outline" size="sm">
+                            Choose Files
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -502,14 +329,7 @@ export default function PartnerPage() {
                       <Button variant="outline" onClick={() => setFormStep(2)} className="flex-1">
                         Back
                       </Button>
-                      <Button 
-                        className="flex-1"
-                        onClick={() => {
-                          alert("Application Submitted! Your partner application has been submitted for review. We'll contact you within 48 hours.")
-                        }}
-                      >
-                        Submit Application
-                      </Button>
+                      <Button className="flex-1">Submit Application</Button>
                     </div>
                   </CardContent>
                 </Card>

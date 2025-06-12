@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { User, CheckCircle, FileText, Phone, MessageSquare, Bot, Copy, Save, Send, Calendar } from "lucide-react"
+import { User, CheckCircle, FileText, Phone, MessageSquare, Bot, Copy, Save, Send, Calendar, Mail } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface Candidate {
@@ -426,6 +426,37 @@ export function MeetingAssistant() {
             </CardContent>
           </Card>
 
+          {/* Enhanced AI Tools */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bot className="h-5 w-5" />
+                Enhanced AI Tools
+              </CardTitle>
+              <CardDescription>Advanced AI responses with Bridgeocean knowledge</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <Button variant="outline" className="h-20 flex-col">
+                  <MessageSquare className="h-6 w-6 mb-2" />
+                  Generate WhatsApp Response
+                </Button>
+                <Button variant="outline" className="h-20 flex-col">
+                  <Mail className="h-6 w-6 mb-2" />
+                  Draft Follow-up Email
+                </Button>
+                <Button variant="outline" className="h-20 flex-col">
+                  <FileText className="h-6 w-6 mb-2" />
+                  Create Interview Summary
+                </Button>
+                <Button variant="outline" className="h-20 flex-col">
+                  <Calendar className="h-6 w-6 mb-2" />
+                  Schedule Next Steps
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Interview Checklist */}
           <Card>
             <CardHeader>
@@ -513,23 +544,87 @@ export function MeetingAssistant() {
       {/* Quick Actions */}
       {selectedCandidate && (
         <div className="grid gap-4 md:grid-cols-4">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => {
+              const phone = selectedCandidate.phone.replace(/\D/g, "") // Remove non-digits
+              const message = `Hi ${selectedCandidate.name}, this is from Bridgeocean. We'd like to schedule your interview call. When would be a good time for you?`
+              const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+              window.open(whatsappUrl, "_blank")
+            }}
+          >
             <CardContent className="p-4 text-center">
               <Phone className="h-8 w-8 mx-auto mb-2 text-blue-600" />
               <h3 className="font-semibold">Start Call</h3>
-              <p className="text-sm text-muted-foreground">Begin interview</p>
+              <p className="text-sm text-muted-foreground">Begin interview via WhatsApp</p>
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => {
+              const startDate = new Date()
+              startDate.setDate(startDate.getDate() + 2) // 2 days from now
+              const endDate = new Date(startDate)
+              endDate.setHours(startDate.getHours() + 1) // 1 hour duration
+
+              const formatDate = (date: Date) => {
+                return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z"
+              }
+
+              const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Home+Visitation+-+${encodeURIComponent(selectedCandidate.name)}&dates=${formatDate(startDate)}/${formatDate(endDate)}&details=Home+visitation+for+driver+candidate+${encodeURIComponent(selectedCandidate.name)}%0A%0ACandidate+Details:%0AEmail:+${encodeURIComponent(selectedCandidate.email)}%0APhone:+${encodeURIComponent(selectedCandidate.phone)}%0A%0AChecklist:%0A-+Verify+documents%0A-+Check+parking+spot%0A-+Family+assessment%0A-+Collect+guarantor+forms`
+
+              window.open(calendarUrl, "_blank")
+            }}
+          >
             <CardContent className="p-4 text-center">
               <Calendar className="h-8 w-8 mx-auto mb-2 text-green-600" />
               <h3 className="font-semibold">Schedule Visit</h3>
-              <p className="text-sm text-muted-foreground">Book visitation</p>
+              <p className="text-sm text-muted-foreground">Book home visitation</p>
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => {
+              const subject = `Bridgeocean Driver Application - Next Steps for ${selectedCandidate.name}`
+              const body = `Dear ${selectedCandidate.name},
+
+Thank you for your interest in becoming a Bridgeocean partner driver.
+
+Following our interview, please find attached the required forms:
+
+1. Driver Information Form
+2. Guarantor Form (2 copies needed)
+3. Referee Form (3 copies needed)
+4. Vehicle Information Form
+5. Insurance Declaration Form
+6. Agreement Terms Document
+
+Please complete all forms and return them within 5 business days.
+
+Requirements reminder:
+- 2 Guarantors (known you for 8+ years, 50+ years old, ₦1M+ assets)
+- 3 Referees (known you for 2+ years)
+- Caution fee: ₦350,000 (₦150,000 minimum to start)
+
+Next steps:
+1. Complete and return forms
+2. Schedule home visitation
+3. Document verification
+4. Contract signing
+
+Contact us if you have any questions.
+
+Best regards,
+Bridgeocean Team
+Phone: +234 906 918 3165
+Email: info@bridgeocean.com`
+
+              const mailtoUrl = `mailto:${selectedCandidate.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+              window.location.href = mailtoUrl
+            }}
+          >
             <CardContent className="p-4 text-center">
               <Send className="h-8 w-8 mx-auto mb-2 text-purple-600" />
               <h3 className="font-semibold">Send Forms</h3>
@@ -537,10 +632,30 @@ export function MeetingAssistant() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => {
+              const phone = selectedCandidate.phone.replace(/\D/g, "")
+              const message = `Welcome to Bridgeocean, ${selectedCandidate.name}! 🚗
+
+You've been added to our driver candidates group. Here you'll receive:
+- Important updates
+- Document requirements
+- Interview schedules
+- Support from our team
+
+Please introduce yourself to the group and let us know if you have any questions.
+
+Best regards,
+Bridgeocean Team`
+
+              const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+              window.open(whatsappUrl, "_blank")
+            }}
+          >
             <CardContent className="p-4 text-center">
               <MessageSquare className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-              <h3 className="font-semibold">WhatsApp</h3>
+              <h3 className="font-semibold">WhatsApp Group</h3>
               <p className="text-sm text-muted-foreground">Add to group</p>
             </CardContent>
           </Card>

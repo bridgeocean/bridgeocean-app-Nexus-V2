@@ -13,6 +13,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields: name, email, phone" }, { status: 400 })
     }
 
+    // Check if email already exists
+    const { data: existingCandidate, error: checkError } = await supabaseAdmin
+      .from("candidates")
+      .select("id, email")
+      .eq("email", email.trim().toLowerCase())
+      .single()
+
+    if (existingCandidate) {
+      return NextResponse.json(
+        {
+          error: "Email already exists",
+          details: `A candidate with email ${email} already exists in the system.`,
+        },
+        { status: 409 },
+      )
+    }
+
     // Create insert data
     const insertData = {
       name: name.trim(),
@@ -34,6 +51,18 @@ Additional Notes: ${notes || "None"}`,
 
     if (error) {
       console.error("Supabase error:", error)
+
+      // Handle specific constraint errors
+      if (error.code === "23505" && error.message.includes("candidates_email_key")) {
+        return NextResponse.json(
+          {
+            error: "Email already exists",
+            details: "A candidate with this email address already exists in the system.",
+          },
+          { status: 409 },
+        )
+      }
+
       return NextResponse.json(
         {
           error: "Failed to save candidate",

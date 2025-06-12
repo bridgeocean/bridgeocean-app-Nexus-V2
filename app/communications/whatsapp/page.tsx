@@ -1,7 +1,7 @@
 "use client"
 
 import { MainNav } from "@/components/main-nav"
-import { WhatsAppIntegration } from "@/components/whatsapp-integration"
+import { SimpleWhatsApp } from "@/components/simple-whatsapp"
 import { WhatsAppAIAssistant } from "@/components/whatsapp-ai-assistant"
 import { WhatsAppGrokAI } from "@/components/whatsapp-grok-ai"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,7 +9,56 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Phone, Settings, MessageCircle, ExternalLink, Bot, Sparkles } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { Phone, Settings, MessageCircle, ExternalLink, Bot, Sparkles, Send } from "lucide-react"
+
+function SimpleWhatsAppSender() {
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <Card>
+        <CardHeader>
+          <CardTitle>Send WhatsApp Message</CardTitle>
+          <CardDescription>Send messages via WhatsApp Web</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Phone Number</Label>
+            <Input placeholder="+234 XXX XXX XXXX" />
+          </div>
+          <div className="space-y-2">
+            <Label>Message</Label>
+            <Textarea placeholder="Type your message here..." className="min-h-[100px]" />
+          </div>
+          <Button className="w-full">
+            <Send className="h-4 w-4 mr-2" />
+            Send via WhatsApp Web
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Templates</CardTitle>
+          <CardDescription>Pre-written messages for common scenarios</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <Button variant="outline" className="w-full justify-start">
+            Welcome new driver candidate
+          </Button>
+          <Button variant="outline" className="w-full justify-start">
+            Interview scheduling
+          </Button>
+          <Button variant="outline" className="w-full justify-start">
+            Document request
+          </Button>
+          <Button variant="outline" className="w-full justify-start">
+            Caution fee explanation
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
 
 export default function WhatsAppPage() {
   return (
@@ -36,7 +85,7 @@ export default function WhatsAppPage() {
           </TabsList>
 
           <TabsContent value="send" className="space-y-4">
-            <WhatsAppIntegration />
+            <SimpleWhatsApp />
           </TabsContent>
 
           <TabsContent value="ai-assistant" className="space-y-4">
