@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   CalendarDays,
-  MessageSquare,
   UserPlus,
   Users,
   Mail,
@@ -23,7 +22,6 @@ import { RecentActivity } from "./components/recent-activity"
 import { Overview } from "./components/overview"
 import { EmailAutomation } from "@/components/admin/email-automation"
 import { CalendarIntegration } from "@/components/admin/calendar-integration"
-import { AdvancedWhatsApp } from "@/components/admin/advanced-whatsapp"
 import { AnalyticsDashboard } from "@/components/admin/analytics-dashboard"
 import { MeetingAssistant } from "./components/meeting-assistant"
 import Link from "next/link"
@@ -36,7 +34,6 @@ export default function DashboardPage() {
     totalCandidates: 0,
     charterBookings: 0,
     activeDrivers: 0,
-    whatsappMessages: 127,
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -80,7 +77,6 @@ export default function DashboardPage() {
           totalCandidates: 245 + variation,
           charterBookings: 18 + Math.floor(variation / 2),
           activeDrivers: 64 + Math.floor(variation / 3),
-          whatsappMessages: 127 + Math.floor(Math.random() * 5),
         })
         setLastUpdated(new Date())
         setLoading(false)
@@ -90,36 +86,35 @@ export default function DashboardPage() {
       // Try to load real data
       try {
         console.log("Fetching real data from Supabase...")
-        const [candidatesResult, bookingsResult, driversResult] = await Promise.allSettled([
-          supabase.from("candidates").select("id", { count: "exact" }),
-          supabase.from("charter_bookings").select("id", { count: "exact" }),
-          supabase.from("candidates").select("id", { count: "exact" }).eq("status", "active"),
-        ])
 
-        let totalCandidates = 0
-        let charterBookings = 0
-        let activeDrivers = 0
+        // Fix for candidate count - use simpler query
+        const { data: candidatesData, error: candidatesError } = await supabase.from("candidates").select("*")
 
-        if (candidatesResult.status === "fulfilled" && candidatesResult.value?.data) {
-          totalCandidates = candidatesResult.value.count || candidatesResult.value.data.length || 0
-          console.log("Total candidates:", totalCandidates)
-        }
+        const { data: bookingsData, error: bookingsError } = await supabase.from("charter_bookings").select("*")
 
-        if (bookingsResult.status === "fulfilled" && bookingsResult.value?.data) {
-          charterBookings = bookingsResult.value.count || bookingsResult.value.data.length || 0
-          console.log("Charter bookings:", charterBookings)
-        }
+        const { data: activeDriversData, error: driversError } = await supabase
+          .from("candidates")
+          .select("*")
+          .eq("status", "active")
 
-        if (driversResult.status === "fulfilled" && driversResult.value?.data) {
-          activeDrivers = driversResult.value.count || driversResult.value.data.length || 0
-          console.log("Active drivers:", activeDrivers)
-        }
+        // Log any errors
+        if (candidatesError) console.error("Candidates query error:", candidatesError)
+        if (bookingsError) console.error("Bookings query error:", bookingsError)
+        if (driversError) console.error("Drivers query error:", driversError)
+
+        // Calculate counts
+        const totalCandidates = candidatesData?.length || 0
+        const charterBookings = bookingsData?.length || 0
+        const activeDrivers = activeDriversData?.length || 0
+
+        console.log("Total candidates:", totalCandidates)
+        console.log("Charter bookings:", charterBookings)
+        console.log("Active drivers:", activeDrivers)
 
         setStats({
           totalCandidates,
           charterBookings,
           activeDrivers,
-          whatsappMessages: 127 + Math.floor(Math.random() * 10), // Simulate WhatsApp activity
         })
 
         setLastUpdated(new Date())
@@ -131,7 +126,6 @@ export default function DashboardPage() {
           totalCandidates: 245,
           charterBookings: 18,
           activeDrivers: 64,
-          whatsappMessages: 127,
         })
         setLastUpdated(new Date())
       }
@@ -141,7 +135,6 @@ export default function DashboardPage() {
         totalCandidates: 245,
         charterBookings: 18,
         activeDrivers: 64,
-        whatsappMessages: 127,
       })
       setLastUpdated(new Date())
     } finally {
@@ -228,7 +221,7 @@ export default function DashboardPage() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               <Card className="relative">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Candidates</CardTitle>
@@ -289,28 +282,6 @@ export default function DashboardPage() {
                 {!loading && (
                   <div className="absolute top-2 right-2">
                     <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-                  </div>
-                )}
-              </Card>
-
-              <Card className="relative">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">WhatsApp Messages</CardTitle>
-                  <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {loading ? (
-                      <div className="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>
-                    ) : (
-                      stats.whatsappMessages
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">+23 today</p>
-                </CardContent>
-                {!loading && (
-                  <div className="absolute top-2 right-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
                 )}
               </Card>
@@ -386,13 +357,18 @@ export default function DashboardPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  Advanced WhatsApp Tools
+                  <Calendar className="h-5 w-5" />
+                  WhatsApp Communications
                 </CardTitle>
-                <CardDescription>Driver management and customer communications</CardDescription>
+                <CardDescription>Please use the WhatsApp page for messaging features</CardDescription>
               </CardHeader>
               <CardContent>
-                <AdvancedWhatsApp />
+                <div className="text-center py-8">
+                  <p className="mb-4">The WhatsApp tools have been moved to a dedicated page</p>
+                  <Link href="/communications/whatsapp">
+                    <Button>Go to WhatsApp Page</Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

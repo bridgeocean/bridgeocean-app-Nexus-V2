@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { supabase } from "@/lib/supabase"
 
 interface Activity {
   id: string
@@ -13,9 +14,72 @@ interface Activity {
 
 export function RecentActivity() {
   const [activities, setActivities] = useState<Activity[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const generateActivities = () => {
+    const loadRecentActivity = async () => {
+      try {
+        setLoading(true)
+
+        // Try to load real data from candidates and bookings
+        const [candidatesResult, bookingsResult] = await Promise.allSettled([
+          supabase.from("candidates").select("*").order("created_at", { ascending: false }).limit(3),
+          supabase.from("charter_bookings").select("*").order("created_at", { ascending: false }).limit(3),
+        ])
+
+        const recentActivities: Activity[] = []
+
+        // Process candidates
+        if (candidatesResult.status === "fulfilled" && candidatesResult.value?.data) {
+          candidatesResult.value.data.forEach((candidate) => {
+            let action = "Applied for driver position"
+            if (candidate.status === "active") action = "Became active driver"
+            if (candidate.status === "interview") action = "Scheduled for interview"
+            if (candidate.status === "onboarding") action = "Started onboarding"
+
+            recentActivities.push({
+              id: `candidate-${candidate.id}`,
+              user: candidate.name || "New Candidate",
+              action,
+              time: formatTimeAgo(candidate.created_at || new Date().toISOString()),
+            })
+          })
+        }
+
+        // Process bookings
+        if (bookingsResult.status === "fulfilled" && bookingsResult.value?.data) {
+          bookingsResult.value.data.forEach((booking) => {
+            recentActivities.push({
+              id: `booking-${booking.id}`,
+              user: booking.customer_name || "Customer",
+              action: "Made a charter booking",
+              time: formatTimeAgo(booking.created_at || new Date().toISOString()),
+              amount: booking.total_amount ? `₦${booking.total_amount}` : undefined,
+            })
+          })
+        }
+
+        // If we have real data, use it
+        if (recentActivities.length > 0) {
+          // Sort by most recent
+          recentActivities.sort((a, b) => {
+            return a.time.localeCompare(b.time)
+          })
+
+          setActivities(recentActivities)
+        } else {
+          // Fallback to demo data
+          generateDemoActivities()
+        }
+      } catch (error) {
+        console.error("Error loading recent activity:", error)
+        generateDemoActivities()
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    const generateDemoActivities = () => {
       const baseActivities = [
         { user: "John Doe", action: "Applied for driver position", amount: "" },
         { user: "Jane Smith", action: "Completed interview", amount: "" },
@@ -39,11 +103,46 @@ export function RecentActivity() {
       setActivities(selected)
     }
 
-    generateActivities()
-    const interval = setInterval(generateActivities, 15000) // Update every 15 seconds
+    // Format time ago (e.g., "5m ago", "2h ago")
+    const formatTimeAgo = (dateString: string) => {
+      const date = new Date(dateString)
+      const now = new Date()
+      const diffMs = now.getTime() - date.getTime()
+      const diffMins = Math.floor(diffMs / 60000)
+
+      if (diffMins < 60) {
+        return `${diffMins}m ago`
+      } else if (diffMins < 1440) {
+        return `${Math.floor(diffMins / 60)}h ago`
+      } else {
+        return `${Math.floor(diffMins / 1440)}d ago`
+      }
+    }
+
+    loadRecentActivity()
+    const interval = setInterval(loadRecentActivity, 30000) // Update every 30 seconds
 
     return () => clearInterval(interval)
   }, [])
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center">
+            <div className="h-9 w-9 rounded-full bg-gray-200 animate-pulse"></div>
+            <div className="ml-4 space-y-1 flex-1">
+              <div className="h-4 bg-gray-200 rounded w-1/4 animate-pulse"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+            </div>
+            <div className="ml-auto">
+              <div className="h-3 bg-gray-200 rounded w-16 animate-pulse"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8">
