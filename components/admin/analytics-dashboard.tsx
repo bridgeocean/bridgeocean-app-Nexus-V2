@@ -3,12 +3,21 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, Users, Car, DollarSign, AlertTriangle } from "lucide-react"
+import {
+  TrendingUp,
+  TrendingDown,
+  Users,
+  Car,
+  DollarSign,
+  AlertTriangle,
+  MessageSquare,
+  Calendar,
+  StepForwardIcon as Progress,
+} from "lucide-react"
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 
 export function AnalyticsDashboard() {
-  // Add at the top of the component:
   const [businessMetrics, setBusinessMetrics] = useState({
     charterBookings: 0,
     charterRevenue: 0,
@@ -28,155 +37,186 @@ export function AnalyticsDashboard() {
     avgResponseTime: "15 min",
   })
 
+  const [metrics, setMetrics] = useState({
+    driverConversionRate: 0,
+    charterBookingRate: 0,
+    whatsappResponseRate: 0,
+    averageProcessingTime: 0,
+    monthlyGrowth: 0,
+    activeDrivers: 0,
+  })
+
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadBusinessMetrics()
-  }, [])
+    const loadBusinessMetrics = async () => {
+      try {
+        // Get charter bookings
+        const { data: bookings } = await supabase.from("charter_bookings").select("*")
 
-  const loadBusinessMetrics = async () => {
-    try {
-      // Get charter bookings
-      const { data: bookings } = await supabase.from("charter_bookings").select("*")
+        // Get active drivers
+        const { data: drivers } = await supabase.from("candidates").select("*").eq("status", "active")
 
-      // Get active drivers
-      const { data: drivers } = await supabase.from("candidates").select("*").eq("status", "active")
+        // Get partners
+        const { data: partners } = await supabase.from("candidates").select("*").eq("status", "partner")
 
-      // Get partners
-      const { data: partners } = await supabase.from("candidates").select("*").eq("status", "partner")
+        // Get pending partners
+        const { data: pending } = await supabase.from("candidates").select("*").eq("status", "pending")
 
-      // Get pending partners
-      const { data: pending } = await supabase.from("candidates").select("*").eq("status", "pending")
+        // Calculate metrics
+        const charterBookings = bookings?.length || 0
+        const ehailingDrivers = drivers?.filter((d) => d.service_type === "ehailing").length || 0
+        const activePartners = partners?.length || 0
+        const pendingPartners = pending?.length || 0
 
-      // Calculate metrics
-      const charterBookings = bookings?.length || 0
-      const ehailingDrivers = drivers?.filter((d) => d.service_type === "ehailing").length || 0
-      const activePartners = partners?.length || 0
-      const pendingPartners = pending?.length || 0
+        setBusinessMetrics({
+          charterBookings,
+          charterRevenue: charterBookings * 45000, // Average booking value
+          charterGrowth: 12.5,
+          ehailingDrivers,
+          ehailingRevenue: ehailingDrivers * 1800000, // Average monthly revenue per driver
+          ehailingGrowth: 18.3,
+          activePartners,
+          pendingPartners,
+          partnerGrowth: 8.7,
+          totalCautionFees: ehailingDrivers * 350000,
+          dailyContributions: ehailingDrivers * 30000, // 30 days * 1000
+          weeklyRemittances: ehailingDrivers * 100000, // Average weekly
+          inspectionCompliance: 96,
+          serviceCompliance: 88,
+          customerSatisfaction: 94,
+          avgResponseTime: "15 min",
+        })
+      } catch (error) {
+        console.error("Error loading business metrics:", error)
+      }
+    }
 
-      setBusinessMetrics({
-        charterBookings,
-        charterRevenue: charterBookings * 45000, // Average booking value
-        charterGrowth: 12.5,
-        ehailingDrivers,
-        ehailingRevenue: ehailingDrivers * 1800000, // Average monthly revenue per driver
-        ehailingGrowth: 18.3,
-        activePartners,
-        pendingPartners,
-        partnerGrowth: 8.7,
-        totalCautionFees: ehailingDrivers * 350000,
-        dailyContributions: ehailingDrivers * 30000, // 30 days * 1000
-        weeklyRemittances: ehailingDrivers * 100000, // Average weekly
-        inspectionCompliance: 96,
-        serviceCompliance: 88,
-        customerSatisfaction: 94,
-        avgResponseTime: "15 min",
+    const updateMetrics = () => {
+      // Simulate real-time analytics data
+      setMetrics({
+        driverConversionRate: Math.floor(Math.random() * 30) + 65, // 65-95%
+        charterBookingRate: Math.floor(Math.random() * 20) + 75, // 75-95%
+        whatsappResponseRate: Math.floor(Math.random() * 15) + 80, // 80-95%
+        averageProcessingTime: Math.floor(Math.random() * 3) + 2, // 2-5 days
+        monthlyGrowth: Math.floor(Math.random() * 10) + 15, // 15-25%
+        activeDrivers: Math.floor(Math.random() * 20) + 45, // 45-65
       })
-    } catch (error) {
-      console.error("Error loading business metrics:", error)
-    } finally {
       setLoading(false)
     }
+
+    loadBusinessMetrics()
+    updateMetrics()
+    const interval = setInterval(updateMetrics, 20000) // Update every 20 seconds
+
+    return () => clearInterval(interval)
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(6)].map((_, i) => (
+          <Card key={i}>
+            <CardContent className="p-6">
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/2 mb-4"></div>
+                <div className="h-2 bg-gray-200 rounded w-full"></div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
   }
-
-  // Sample data - in real app, this would come from your database
-  // const businessMetrics = {
-  //   // Charter service metrics
-  //   charterBookings: 245,
-  //   charterRevenue: 33500000,
-  //   charterGrowth: 12.5,
-
-  //   // E-hailing metrics
-  //   ehailingDrivers: 25,
-  //   ehailingRevenue: 45200000,
-  //   ehailingGrowth: 18.3,
-
-  //   // Partner metrics
-  //   activePartners: 25,
-  //   pendingPartners: 8,
-  //   partnerGrowth: 8.7,
-
-  //   // Financial metrics
-  //   totalCautionFees: 8750000, // 25 drivers × ₦350,000
-  //   dailyContributions: 750000, // 25 drivers × ₦1,000 × 30 days
-  //   weeklyRemittances: 2500000,
-
-  //   // Operational metrics
-  //   inspectionCompliance: 96,
-  //   serviceCompliance: 88,
-  //   customerSatisfaction: 94,
-  //   avgResponseTime: "15 min",
-  // }
-
-  const monthlyData = [
-    { month: "Jan", charter: 45, ehailing: 180, partners: 20, revenue: 12500000 },
-    { month: "Feb", charter: 52, ehailing: 195, partners: 22, revenue: 14200000 },
-    { month: "Mar", charter: 48, ehailing: 210, partners: 23, revenue: 15800000 },
-    { month: "Apr", charter: 61, ehailing: 225, partners: 24, revenue: 17100000 },
-    { month: "May", charter: 55, ehailing: 240, partners: 25, revenue: 18900000 },
-    { month: "Jun", charter: 67, ehailing: 255, partners: 25, revenue: 20500000 },
-  ]
-
-  const vehiclePerformance = [
-    {
-      vehicle: "Toyota Camry Fleet",
-      count: 15,
-      charterBookings: 156,
-      ehailingTrips: 1850,
-      revenue: 25600000,
-      utilization: 78,
-      avgRating: 4.7,
-    },
-    {
-      vehicle: "GMC Terrain Fleet",
-      count: 10,
-      charterBookings: 89,
-      ehailingTrips: 1200,
-      revenue: 22100000,
-      utilization: 65,
-      avgRating: 4.8,
-    },
-  ]
-
-  const driverPerformance = [
-    {
-      name: "Mike Johnson",
-      vehicle: "Toyota Camry",
-      charterTrips: 23,
-      ehailingTrips: 145,
-      earnings: 2300000,
-      rating: 4.8,
-      compliance: 98,
-    },
-    {
-      name: "Sarah Williams",
-      vehicle: "GMC Terrain",
-      charterTrips: 18,
-      ehailingTrips: 120,
-      earnings: 3600000,
-      rating: 4.9,
-      compliance: 95,
-    },
-    {
-      name: "David Chen",
-      vehicle: "Toyota Camry",
-      charterTrips: 15,
-      ehailingTrips: 98,
-      earnings: 1500000,
-      rating: 4.6,
-      compliance: 92,
-    },
-  ]
-
-  const upcomingEvents = [
-    { type: "inspection", date: "2025-06-10", description: "Weekly inspection - All drivers", count: 25 },
-    { type: "service", date: "2025-06-28", description: "Bi-monthly service - Group A", count: 12 },
-    { type: "remittance", date: "2025-06-08", description: "Weekly remittance due", count: 25 },
-    { type: "contract", date: "2025-06-12", description: "New partner contract signing", count: 3 },
-  ]
 
   return (
     <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Driver Conversion Rate</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.driverConversionRate}%</div>
+            <Progress value={metrics.driverConversionRate} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-2">
+              <TrendingUp className="h-3 w-3 inline mr-1" />
+              +2.5% from last month
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Charter Booking Rate</CardTitle>
+            <Car className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.charterBookingRate}%</div>
+            <Progress value={metrics.charterBookingRate} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-2">
+              <TrendingUp className="h-3 w-3 inline mr-1" />
+              +1.8% from last month
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">WhatsApp Response Rate</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.whatsappResponseRate}%</div>
+            <Progress value={metrics.whatsappResponseRate} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-2">
+              <TrendingUp className="h-3 w-3 inline mr-1" />
+              +3.2% from last month
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg Processing Time</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.averageProcessingTime} days</div>
+            <p className="text-xs text-muted-foreground mt-2">
+              <TrendingDown className="h-3 w-3 inline mr-1 text-green-600" />
+              -0.5 days from last month
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Monthly Growth</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.monthlyGrowth}%</div>
+            <Badge variant="secondary" className="mt-2">
+              Strong Growth
+            </Badge>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Drivers</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.activeDrivers}</div>
+            <p className="text-xs text-muted-foreground mt-2">Currently on the road</p>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -688,6 +728,100 @@ export function AnalyticsDashboard() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Performance Insights</CardTitle>
+          <CardDescription>Key metrics and trends for your business</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Driver Onboarding Efficiency</span>
+              <Badge variant="outline">Excellent</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Customer Satisfaction</span>
+              <Badge variant="outline">High</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Revenue Growth</span>
+              <Badge variant="outline">Strong</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Operational Efficiency</span>
+              <Badge variant="outline">Good</Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
+
+const monthlyData = [
+  { month: "Jan", charter: 45, ehailing: 180, partners: 20, revenue: 12500000 },
+  { month: "Feb", charter: 52, ehailing: 195, partners: 22, revenue: 14200000 },
+  { month: "Mar", charter: 48, ehailing: 210, partners: 23, revenue: 15800000 },
+  { month: "Apr", charter: 61, ehailing: 225, partners: 24, revenue: 17100000 },
+  { month: "May", charter: 55, ehailing: 240, partners: 25, revenue: 18900000 },
+  { month: "Jun", charter: 67, ehailing: 255, partners: 25, revenue: 20500000 },
+]
+
+const vehiclePerformance = [
+  {
+    vehicle: "Toyota Camry Fleet",
+    count: 15,
+    charterBookings: 156,
+    ehailingTrips: 1850,
+    revenue: 25600000,
+    utilization: 78,
+    avgRating: 4.7,
+  },
+  {
+    vehicle: "GMC Terrain Fleet",
+    count: 10,
+    charterBookings: 89,
+    ehailingTrips: 1200,
+    revenue: 22100000,
+    utilization: 65,
+    avgRating: 4.8,
+  },
+]
+
+const driverPerformance = [
+  {
+    name: "Mike Johnson",
+    vehicle: "Toyota Camry",
+    charterTrips: 23,
+    ehailingTrips: 145,
+    earnings: 2300000,
+    rating: 4.8,
+    compliance: 98,
+  },
+  {
+    name: "Sarah Williams",
+    vehicle: "GMC Terrain",
+    charterTrips: 18,
+    ehailingTrips: 120,
+    earnings: 3600000,
+    rating: 4.9,
+    compliance: 95,
+  },
+  {
+    name: "David Chen",
+    vehicle: "Toyota Camry",
+    charterTrips: 15,
+    ehailingTrips: 98,
+    earnings: 1500000,
+    rating: 4.6,
+    compliance: 92,
+  },
+]
+
+const upcomingEvents = [
+  { type: "inspection", date: "2025-06-10", description: "Weekly inspection - All drivers", count: 25 },
+  { type: "service", date: "2025-06-28", description: "Bi-monthly service - Group A", count: 12 },
+  { type: "remittance", date: "2025-06-08", description: "Weekly remittance due", count: 25 },
+  { type: "contract", date: "2025-06-12", description: "New partner contract signing", count: 3 },
+]
