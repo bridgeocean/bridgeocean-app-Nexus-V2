@@ -13,7 +13,6 @@ import {
   Users,
   Mail,
   Calendar,
-  Bot,
   BarChart3,
   AlertCircle,
   Briefcase,
@@ -23,12 +22,11 @@ import { RecentActivity } from "./components/recent-activity"
 import { Overview } from "./components/overview"
 import { EmailAutomation } from "@/components/admin/email-automation"
 import { CalendarIntegration } from "@/components/admin/calendar-integration"
-import { EnhancedAI } from "@/components/admin/enhanced-ai"
 import { AdvancedWhatsApp } from "@/components/admin/advanced-whatsapp"
 import { AnalyticsDashboard } from "@/components/admin/analytics-dashboard"
 import { MeetingAssistant } from "./components/meeting-assistant"
 import Link from "next/link"
-import { supabase, isSupabaseConfigured } from "@/lib/supabase"
+import { supabase } from "@/lib/supabase"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function DashboardPage() {
@@ -64,20 +62,7 @@ export default function DashboardPage() {
     try {
       setError(null)
 
-      // Check if Supabase is configured
-      if (!isSupabaseConfigured()) {
-        console.warn("Supabase not configured, using demo data")
-        setStats({
-          totalCandidates: 245,
-          charterBookings: 18,
-          activeDrivers: 64,
-          whatsappMessages: 127,
-        })
-        setLoading(false)
-        return
-      }
-
-      // Try to load real data
+      // Since candidates work, Supabase is configured
       const [candidatesResult, bookingsResult, driversResult] = await Promise.allSettled([
         supabase.from("candidates").select("id", { count: "exact" }),
         supabase.from("charter_bookings").select("id", { count: "exact" }),
@@ -173,15 +158,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {!isSupabaseConfigured() && (
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Database not configured. Showing demo data. Configure Supabase environment variables for live data.
-            </AlertDescription>
-          </Alert>
-        )}
-
         <Tabs
           defaultValue="overview"
           className="space-y-4"
@@ -189,18 +165,14 @@ export default function DashboardPage() {
             if (value === "overview") refreshStats()
           }}
         >
-          <TabsList className="grid w-full grid-cols-9">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="meeting-assistant">🎯 Interviews</TabsTrigger>
             <TabsTrigger value="email">📧 Email</TabsTrigger>
             <TabsTrigger value="calendar">📅 Calendar</TabsTrigger>
-            <TabsTrigger value="ai">🤖 AI Assistant</TabsTrigger>
             <TabsTrigger value="whatsapp">📱 WhatsApp</TabsTrigger>
             <TabsTrigger value="analytics">📊 Analytics</TabsTrigger>
             <TabsTrigger value="candidates">Candidates</TabsTrigger>
-            <TabsTrigger value="settings" onClick={() => router.push("/dashboard/settings")}>
-              ⚙️ Settings
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -310,21 +282,6 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <CalendarIntegration />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="ai" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bot className="h-5 w-5" />
-                  Enhanced AI Assistant
-                </CardTitle>
-                <CardDescription>Smart responses with Bridgeocean knowledge</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <EnhancedAI />
               </CardContent>
             </Card>
           </TabsContent>
