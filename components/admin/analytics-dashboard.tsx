@@ -7,6 +7,16 @@ import { TrendingUp, Users, Car, DollarSign, AlertTriangle } from "lucide-react"
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 
+// Define types for fleet vehicles
+type FleetVehicle = {
+  id: string
+  name: string
+  model: string
+  year: number
+  vehicle_type: string
+  status: string
+}
+
 export function AnalyticsDashboard() {
   const [businessMetrics, setBusinessMetrics] = useState({
     charterBookings: 0,
@@ -20,9 +30,8 @@ export function AnalyticsDashboard() {
     dailyContribution: 0,
     tokunboCars: 1,
     nigerianUsedCars: 0,
-    toyotaCamryCount: 1, // Default value, will be updated from Supabase
-    gmcTerrainCount: 1, // Default value, will be updated from Supabase
-    fleetVehicles: [], // Will store all fleet vehicles
+    fleetVehicles: [] as FleetVehicle[],
+    vehiclesByType: {} as Record<string, number>,
   })
 
   const [loading, setLoading] = useState(true)
@@ -53,39 +62,46 @@ export function AnalyticsDashboard() {
         .eq("status", "active")
       if (driversError) console.error("Error loading active drivers:", driversError)
 
-      // Try to get fleet vehicles from the fleetvehicles table
-      let toyotaCamryCount = 1 // Default fallback
-      let gmcTerrainCount = 1 // Default fallback
-      let fleetVehicles = []
+      // Get fleet vehicles
+      let fleetVehicles: FleetVehicle[] = []
+      let vehiclesByType: Record<string, number> = {}
 
       try {
         const { data: vehicles, error: vehiclesError } = await supabase.from("fleetvehicles").select("*")
 
         if (vehiclesError) {
           console.error("Error loading fleet vehicles:", vehiclesError)
+          // Default values if table doesn't exist or has errors
+          vehiclesByType = {
+            "Toyota Camry": 1,
+            "GMC Terrain": 1,
+          }
         } else if (vehicles && vehicles.length > 0) {
-          fleetVehicles = vehicles
+          fleetVehicles = vehicles as FleetVehicle[]
 
-          // Count vehicles by type
-          toyotaCamryCount = vehicles.filter(
-            (v) => v.model?.toLowerCase().includes("camry") || v.name?.toLowerCase().includes("camry"),
-          ).length
-
-          gmcTerrainCount = vehicles.filter(
-            (v) =>
-              v.model?.toLowerCase().includes("terrain") ||
-              v.name?.toLowerCase().includes("terrain") ||
-              v.model?.toLowerCase().includes("gmc") ||
-              v.name?.toLowerCase().includes("gmc"),
-          ).length
-
-          // Ensure we have at least 1 of each for display purposes
-          toyotaCamryCount = Math.max(1, toyotaCamryCount)
-          gmcTerrainCount = Math.max(1, gmcTerrainCount)
+          // Count vehicles by model
+          vehiclesByType = fleetVehicles.reduce(
+            (acc, vehicle) => {
+              const model = vehicle.model || "Unknown"
+              acc[model] = (acc[model] || 0) + 1
+              return acc
+            },
+            {} as Record<string, number>,
+          )
+        } else {
+          // No vehicles found, use default values
+          vehiclesByType = {
+            "Toyota Camry": 1,
+            "GMC Terrain": 1,
+          }
         }
       } catch (error) {
         console.error("Error in fleet vehicles query:", error)
-        // Fallback to default values already set
+        // Default values if query fails
+        vehiclesByType = {
+          "Toyota Camry": 1,
+          "GMC Terrain": 1,
+        }
       }
 
       // Calculate metrics
@@ -124,9 +140,8 @@ export function AnalyticsDashboard() {
         dailyContribution,
         tokunboCars,
         nigerianUsedCars,
-        toyotaCamryCount,
-        gmcTerrainCount,
         fleetVehicles,
+        vehiclesByType,
       })
 
       // Determine if we're using real or demo data
@@ -261,8 +276,11 @@ export function AnalyticsDashboard() {
                     <p className="text-2xl font-bold">{businessMetrics.totalCandidates}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">Active Drivers</p>
-                    <p className="text-2xl font-bold">{businessMetrics.activeDrivers}</p>
+                    <p className="text-sm font-medium">Fleet Vehicles</p>
+                    <p className="text-2xl font-bold">
+                      {businessMetrics.fleetVehicles.length ||
+                        Object.values(businessMetrics.vehiclesByType).reduce((a, b) => a + b, 0)}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -348,24 +366,25 @@ export function AnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Car className="h-4 w-4" />
-                      <span>Toyota Camry</span>
+                  {Object.keys(businessMetrics.vehiclesByType).length > 0 ? (
+                    Object.entries(businessMetrics.vehiclesByType).map(([model, count]) => (
+                      <div key={model} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Car className="h-4 w-4" />
+                          <span>{model}</span>
+                        </div>
+                        <Badge variant="outline">
+                          {count} vehicle{count !== 1 ? "s" : ""}
+                        </Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <p>No vehicles found in fleet</p>
+                      <p className="text-xs mt-1">Add vehicles to the fleetvehicles table</p>
                     </div>
-                    <Badge variant="outline">
-                      {businessMetrics.toyotaCamryCount} vehicle{businessMetrics.toyotaCamryCount !== 1 ? "s" : ""}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Car className="h-4 w-4" />
-                      <span>GMC Terrain</span>
-                    </div>
-                    <Badge variant="outline">
-                      {businessMetrics.gmcTerrainCount} vehicle{businessMetrics.gmcTerrainCount !== 1 ? "s" : ""}
-                    </Badge>
-                  </div>
+                  )}
+
                   {businessMetrics.fleetVehicles.length > 0 && (
                     <div className="mt-4 pt-4 border-t">
                       <p className="text-sm text-muted-foreground mb-2">
