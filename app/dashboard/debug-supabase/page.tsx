@@ -1,8 +1,11 @@
 "use client"
+import { SupabaseDebugClient } from "./client"
 
-import { useState, useEffect } from "react"
-import { supabase, isSupabaseConfigured } from "@/lib/supabase"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle, CheckCircle } from 'lucide-react'
+export default function DebugSupabasePage() {
+  return (
+    <div className="container mx-auto py-10">
+      <h1 className="text-2xl font-bold mb-6">Supabase Connection Debug</h1>
+      <SupabaseDebugClient />
+    </div>
+  )
+}
