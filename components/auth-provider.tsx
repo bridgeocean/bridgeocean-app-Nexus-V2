@@ -15,6 +15,7 @@ type AuthContextType = {
   isAuthenticated: boolean
   isLoading: boolean
   signOut: () => void
+  logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: true,
   signOut: () => {},
+  logout: () => {},
 })
 
 export const useAuth = () => useContext(AuthContext)
@@ -92,5 +94,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/signin")
   }
 
-  return <AuthContext.Provider value={{ user, isAuthenticated, isLoading, signOut }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, signOut, logout: signOut }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
