@@ -425,7 +425,7 @@ Bridgeocean Drive Team`,
       const message = messageTemplates.inspection_reminder.content
         .replace(/{{driverName}}/g, driver.name)
         .replace(/{{inspectionDate}}/g, driver.nextInspection)
-        .replace(/{{vehicle}}/g, driver.vehicle)
+        .replace(/{{vehicle}}/g, driver.vehicle || "Vehicle")
 
       sendMessage(driver.phone, message)
     })
@@ -448,7 +448,7 @@ Bridgeocean Drive Team`,
       const message = messageTemplates.service_reminder.content
         .replace(/{{driverName}}/g, driver.name)
         .replace(/{{serviceDate}}/g, driver.nextService)
-        .replace(/{{vehicle}}/g, driver.vehicle)
+        .replace(/{{vehicle}}/g, driver.vehicle || "Vehicle")
 
       sendMessage(driver.phone, message)
     })
