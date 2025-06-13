@@ -28,7 +28,7 @@ export function SupabaseDebugClient() {
       setError(null)
 
       // Check if Supabase is configured
-      const isConfigured = isSupabaseConfigured()
+      const isConfigured = Boolean(isSupabaseConfigured())
       setConfigured(isConfigured)
 
       // Get environment variables (partial for security)
