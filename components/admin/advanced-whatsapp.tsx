@@ -12,6 +12,15 @@ import { MessageSquare, Send, Users, Clock, Car, Calendar, AlertTriangle } from 
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
 
+interface DriverData {
+  id: string
+  name: string
+  phone: string
+  vehicle?: string
+  status: string
+  service_type: string
+}
+
 export function AdvancedWhatsApp() {
   const { toast } = useToast()
   const [selectedContact, setSelectedContact] = useState("")
@@ -70,7 +79,7 @@ export function AdvancedWhatsApp() {
         .eq("service_type", "ehailing")
 
       if (!error && drivers) {
-        const formattedDrivers = drivers.map((driver) => ({
+        const formattedDrivers = drivers.map((driver: DriverData) => ({
           id: driver.id,
           name: driver.name,
           phone: driver.phone,
