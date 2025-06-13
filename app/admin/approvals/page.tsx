@@ -25,24 +25,37 @@ export default function ApprovalsPage() {
 
   useEffect(() => {
     // Load pending approvals
-    const pending = JSON.parse(localStorage.getItem("pendingApprovals") || "[]")
-    setPendingUsers(pending)
+    try {
+      const storedData = localStorage.getItem("pendingApprovals") || "[]"
+      // Add type assertion to ensure the data matches PendingUser[]
+      const pending = JSON.parse(storedData) as PendingUser[]
+      setPendingUsers(pending)
+    } catch (error) {
+      console.error("Error loading pending approvals:", error)
+      setPendingUsers([])
+    }
   }, [])
 
   const handleApproval = (userId: string, action: "approve" | "reject") => {
     // Update pending approvals
     const updatedPending = pendingUsers.map((user) =>
-      user.id === userId ? { ...user, status: action === "approve" ? "approved" : "rejected" } : user,
+      user.id === userId
+        ? { ...user, status: action === "approve" ? ("approved" as const) : ("rejected" as const) }
+        : user,
     )
     setPendingUsers(updatedPending)
     localStorage.setItem("pendingApprovals", JSON.stringify(updatedPending))
 
     // Update registered users
-    const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "[]")
-    const updatedRegistered = registeredUsers.map((user: any) =>
-      user.id === userId ? { ...user, status: action === "approve" ? "approved" : "rejected" } : user,
-    )
-    localStorage.setItem("registeredUsers", JSON.stringify(updatedRegistered))
+    try {
+      const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "[]")
+      const updatedRegistered = registeredUsers.map((user: any) =>
+        user.id === userId ? { ...user, status: action === "approve" ? "approved" : "rejected" } : user,
+      )
+      localStorage.setItem("registeredUsers", JSON.stringify(updatedRegistered))
+    } catch (error) {
+      console.error("Error updating registered users:", error)
+    }
 
     setMessage(`User ${action === "approve" ? "approved" : "rejected"} successfully`)
     setTimeout(() => setMessage(""), 3000)
