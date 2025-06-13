@@ -1,20 +1,32 @@
+// File: app/admin-login/page.tsx
+
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import Cookies from 'js-cookie'
 
 export default function AdminLogin() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const from = searchParams.get('from') || '/dashboard'
+
+  // Check if already logged in
+  useEffect(() => {
+    const authToken = Cookies.get('bridgeoceanAdminAuth')
+    if (authToken) {
+      router.push(from)
+    }
+  }, [router, from])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,10 +35,9 @@ export default function AdminLogin() {
 
     // Check password
     if (password === "bridgeocean2024") {
-      // Set authentication in localStorage
-      localStorage.setItem("bridgeoceanAdminAuth", "true")
-      localStorage.setItem("adminLoginTime", Date.now().toString())
-
+      // Set authentication in cookie (more secure than localStorage)
+      Cookies.set('bridgeoceanAdminAuth', 'true', { expires: 1 }) // Expires in 1 day
+      
       // Set user data for the auth provider
       const adminUser = {
         email: "admin@bridgeocean.com",
@@ -35,9 +46,9 @@ export default function AdminLogin() {
       }
       localStorage.setItem("user", JSON.stringify(adminUser))
 
-      // Small delay to ensure localStorage is set
+      // Small delay to ensure cookie is set
       setTimeout(() => {
-        router.push("/dashboard")
+        router.push(from)
       }, 100)
     } else {
       setError("Invalid password. Please try again.")
