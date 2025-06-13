@@ -34,8 +34,8 @@ export function AdvancedWhatsApp() {
     avgResponseTime: "15 min",
   })
 
-  const useTemplate = (templateKey) => {
-    const template = messageTemplates[templateKey]
+  const useTemplate = (templateKey: string) => {
+    const template = messageTemplates[templateKey as keyof typeof messageTemplates]
     if (template) {
       setMessageTemplate(template.content)
       toast({
