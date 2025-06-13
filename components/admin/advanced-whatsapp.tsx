@@ -19,6 +19,10 @@ interface DriverData {
   vehicle?: string
   status: string
   service_type: string
+  nextInspection: string
+  nextService: string
+  lastInspection?: string
+  lastService?: string
 }
 
 interface BroadcastGroup {
@@ -315,32 +319,7 @@ Bridgeocean Drive Team`,
     },
   }
 
-  const useTemplate = (templateKey: string) => {
-    const template = messageTemplates[templateKey as keyof typeof messageTemplates]
-    if (template) {
-      setMessageTemplate(template.content)
-      toast({
-        title: "Template Loaded",
-        description: `${template.title} template is ready to customize`,
-      })
-    }
-  }
-
-  useEffect(() => {
-    loadEhailingDrivers()
-    loadBroadcastGroups()
-  }, [])
-
-  useEffect(() => {
-    const savedSettings = localStorage.getItem("bridgeocean_whatsapp_settings")
-    if (savedSettings) {
-      const settings: { numbers?: { number: string; isDefault: boolean }[] } = JSON.parse(savedSettings)
-      const defaultNumber = settings.numbers?.find((n) => n.isDefault)
-      if (defaultNumber) {
-        setSelectedFromNumber(defaultNumber.number)
-      }
-    }
-  }, [])
+  const [templateLoaded, setTemplateLoaded] = useState(false)
 
   const loadEhailingDrivers = async () => {
     try {
@@ -508,8 +487,38 @@ Bridgeocean Drive Team`,
   const inspectionDueCount = 2
 
   const handleTemplateClick = (key: string) => {
-    useTemplate(key)
+    const template = messageTemplates[key as keyof typeof messageTemplates]
+    if (template) {
+      setMessageTemplate(template.content)
+      setTemplateLoaded(true)
+    }
   }
+
+  useEffect(() => {
+    loadEhailingDrivers()
+    loadBroadcastGroups()
+  }, [])
+
+  useEffect(() => {
+    const savedSettings = localStorage.getItem("bridgeocean_whatsapp_settings")
+    if (savedSettings) {
+      const settings: { numbers?: { number: string; isDefault: boolean }[] } = JSON.parse(savedSettings)
+      const defaultNumber = settings.numbers?.find((n) => n.isDefault)
+      if (defaultNumber) {
+        setSelectedFromNumber(defaultNumber.number)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (templateLoaded) {
+      toast({
+        title: "Template Loaded",
+        description: `${messageTemplates[selectedTemplateKey as keyof typeof messageTemplates].title} template is ready to customize`,
+      })
+      setTemplateLoaded(false)
+    }
+  }, [templateLoaded])
 
   return (
     <div className="space-y-6">
@@ -791,7 +800,7 @@ Bridgeocean Drive Team`,
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{template.title}</CardTitle>
-                    <Button variant="outline" size="sm" onClick={() => handleTemplateClick(key)}>
+                    <Button variant="outline" size="sm">
                       Use Template
                     </Button>
                   </div>
