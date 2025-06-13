@@ -9,20 +9,20 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Completely disable output file tracing to avoid stack overflow
+  output: 'standalone',
   experimental: {
-    outputFileTracingIncludes: {},
-    outputFileTracingExcludes: {
-      '*': [
-        'node_modules/@swc/core-linux-x64-gnu',
-        'node_modules/@swc/core-linux-x64-musl',
-        'node_modules/@esbuild/linux-x64',
-      ],
-    },
+    outputFileTracingRoot: undefined,
+    outputFileTracing: false,
   },
-  // Disable build optimization that's causing the stack overflow
+  // Disable all optimizations that might cause issues
   swcMinify: false,
   compiler: {
     removeConsole: false,
+  },
+  // Disable static optimization for problematic pages
+  async rewrites() {
+    return []
   },
 }
 
