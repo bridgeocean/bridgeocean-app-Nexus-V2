@@ -16,11 +16,6 @@ export function MainNav() {
       active: pathname === "/",
     },
     {
-      href: "/nexus",
-      label: "Nexus Emergency",
-      active: pathname === "/nexus",
-    },
-    {
       href: "/charter",
       label: "Charter Services",
       active: pathname === "/charter",
