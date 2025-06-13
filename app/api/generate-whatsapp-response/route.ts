@@ -12,7 +12,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ text: response })
   } catch (error) {
-    console.error("Error generating response:", error)
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+    console.error("Error generating response:", errorMessage)
     return NextResponse.json({ error: "Failed to generate response" }, { status: 500 })
   }
 }
@@ -154,5 +155,5 @@ async function generateBetterResponse(message: string, companyInfo: any) {
   }
 
   // Default response for general inquiries
-  return `👋 *Welcome to ${name}*\n\nThank you for reaching out to us. We offer:\n\n${services.map((service) => `• ${service}`).join("\n")}\n\n*How may we assist you today?* Feel free to ask about our services, pricing, booking process, or emergency coordination.\n\n*Contact Information:*\n• WhatsApp: ${contact.whatsapp[0]}\n• Email: ${contact.email}\n• Website: ${contact.website}\n\nWe're here to help and look forward to serving you!`
+  return `👋 *Welcome to ${name}*\n\nThank you for reaching out to us. We offer:\n\n${services.map((service: string) => `• ${service}`).join("\n")}\n\n*How may we assist you today?* Feel free to ask about our services, pricing, booking process, or emergency coordination.\n\n*Contact Information:*\n• WhatsApp: ${contact.whatsapp[0]}\n• Email: ${contact.email}\n• Website: ${contact.website}\n\nWe're here to help and look forward to serving you!`
 }
