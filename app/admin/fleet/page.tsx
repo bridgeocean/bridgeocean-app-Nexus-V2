@@ -51,7 +51,15 @@ export default function FleetManagementPage() {
   const [isAddingVehicle, setIsAddingVehicle] = useState(false)
   const [editingVehicle, setEditingVehicle] = useState(null)
 
-  const [newVehicle, setNewVehicle] = useState({
+  const [newVehicle, setNewVehicle] = useState<{
+    name: string
+    category: string
+    year: string
+    passengers: string
+    pricePerHour: string
+    features: string[]
+    description: string
+  }>({
     name: "",
     category: "",
     year: "",
@@ -65,6 +73,8 @@ export default function FleetManagementPage() {
     const vehicle = {
       id: Date.now().toString(),
       ...newVehicle,
+      passengers: Number(newVehicle.passengers),
+      pricePerHour: Number(newVehicle.pricePerHour),
       status: "Available",
       image: "/placeholder.svg?height=200&width=300",
     }
