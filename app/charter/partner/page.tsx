@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { MainNav } from "@/components/main-nav"
 import { Button } from "@/components/ui/button"
@@ -9,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Car, DollarSign, Shield, Users, Upload, CheckCircle } from 'lucide-react'
+import { Car, DollarSign, Shield, Users, Upload, CheckCircle } from "lucide-react"
 
 const vehicleTypes = ["Sedan", "SUV", "Luxury Sedan", "Luxury SUV", "Van", "Bus", "Convertible", "Sports Car"]
 
@@ -59,7 +61,7 @@ export default function PartnerPage() {
     terms: false,
   })
 
-  const handleFileChange = (e, fileType) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: string) => {
     const files = e.target.files
     if (files && files.length > 0) {
       if (fileType === "vehiclePhotos") {
@@ -76,7 +78,7 @@ export default function PartnerPage() {
     }
   }
 
-  const handleCheckboxChange = (id, checked) => {
+  const handleCheckboxChange = (id: string, checked: boolean) => {
     setTermsAccepted((prev) => ({
       ...prev,
       [id]: checked,
@@ -90,7 +92,7 @@ export default function PartnerPage() {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     // Validate files and terms
@@ -363,7 +365,7 @@ export default function PartnerPage() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => document.getElementById("identification").click()}
+                                    onClick={() => document.getElementById("identification")?.click()}
                                   >
                                     Choose File
                                   </Button>
@@ -372,7 +374,9 @@ export default function PartnerPage() {
                                 <>
                                   <CheckCircle className="h-8 w-8 text-green-500" />
                                   <p className="text-sm font-medium text-green-600">File uploaded</p>
-                                  <p className="text-xs text-gray-500">{uploadedFiles.identification.name}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {(uploadedFiles.identification as File)?.name}
+                                  </p>
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -410,7 +414,7 @@ export default function PartnerPage() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => document.getElementById("insurance").click()}
+                                    onClick={() => document.getElementById("insurance")?.click()}
                                   >
                                     Choose File
                                   </Button>
@@ -419,7 +423,7 @@ export default function PartnerPage() {
                                 <>
                                   <CheckCircle className="h-8 w-8 text-green-500" />
                                   <p className="text-sm font-medium text-green-600">File uploaded</p>
-                                  <p className="text-xs text-gray-500">{uploadedFiles.insurance.name}</p>
+                                  <p className="text-xs text-gray-500">{(uploadedFiles.insurance as File)?.name}</p>
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -457,7 +461,7 @@ export default function PartnerPage() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => document.getElementById("vehicleRegistration").click()}
+                                    onClick={() => document.getElementById("vehicleRegistration")?.click()}
                                   >
                                     Choose File
                                   </Button>
@@ -466,7 +470,9 @@ export default function PartnerPage() {
                                 <>
                                   <CheckCircle className="h-8 w-8 text-green-500" />
                                   <p className="text-sm font-medium text-green-600">File uploaded</p>
-                                  <p className="text-xs text-gray-500">{uploadedFiles.vehicleRegistration.name}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {(uploadedFiles.vehicleRegistration as File)?.name}
+                                  </p>
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -511,7 +517,7 @@ export default function PartnerPage() {
                                           className="aspect-square bg-gray-100 rounded-md overflow-hidden"
                                         >
                                           <img
-                                            src={URL.createObjectURL(file) || "/placeholder.svg"}
+                                            src={URL.createObjectURL(file as File) || "/placeholder.svg"}
                                             alt={`Vehicle photo ${index + 1}`}
                                             className="w-full h-full object-cover"
                                           />
@@ -533,7 +539,7 @@ export default function PartnerPage() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => document.getElementById("vehiclePhotos").click()}
+                                  onClick={() => document.getElementById("vehiclePhotos")?.click()}
                                   className="mt-2"
                                 >
                                   {uploadedFiles.vehiclePhotos.length > 0 ? "Add More Photos" : "Choose Files"}
@@ -563,7 +569,7 @@ export default function PartnerPage() {
                           <Checkbox
                             id="terms"
                             checked={termsAccepted.terms}
-                            onCheckedChange={(checked) => handleCheckboxChange("terms", checked)}
+                            onCheckedChange={(checked) => handleCheckboxChange("terms", checked as boolean)}
                           />
                           <Label htmlFor="terms" className="text-sm">
                             I agree to the{" "}
@@ -580,7 +586,7 @@ export default function PartnerPage() {
                           <Checkbox
                             id="backgroundCheck"
                             checked={termsAccepted.backgroundCheck}
-                            onCheckedChange={(checked) => handleCheckboxChange("backgroundCheck", checked)}
+                            onCheckedChange={(checked) => handleCheckboxChange("backgroundCheck", checked as boolean)}
                           />
                           <Label htmlFor="backgroundCheck" className="text-sm">
                             I consent to a background check and vehicle inspection
