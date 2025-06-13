@@ -9,20 +9,35 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Completely disable output file tracing to avoid stack overflow
-  output: 'standalone',
+  // Disable all build optimizations that cause stack overflow
   experimental: {
     outputFileTracingRoot: undefined,
     outputFileTracing: false,
+    // Disable other experimental features that might cause issues
+    serverComponentsExternalPackages: [],
   },
-  // Disable all optimizations that might cause issues
+  // Force standalone output to avoid tracing issues
+  output: 'standalone',
+  // Disable webpack optimizations
+  webpack: (config, { isServer }) => {
+    // Disable file system caching
+    config.cache = false;
+    
+    // Reduce optimization level
+    if (config.optimization) {
+      config.optimization.minimize = false;
+      config.optimization.splitChunks = false;
+    }
+    
+    return config;
+  },
+  // Disable SWC minification
   swcMinify: false,
+  // Disable static optimization
+  trailingSlash: false,
+  // Disable build-time optimizations
   compiler: {
     removeConsole: false,
-  },
-  // Disable static optimization for problematic pages
-  async rewrites() {
-    return []
   },
 }
 
