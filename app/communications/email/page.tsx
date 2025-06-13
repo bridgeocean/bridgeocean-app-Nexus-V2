@@ -63,6 +63,13 @@ export default function EmailPage() {
       )}&subject=${encodeURIComponent(emailData.subject)}&body=${encodeURIComponent(emailData.body)}`
 
       window.open(outlookLink, "_blank")
+    } else if (emailClient === "mail") {
+      // Open Mail.com compose
+      const mailLink = `https://www.mail.com/mail/compose?to=${encodeURIComponent(
+        emailData.to,
+      )}&subject=${encodeURIComponent(emailData.subject)}&body=${encodeURIComponent(emailData.body)}`
+
+      window.open(mailLink, "_blank")
     }
   }
 
@@ -98,6 +105,7 @@ export default function EmailPage() {
                     <SelectItem value="mailto">Default Email Client</SelectItem>
                     <SelectItem value="gmail">Gmail</SelectItem>
                     <SelectItem value="outlook">Outlook</SelectItem>
+                    <SelectItem value="mail">Mail.com</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-sm text-muted-foreground">Choose how you want to send this email</p>
