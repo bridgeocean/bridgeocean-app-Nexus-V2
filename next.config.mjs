@@ -10,10 +10,20 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    typedRoutes: false,
+    outputFileTracingIncludes: {},
+    outputFileTracingExcludes: {
+      '*': [
+        'node_modules/@swc/core-linux-x64-gnu',
+        'node_modules/@swc/core-linux-x64-musl',
+        'node_modules/@esbuild/linux-x64',
+      ],
+    },
   },
-  // Completely disable type checking
-  swcMinify: true,
+  // Disable build optimization that's causing the stack overflow
+  swcMinify: false,
+  compiler: {
+    removeConsole: false,
+  },
 }
 
 export default nextConfig
