@@ -1,5 +1,3 @@
-// File: app/admin-login/page.tsx
-
 "use client"
 
 import type React from "react"
