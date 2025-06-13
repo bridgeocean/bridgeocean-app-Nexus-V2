@@ -4,6 +4,13 @@ import { useEffect, useState } from "react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
 import { supabase } from "@/lib/supabase"
 
+interface Booking {
+  id?: string
+  created_at?: string
+  total_amount?: number
+  [key: string]: any // Allow for other properties
+}
+
 interface MonthlyData {
   name: string
   total: number
@@ -45,7 +52,7 @@ export function Overview() {
           const monthlyTotals = Array(12).fill(0)
 
           // Process bookings to get monthly totals
-          bookings.forEach((booking) => {
+          bookings.forEach((booking: Booking) => {
             if (booking.created_at) {
               const bookingDate = new Date(booking.created_at)
               const month = bookingDate.getMonth()
