@@ -75,7 +75,9 @@ Additional Notes: ${notes || "None"}`,
     return NextResponse.json({ message: "Candidate added successfully", candidate: data[0] }, { status: 201 })
   } catch (error) {
     console.error("API error:", error)
-    return NextResponse.json({ error: "Internal server error", details: error.message }, { status: 500 })
+    // Fix: Add type checking for the error object
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+    return NextResponse.json({ error: "Internal server error", details: errorMessage }, { status: 500 })
   }
 }
 
@@ -90,6 +92,8 @@ export async function GET() {
 
     return NextResponse.json({ candidates: data })
   } catch (error) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    // Fix: Add type checking for the error object
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+    return NextResponse.json({ error: "Internal server error", details: errorMessage }, { status: 500 })
   }
 }
