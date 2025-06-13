@@ -4,30 +4,23 @@ const nextConfig = {
   swcMinify: true,
   // Reduce build complexity
   experimental: {
-    // Disable features that might cause stack overflows
-    optimizeCss: false,
-    optimizePackageImports: false,
+    // Configure turbotrace correctly
     turbotrace: {
-      // Reduce tracing complexity
       memoryLimit: 4 * 1024, // 4GB
-    },
+    }
   },
-  // Increase memory limit for builds
-  env: {
-    NODE_OPTIONS: '--max-old-space-size=4096',
-  },
-  // Exclude problematic paths from trace
+  // Use standalone output
   output: 'standalone',
+  // Enable file tracing
   outputFileTracing: true,
-  outputFileTracingExcludes: {
-    '*': [
-      'node_modules/@swc/core-linux-x64-gnu',
-      'node_modules/@swc/core-linux-x64-musl',
-      'node_modules/@esbuild/linux-x64',
-      'node_modules/@next/swc-linux-x64-gnu',
-      'node_modules/@next/swc-linux-x64-musl',
-    ],
-  },
+  // Exclude large platform-specific modules from tracing
+  transpilePackages: [
+    '@swc/core-linux-x64-gnu',
+    '@swc/core-linux-x64-musl',
+    '@esbuild/linux-x64',
+    '@next/swc-linux-x64-gnu',
+    '@next/swc-linux-x64-musl'
+  ]
 }
 
 module.exports = nextConfig
