@@ -14,6 +14,8 @@ import { ArrowLeft, Paperclip, Send } from "lucide-react"
 import Link from "next/link"
 import { useToast } from "@/components/ui/use-toast"
 
+type TemplateKey = "candidate_screening" | "interview_invitation" | "contract_signing"
+
 export default function EmailPage() {
   const { toast } = useToast()
   const [emailData, setEmailData] = useState({
@@ -149,8 +151,8 @@ export default function EmailPage() {
               <div className="space-y-2">
                 <Label htmlFor="template">Email Template (Optional)</Label>
                 <Select
-                  onValueChange={(value) => {
-                    const templates = {
+                  onValueChange={(value: TemplateKey) => {
+                    const templates: Record<TemplateKey, string> = {
                       candidate_screening: `Subject: Welcome to Bridgeocean Drive - Next Steps
 
 Dear {{candidateName}},
@@ -223,17 +225,15 @@ Best regards,
 Bridgeocean Drive Team`,
                     }
 
-                    if (templates[value]) {
-                      const template = templates[value]
-                      const subjectMatch = template.match(/Subject: (.+)/)
-                      const bodyMatch = template.match(/Subject: .+\n\n([\s\S]+)/)
+                    const template = templates[value]
+                    const subjectMatch = template.match(/Subject: (.+)/)
+                    const bodyMatch = template.match(/Subject: .+\n\n([\s\S]+)/)
 
-                      if (subjectMatch) {
-                        setEmailData({ ...emailData, subject: subjectMatch[1] })
-                      }
-                      if (bodyMatch) {
-                        setEmailData({ ...emailData, body: bodyMatch[1] })
-                      }
+                    if (subjectMatch) {
+                      setEmailData({ ...emailData, subject: subjectMatch[1] })
+                    }
+                    if (bodyMatch) {
+                      setEmailData({ ...emailData, body: bodyMatch[1] })
                     }
                   }}
                 >
