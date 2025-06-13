@@ -12,6 +12,20 @@ interface Activity {
   amount?: string
 }
 
+interface Candidate {
+  id: string
+  name?: string
+  status?: string
+  created_at?: string
+}
+
+interface Booking {
+  id: string
+  customer_name?: string
+  created_at?: string
+  total_amount?: number
+}
+
 export function RecentActivity() {
   const [activities, setActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
@@ -31,7 +45,7 @@ export function RecentActivity() {
 
         // Process candidates
         if (candidatesResult.status === "fulfilled" && candidatesResult.value?.data) {
-          candidatesResult.value.data.forEach((candidate) => {
+          candidatesResult.value.data.forEach((candidate: Candidate) => {
             let action = "Applied for driver position"
             if (candidate.status === "active") action = "Became active driver"
             if (candidate.status === "interview") action = "Scheduled for interview"
@@ -48,7 +62,7 @@ export function RecentActivity() {
 
         // Process bookings
         if (bookingsResult.status === "fulfilled" && bookingsResult.value?.data) {
-          bookingsResult.value.data.forEach((booking) => {
+          bookingsResult.value.data.forEach((booking: Booking) => {
             recentActivities.push({
               id: `booking-${booking.id}`,
               user: booking.customer_name || "Customer",
