@@ -1,0 +1,6 @@
+# Exclude unnecessary files from build
+.git
+.github
+README.md
+CHANGELOG.md
+node_modules
