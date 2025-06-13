@@ -21,18 +21,24 @@ interface DriverData {
   service_type: string
 }
 
+interface BroadcastGroup {
+  id: string
+  name: string
+  count: number
+  description: string
+}
+
 export function AdvancedWhatsApp() {
   const { toast } = useToast()
   const [selectedContact, setSelectedContact] = useState("")
   const [messageTemplate, setMessageTemplate] = useState("")
   const [scheduledTime, setScheduledTime] = useState("")
-  const [selectedFromNumber, setSelectedFromNumber] = useState("+234 906 918 3165") // Default to primary
-  const [ehailingDrivers, setEhailingDrivers] = useState([])
+  const [selectedFromNumber, setSelectedFromNumber] = useState("+234 906 918 3165")
+  const [ehailingDrivers, setEhailingDrivers] = useState<DriverData[]>([])
   const [loading, setLoading] = useState(true)
-  const [broadcastGroups, setBroadcastGroups] = useState([])
+  const [broadcastGroups, setBroadcastGroups] = useState<BroadcastGroup[]>([])
   const [selectedTemplateKey, setSelectedTemplateKey] = useState("")
 
-  // Add analytics state:
   const [analytics, setAnalytics] = useState({
     deliveryRate: 98,
     readRate: 87,
@@ -43,116 +49,7 @@ export function AdvancedWhatsApp() {
     avgResponseTime: "15 min",
   })
 
-  const useTemplate = (templateKey: string) => {
-    const template = messageTemplates[templateKey as keyof typeof messageTemplates]
-    if (template) {
-      setMessageTemplate(template.content)
-      toast({
-        title: "Template Loaded",
-        description: `${template.title} template is ready to customize`,
-      })
-    }
-  }
-
-  useEffect(() => {
-    loadEhailingDrivers()
-    loadBroadcastGroups()
-  }, [])
-
-  useEffect(() => {
-    const savedSettings = localStorage.getItem("bridgeocean_whatsapp_settings")
-    if (savedSettings) {
-      const settings: { numbers?: { number: string; isDefault: boolean }[] } = JSON.parse(savedSettings)
-      const defaultNumber = settings.numbers?.find((n) => n.isDefault)
-      if (defaultNumber) {
-        setSelectedFromNumber(defaultNumber.number)
-      }
-    }
-  }, [])
-
-  const loadEhailingDrivers = async () => {
-    try {
-      const { data: drivers, error } = await supabase
-        .from("candidates")
-        .select("*")
-        .eq("status", "active")
-        .eq("service_type", "ehailing")
-
-      if (!error && drivers) {
-        const formattedDrivers = drivers.map((driver: DriverData) => ({
-          id: driver.id,
-          name: driver.name,
-          phone: driver.phone,
-          vehicle: driver.vehicle || "Toyota Camry",
-          lastInspection: "2025-06-03",
-          nextInspection: "2025-06-10",
-          lastService: "2025-04-28",
-          nextService: "2025-06-28",
-          status: "active",
-        }))
-        setEhailingDrivers(formattedDrivers)
-      }
-    } catch (error) {
-      console.error("Error loading drivers:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const loadBroadcastGroups = async () => {
-    try {
-      // Get actual counts from database
-      const { data: ehailingCount } = await supabase
-        .from("candidates")
-        .select("id", { count: "exact" })
-        .eq("status", "active")
-        .eq("service_type", "ehailing")
-
-      const { data: charterCount } = await supabase.from("charter_bookings").select("customer_name", { count: "exact" })
-
-      const { data: partnersCount } = await supabase
-        .from("candidates")
-        .select("id", { count: "exact" })
-        .eq("status", "partner")
-
-      const { data: pendingCount } = await supabase
-        .from("candidates")
-        .select("id", { count: "exact" })
-        .eq("status", "pending")
-
-      setBroadcastGroups([
-        {
-          id: "ehailing_drivers",
-          name: "E-hailing Drivers",
-          count: ehailingCount?.length || 0,
-          description: "Active e-hailing drivers",
-        },
-        {
-          id: "charter_customers",
-          name: "Charter Customers",
-          count: charterCount?.length || 0,
-          description: "Charter service customers",
-        },
-        {
-          id: "partners",
-          name: "Partners",
-          count: partnersCount?.length || 0,
-          description: "Registered partners",
-        },
-        {
-          id: "pending_partners",
-          name: "Pending Partners",
-          count: pendingCount?.length || 0,
-          description: "Awaiting approval",
-        },
-      ])
-    } catch (error) {
-      console.error("Error loading broadcast groups:", error)
-    }
-  }
-
   const messageTemplates = {
-    // E-hailing driver templates
     inspection_reminder: {
       title: "Weekly Inspection Reminder",
       content: `🔧 *Bridgeocean Weekly Inspection Reminder*
@@ -219,7 +116,6 @@ Please ensure payment is made before Sunday midnight.
 Thank you,
 Bridgeocean Drive Team`,
     },
-    // Charter service templates
     booking_confirmation: {
       title: "Charter Booking Confirmation",
       content: `🚗 *Bridgeocean Charter Booking Confirmed*
@@ -267,7 +163,6 @@ We look forward to a successful partnership!
 
 Bridgeocean Drive Team`,
     },
-    // Candidate screening and onboarding templates
     candidate_screening: {
       title: "Candidate Screening Message",
       content: `🚗 *Welcome to Bridgeocean Drive!*
@@ -298,7 +193,6 @@ We look forward to working with you!
 
 Bridgeocean Drive Team`,
     },
-
     interview_scheduling: {
       title: "Interview Scheduling",
       content: `📅 *Bridgeocean Drive Interview Invitation*
@@ -327,7 +221,6 @@ Please confirm your attendance by replying to this message.
 Best regards,
 Bridgeocean Drive Team`,
     },
-
     document_requirements: {
       title: "Document Requirements Reminder",
       content: `📋 *Document Requirements - Bridgeocean Drive*
@@ -359,7 +252,6 @@ Submit all documents during your interview.
 
 Bridgeocean Drive Team`,
     },
-
     onboarding_welcome: {
       title: "Onboarding Welcome Message",
       content: `🎉 *Welcome to Bridgeocean Family!*
@@ -392,7 +284,6 @@ Congratulations! You are now officially a Bridgeocean Drive partner.
 Welcome aboard!
 Bridgeocean Drive Team`,
     },
-
     contract_signing: {
       title: "Contract Signing Reminder",
       content: `📝 *Contract Signing - Bridgeocean Drive*
@@ -424,6 +315,113 @@ Bridgeocean Drive Team`,
     },
   }
 
+  const useTemplate = (templateKey: string) => {
+    const template = messageTemplates[templateKey as keyof typeof messageTemplates]
+    if (template) {
+      setMessageTemplate(template.content)
+      toast({
+        title: "Template Loaded",
+        description: `${template.title} template is ready to customize`,
+      })
+    }
+  }
+
+  useEffect(() => {
+    loadEhailingDrivers()
+    loadBroadcastGroups()
+  }, [])
+
+  useEffect(() => {
+    const savedSettings = localStorage.getItem("bridgeocean_whatsapp_settings")
+    if (savedSettings) {
+      const settings: { numbers?: { number: string; isDefault: boolean }[] } = JSON.parse(savedSettings)
+      const defaultNumber = settings.numbers?.find((n) => n.isDefault)
+      if (defaultNumber) {
+        setSelectedFromNumber(defaultNumber.number)
+      }
+    }
+  }, [])
+
+  const loadEhailingDrivers = async () => {
+    try {
+      const { data: drivers, error } = await supabase
+        .from("candidates")
+        .select("*")
+        .eq("status", "active")
+        .eq("service_type", "ehailing")
+
+      if (!error && drivers) {
+        const formattedDrivers = drivers.map((driver: any) => ({
+          id: driver.id,
+          name: driver.name,
+          phone: driver.phone,
+          vehicle: driver.vehicle || "Toyota Camry",
+          lastInspection: "2025-06-03",
+          nextInspection: "2025-06-10",
+          lastService: "2025-04-28",
+          nextService: "2025-06-28",
+          status: "active",
+        }))
+        setEhailingDrivers(formattedDrivers)
+      }
+    } catch (error) {
+      console.error("Error loading drivers:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadBroadcastGroups = async () => {
+    try {
+      const { data: ehailingCount } = await supabase
+        .from("candidates")
+        .select("id", { count: "exact" })
+        .eq("status", "active")
+        .eq("service_type", "ehailing")
+
+      const { data: charterCount } = await supabase.from("charter_bookings").select("customer_name", { count: "exact" })
+
+      const { data: partnersCount } = await supabase
+        .from("candidates")
+        .select("id", { count: "exact" })
+        .eq("status", "partner")
+
+      const { data: pendingCount } = await supabase
+        .from("candidates")
+        .select("id", { count: "exact" })
+        .eq("status", "pending")
+
+      setBroadcastGroups([
+        {
+          id: "ehailing_drivers",
+          name: "E-hailing Drivers",
+          count: ehailingCount?.length || 0,
+          description: "Active e-hailing drivers",
+        },
+        {
+          id: "charter_customers",
+          name: "Charter Customers",
+          count: charterCount?.length || 0,
+          description: "Charter service customers",
+        },
+        {
+          id: "partners",
+          name: "Partners",
+          count: partnersCount?.length || 0,
+          description: "Registered partners",
+        },
+        {
+          id: "pending_partners",
+          name: "Pending Partners",
+          count: pendingCount?.length || 0,
+          description: "Awaiting approval",
+        },
+      ])
+    } catch (error) {
+      console.error("Error loading broadcast groups:", error)
+    }
+  }
+
   const sendMessage = (phone: string, message: string, fromNumber?: string) => {
     const numberToUse = fromNumber || selectedFromNumber
     const formattedPhone = phone.replace(/\s+/g, "").replace("+", "")
@@ -441,7 +439,7 @@ Bridgeocean Drive Team`,
       const nextInspection = new Date(driver.nextInspection)
       const today = new Date()
       const daysDiff = Math.ceil((nextInspection.getTime() - today.getTime()) / (1000 * 3600 * 24))
-      return daysDiff <= 1 // Send reminder 1 day before
+      return daysDiff <= 1
     })
 
     driversNeedingInspection.forEach((driver) => {
@@ -464,7 +462,7 @@ Bridgeocean Drive Team`,
       const nextService = new Date(driver.nextService)
       const today = new Date()
       const daysDiff = Math.ceil((nextService.getTime() - today.getTime()) / (1000 * 3600 * 24))
-      return daysDiff <= 3 // Send reminder 3 days before
+      return daysDiff <= 3
     })
 
     driversNeedingService.forEach((driver) => {
@@ -482,10 +480,8 @@ Bridgeocean Drive Team`,
     })
   }
 
-  // Add function to calculate real analytics:
   const calculateAnalytics = async () => {
     try {
-      // Calculate inspection compliance
       const totalDrivers = ehailingDrivers.length
       const compliantDrivers = ehailingDrivers.filter((d) => d.status === "active").length
       const inspectionCompliance = totalDrivers > 0 ? Math.round((compliantDrivers / totalDrivers) * 100) : 0
@@ -493,15 +489,14 @@ Bridgeocean Drive Team`,
       setAnalytics((prev) => ({
         ...prev,
         inspectionCompliance,
-        serviceCompliance: Math.max(85, inspectionCompliance - 8), // Service typically lower than inspection
-        remittanceOnTime: Math.max(88, inspectionCompliance - 4), // Remittance typically between
+        serviceCompliance: Math.max(85, inspectionCompliance - 8),
+        remittanceOnTime: Math.max(88, inspectionCompliance - 4),
       }))
     } catch (error) {
       console.error("Error calculating analytics:", error)
     }
   }
 
-  // Call this when drivers data loads:
   useEffect(() => {
     if (ehailingDrivers.length > 0) {
       calculateAnalytics()
@@ -510,7 +505,11 @@ Bridgeocean Drive Team`,
 
   const activeDriversCount = ehailingDrivers.filter((d) => d.status === "active").length
   const serviceDueCount = ehailingDrivers.filter((d) => d.status === "service_due").length
-  const inspectionDueCount = 2 // This could also be calculated from dates
+  const inspectionDueCount = 2
+
+  const handleTemplateClick = (key: string) => {
+    useTemplate(key)
+  }
 
   return (
     <div className="space-y-6">
@@ -671,17 +670,20 @@ Bridgeocean Drive Team`,
                       <SelectValue placeholder="Select contact" />
                     </SelectTrigger>
                     <SelectContent>
-                      {broadcastGroups.find((group) => group.id === "charter_customers").count > 0 && (
-                        <SelectItem value="+234 813 526 1568">John Doe (customer) - +234 813 526 1568</SelectItem>
-                      )}
-                      {broadcastGroups.find((group) => group.id === "charter_customers").count > 0 && (
-                        <SelectItem value="+234 805 123 4567">Jane Smith (partner) - +234 805 123 4567</SelectItem>
-                      )}
-                      {broadcastGroups.find((group) => group.id === "charter_customers").count > 0 && (
-                        <SelectItem value="+234 701 987 6543">
-                          Corporate Client (customer) - +234 701 987 6543
-                        </SelectItem>
-                      )}
+                      {broadcastGroups.find((group) => group.id === "charter_customers")?.count &&
+                        broadcastGroups.find((group) => group.id === "charter_customers")!.count > 0 && (
+                          <SelectItem value="+234 813 526 1568">John Doe (customer) - +234 813 526 1568</SelectItem>
+                        )}
+                      {broadcastGroups.find((group) => group.id === "charter_customers")?.count &&
+                        broadcastGroups.find((group) => group.id === "charter_customers")!.count > 0 && (
+                          <SelectItem value="+234 805 123 4567">Jane Smith (partner) - +234 805 123 4567</SelectItem>
+                        )}
+                      {broadcastGroups.find((group) => group.id === "charter_customers")?.count &&
+                        broadcastGroups.find((group) => group.id === "charter_customers")!.count > 0 && (
+                          <SelectItem value="+234 701 987 6543">
+                            Corporate Client (customer) - +234 701 987 6543
+                          </SelectItem>
+                        )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -785,11 +787,11 @@ Bridgeocean Drive Team`,
         <TabsContent value="templates" className="space-y-4">
           <div className="grid gap-4">
             {Object.entries(messageTemplates).map(([key, template]) => (
-              <Card key={key} className="cursor-pointer hover:bg-muted/50" onClick={() => setSelectedTemplateKey(key)}>
+              <Card key={key} className="cursor-pointer hover:bg-muted/50" onClick={() => handleTemplateClick(key)}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{template.title}</CardTitle>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => handleTemplateClick(key)}>
                       Use Template
                     </Button>
                   </div>
