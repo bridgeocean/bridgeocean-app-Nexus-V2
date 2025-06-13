@@ -53,7 +53,7 @@ export function AdvancedWhatsApp() {
   useEffect(() => {
     const savedSettings = localStorage.getItem("bridgeocean_whatsapp_settings")
     if (savedSettings) {
-      const settings = JSON.parse(savedSettings)
+      const settings: { numbers?: { number: string; isDefault: boolean }[] } = JSON.parse(savedSettings)
       const defaultNumber = settings.numbers?.find((n) => n.isDefault)
       if (defaultNumber) {
         setSelectedFromNumber(defaultNumber.number)
