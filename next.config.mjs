@@ -9,36 +9,38 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Disable all build optimizations that cause stack overflow
-  experimental: {
-    outputFileTracingRoot: undefined,
-    outputFileTracing: false,
-    // Disable other experimental features that might cause issues
-    serverComponentsExternalPackages: [],
-  },
-  // Force standalone output to avoid tracing issues
-  output: 'standalone',
-  // Disable webpack optimizations
-  webpack: (config, { isServer }) => {
-    // Disable file system caching
+  // Force export mode to completely bypass build tracing
+  output: 'export',
+  distDir: 'out',
+  trailingSlash: true,
+  // Disable all experimental features
+  experimental: {},
+  // Completely disable webpack optimizations
+  webpack: (config, { dev, isServer }) => {
+    // Disable all caching
     config.cache = false;
     
-    // Reduce optimization level
-    if (config.optimization) {
-      config.optimization.minimize = false;
-      config.optimization.splitChunks = false;
-    }
+    // Disable optimization entirely
+    config.optimization = {
+      minimize: false,
+      splitChunks: false,
+      runtimeChunk: false,
+    };
+    
+    // Disable file system watching
+    config.watchOptions = {
+      ignored: /node_modules/,
+    };
     
     return config;
   },
-  // Disable SWC minification
+  // Disable all Next.js optimizations
   swcMinify: false,
-  // Disable static optimization
-  trailingSlash: false,
-  // Disable build-time optimizations
   compiler: {
     removeConsole: false,
   },
+  // Disable static optimization
+  generateBuildId: () => 'build',
 }
 
 export default nextConfig
