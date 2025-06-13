@@ -13,6 +13,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Car, DollarSign, Shield, Users, Upload, CheckCircle } from "lucide-react"
 
+interface UploadedFiles {
+  identification: File | null
+  vehicleRegistration: File | null
+  insurance: File | null
+  vehiclePhotos: File[]
+}
+
 const vehicleTypes = ["Sedan", "SUV", "Luxury Sedan", "Luxury SUV", "Van", "Bus", "Convertible", "Sports Car"]
 
 const benefits = [
@@ -46,7 +53,7 @@ export default function PartnerPage() {
     documents: {},
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [uploadedFiles, setUploadedFiles] = useState({
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFiles>({
     identification: null,
     vehicleRegistration: null,
     insurance: null,
