@@ -1,6 +1,16 @@
-# Exclude unnecessary files from build
-.git
-.github
-README.md
-CHANGELOG.md
+# Add more files to ignore during build tracing
 node_modules
+.next
+.git
+*.log
+.env*
+.DS_Store
+components/admin/advanced-whatsapp.tsx
+components/admin/analytics-dashboard.tsx
+components/admin/enhanced-ai.tsx
+components/whatsapp-*
+app/communications/whatsapp
+app/meeting-assistant
+scripts/
+public/images/*.jpg
+public/images/*.png
