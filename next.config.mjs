@@ -15,11 +15,20 @@ const nextConfig = {
   trailingSlash: true,
   // Disable all experimental features
   experimental: {},
-  // Completely disable webpack optimizations that cause issues
+  // Fix webpack configuration
   webpack: (config, { dev, isServer }) => {
-    // Disable all caching and optimization
+    // Disable caching
     config.cache = false;
-    config.optimization = false;
+    
+    // Properly configure optimization as an object
+    config.optimization = {
+      minimize: false,
+      splitChunks: false,
+      runtimeChunk: false,
+      sideEffects: false,
+      usedExports: false,
+      providedExports: false,
+    };
     
     // Disable file watching
     config.watchOptions = {
