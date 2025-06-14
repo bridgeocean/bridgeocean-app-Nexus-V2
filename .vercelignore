@@ -1,16 +1,29 @@
-# Add more files to ignore during build tracing
-node_modules
-.next
-.git
+# Ignore everything that might cause build tracing issues
+node_modules/
+.next/
+.git/
 *.log
 .env*
 .DS_Store
+# Ignore all complex components
 components/admin/advanced-whatsapp.tsx
 components/admin/analytics-dashboard.tsx
 components/admin/enhanced-ai.tsx
 components/whatsapp-*
-app/communications/whatsapp
-app/meeting-assistant
+app/communications/whatsapp/
+app/meeting-assistant/
+# Ignore all scripts and images
 scripts/
 public/images/*.jpg
 public/images/*.png
+public/images/*.jpeg
+# Ignore API routes that won't work in export mode anyway
+app/api/
+pages/api/
+# Ignore other potentially problematic files
+middleware.ts
+*.config.js
+*.config.ts
+!next.config.mjs
+!tailwind.config.ts
+!tsconfig.json
