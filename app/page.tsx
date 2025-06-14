@@ -55,11 +55,12 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex items-center justify-center">
-                <div className="relative h-[400px] w-full bg-gray-200 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <Car className="h-16 w-16 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Premium Vehicle</p>
-                  </div>
+                <div className="relative h-[400px] w-full">
+                  <img
+                    src="/images/luxury-car-hero.png"
+                    alt="Premium Vehicle"
+                    className="absolute inset-0 object-cover w-full h-full rounded-lg"
+                  />
                 </div>
               </div>
             </div>
@@ -165,12 +166,11 @@ export default function Home() {
               {/* Toyota Camry */}
               <Card className="bg-white border border-gray-200 shadow-sm">
                 <CardHeader className="p-0">
-                  <div className="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <Car className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-500 text-sm">Toyota Camry (2006)</p>
-                    </div>
-                  </div>
+                  <img
+                    src="/images/toyota-camry-new.png"
+                    alt="Black Toyota Camry 2006"
+                    className="w-full h-48 object-cover rounded-t-lg"
+                  />
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start mb-2">
@@ -180,8 +180,8 @@ export default function Home() {
                     </Badge>
                   </div>
                   <CardDescription className="text-gray-600 mb-4 text-sm">
-                    Comfortable sedan perfect for city travel and airport transfers. Features leather seats and climate
-                    control.
+                    Comfortable black sedan perfect for city travel and airport transfers. Features leather seats and
+                    climate control.
                   </CardDescription>
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-2xl font-bold text-black">₦100,000</span>
@@ -199,12 +199,11 @@ export default function Home() {
               {/* GMC Terrain */}
               <Card className="bg-white border border-gray-200 shadow-sm">
                 <CardHeader className="p-0">
-                  <div className="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <Car className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-500 text-sm">GMC Terrain (2011)</p>
-                    </div>
-                  </div>
+                  <img
+                    src="/images/gmc-terrain-new.png"
+                    alt="Black GMC Terrain 2011"
+                    className="w-full h-48 object-cover rounded-t-lg"
+                  />
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start mb-2">
@@ -214,8 +213,8 @@ export default function Home() {
                     </Badge>
                   </div>
                   <CardDescription className="text-gray-600 mb-4 text-sm">
-                    Spacious SUV ideal for group travel and longer journeys. Features premium interior and entertainment
-                    system.
+                    Spacious black SUV ideal for group travel and longer journeys. Features premium interior and
+                    entertainment system.
                   </CardDescription>
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-2xl font-bold text-black">₦200,000</span>
