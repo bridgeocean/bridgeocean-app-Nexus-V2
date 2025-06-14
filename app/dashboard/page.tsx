@@ -6,23 +6,12 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  CalendarDays,
-  UserPlus,
-  Users,
-  Mail,
-  Calendar,
-  BarChart3,
-  AlertCircle,
-  Briefcase,
-  RefreshCw,
-} from "lucide-react"
+import { CalendarDays, UserPlus, Users, Mail, Calendar, AlertCircle, Briefcase, RefreshCw } from "lucide-react"
 import { CandidateTable } from "./components/candidate-table"
 import { RecentActivity } from "./components/recent-activity"
 import { Overview } from "./components/overview"
 import { EmailAutomation } from "@/components/admin/email-automation"
 import { CalendarIntegration } from "@/components/admin/calendar-integration"
-import { AnalyticsDashboard } from "@/components/admin/analytics-dashboard"
 import { MeetingAssistant } from "./components/meeting-assistant"
 import Link from "next/link"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
@@ -210,13 +199,11 @@ export default function DashboardPage() {
         )}
 
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="meeting-assistant">🎯 Interviews</TabsTrigger>
             <TabsTrigger value="email">📧 Email</TabsTrigger>
             <TabsTrigger value="calendar">📅 Calendar</TabsTrigger>
-            <TabsTrigger value="whatsapp">📱 WhatsApp</TabsTrigger>
-            <TabsTrigger value="analytics">📊 Analytics</TabsTrigger>
             <TabsTrigger value="candidates">Candidates</TabsTrigger>
           </TabsList>
 
@@ -349,41 +336,6 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <CalendarIntegration />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="whatsapp" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  WhatsApp Communications
-                </CardTitle>
-                <CardDescription>Please use the WhatsApp page for messaging features</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <p className="mb-4">The WhatsApp tools have been moved to a dedicated page</p>
-                  <Link href="/communications/whatsapp">
-                    <Button>Go to WhatsApp Page</Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Analytics Dashboard
-                </CardTitle>
-                <CardDescription>Business insights and performance metrics</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AnalyticsDashboard />
               </CardContent>
             </Card>
           </TabsContent>
