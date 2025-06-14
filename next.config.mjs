@@ -9,7 +9,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Remove static export - this is what's breaking everything
+  // Remove all the complex stuff that's breaking images
+  trailingSlash: true,
 }
 
 export default nextConfig

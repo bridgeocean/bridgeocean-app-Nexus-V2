@@ -3,15 +3,13 @@ import { MainNav } from "@/components/main-nav"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Car, Calendar, MapPin, Users, Satellite, Shield, Phone, Mail } from "lucide-react"
+import { Calendar, MapPin, Users, Satellite, Phone, Mail } from "lucide-react"
 
 export default function Home() {
   const openWhatsAppCatalogue = () => {
-    // Opens WhatsApp Business Catalogue
     window.open("https://wa.me/c/2349135630154", "_blank")
   }
 
-  // Function to handle navigation with scroll to top
   const handleNavigation = (url: string) => {
     window.location.href = url
   }
@@ -59,9 +57,9 @@ export default function Home() {
               <div className="flex items-center justify-center">
                 <div className="relative h-[400px] w-full">
                   <img
-                    src="/placeholder.svg?height=400&width=500&text=Premium+Vehicle"
+                    src="/images/luxury-car-hero.jpg"
                     alt="Premium Vehicle"
-                    className="absolute inset-0 object-cover w-full h-full rounded-lg bg-gray-200"
+                    className="absolute inset-0 object-cover w-full h-full rounded-lg"
                   />
                 </div>
               </div>
@@ -80,75 +78,91 @@ export default function Home() {
             </div>
             <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
               {/* Nexus Emergency Logistics */}
-              <Card className="border border-red-200 bg-white shadow-sm">
-                <CardHeader className="text-center pb-4">
-                  <div className="mx-auto mb-4 p-3 bg-red-100 rounded-full w-fit">
-                    <Satellite className="h-8 w-8 text-red-600" />
-                  </div>
-                  <CardTitle className="text-xl font-bold text-black flex items-center justify-center gap-2">
-                    <Satellite className="h-5 w-5 text-red-600" />
+              <Card className="border border-red-200 bg-white shadow-sm h-full flex flex-col">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl font-bold text-black flex items-center gap-2">
+                    <Satellite className="h-6 w-6 text-red-600" />
                     Nexus Emergency Logistics
                   </CardTitle>
-                  <CardDescription className="text-gray-600">
-                    Advanced satellite-powered emergency response and logistics coordination system.
+                  <div className="mb-2 sm:mb-3">
+                    <span className="text-sm text-red-600 border border-red-600 px-2 py-1 sm:px-3 sm:py-1 rounded-full">
+                      Flagship Platform
+                    </span>
+                  </div>
+                  <CardDescription className="text-gray-600 mb-4 text-sm sm:text-base">
+                    Satellite-powered emergency coordination platform leveraging AI intelligent coordination, routing
+                    engine, and GPS technology for life-saving emergency response.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3 text-sm text-gray-600">
-                    <div className="flex items-center gap-3">
-                      <Shield className="h-4 w-4 text-red-500 flex-shrink-0" />
-                      <span>Real-time Emergency Response</span>
+                <CardContent className="space-y-4 flex-1 flex flex-col">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                      <span>AI Coordination</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Satellite className="h-4 w-4 text-red-500 flex-shrink-0" />
-                      <span>Satellite-Powered Tracking</span>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-purple-500" />
+                      <span>Routing Engine</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <MapPin className="h-4 w-4 text-red-500 flex-shrink-0" />
-                      <span>Advanced Route Optimization</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span>Satellite-GPS</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <span>24/7 Emergency</span>
                     </div>
                   </div>
-                  <Button
-                    className="w-full bg-red-600 hover:bg-red-700 text-white mt-4"
-                    onClick={() => handleNavigation("/nexus")}
-                  >
-                    Learn More
-                  </Button>
+                  <div className="mt-auto">
+                    <Button
+                      className="w-full bg-red-600 hover:bg-red-700 text-white"
+                      onClick={() => handleNavigation("/nexus")}
+                    >
+                      Learn More
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
 
               {/* Charter & Driver Management */}
-              <Card className="border border-blue-200 bg-white shadow-sm">
-                <CardHeader className="text-center pb-4">
-                  <div className="mx-auto mb-4 p-3 bg-blue-100 rounded-full w-fit">
-                    <Car className="h-8 w-8 text-blue-600" />
-                  </div>
-                  <CardTitle className="text-xl font-bold text-black">Charter & Driver Management</CardTitle>
-                  <CardDescription className="text-gray-600">
-                    Premium vehicle charter services with intelligent driver management systems.
+              <Card className="border border-blue-200 bg-white shadow-sm h-full flex flex-col">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl font-bold text-black flex items-center gap-2">
+                    <Calendar className="h-6 w-6 text-blue-600" />
+                    Charter & Driver Management
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 mb-4 text-sm sm:text-base">
+                    Premium charter services with intelligent driver onboarding platform that streamlines recruitment,
+                    interviews, and fleet management operations.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3 text-sm text-gray-600">
-                    <div className="flex items-center gap-3">
-                      <Car className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                      <span>Premium Vehicle Fleet</span>
+                <CardContent className="space-y-4 flex-1 flex flex-col">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span>Fully Insured</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Users className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                      <span>Professional Drivers</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <span>24/7 Service</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                      <span>Advanced Booking System</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <span>Premium Fleet</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-purple-500" />
+                      <span>Smart Management</span>
                     </div>
                   </div>
-                  <Button
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-4"
-                    onClick={() => handleNavigation("/charter/book")}
-                  >
-                    Book Now
-                  </Button>
+                  <div className="mt-auto">
+                    <Button
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={() => handleNavigation("/charter/book")}
+                    >
+                      Book Now
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -166,15 +180,15 @@ export default function Home() {
             </div>
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-8">
               {/* Toyota Camry */}
-              <Card className="bg-white border border-gray-200 shadow-sm">
+              <Card className="bg-white border border-gray-200 shadow-sm h-full flex flex-col">
                 <CardHeader className="p-0">
                   <img
-                    src="/placeholder.svg?height=200&width=400&text=Toyota+Camry+2006"
-                    alt="Toyota Camry (2006)"
-                    className="w-full h-48 object-cover rounded-t-lg bg-gray-200"
+                    src="/images/toyota-camry-new.jpg"
+                    alt="Black Toyota Camry 2006"
+                    className="w-full h-48 object-cover rounded-t-lg"
                   />
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-6 flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
                     <CardTitle className="text-lg font-bold">Toyota Camry (2006)</CardTitle>
                     <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
@@ -182,32 +196,34 @@ export default function Home() {
                     </Badge>
                   </div>
                   <CardDescription className="text-gray-600 mb-4 text-sm">
-                    Comfortable sedan perfect for city travel and airport transfers. Features leather seats and climate
-                    control.
+                    Comfortable black sedan perfect for city travel and airport transfers. Features leather seats and
+                    climate control.
                   </CardDescription>
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-2xl font-bold text-black">₦100,000</span>
                     <span className="text-sm text-gray-500">per 10 hours</span>
                   </div>
-                  <Button
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={() => handleNavigation("/charter/book")}
-                  >
-                    Book Now
-                  </Button>
+                  <div className="mt-auto">
+                    <Button
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={() => handleNavigation("/charter/book")}
+                    >
+                      Book Now
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
 
               {/* GMC Terrain */}
-              <Card className="bg-white border border-gray-200 shadow-sm">
+              <Card className="bg-white border border-gray-200 shadow-sm h-full flex flex-col">
                 <CardHeader className="p-0">
                   <img
-                    src="/placeholder.svg?height=200&width=400&text=GMC+Terrain+2011"
-                    alt="GMC Terrain (2011)"
-                    className="w-full h-48 object-cover rounded-t-lg bg-gray-200"
+                    src="/images/gmc-terrain-new.jpg"
+                    alt="Black GMC Terrain 2011"
+                    className="w-full h-48 object-cover rounded-t-lg"
                   />
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-6 flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
                     <CardTitle className="text-lg font-bold">GMC Terrain (2011)</CardTitle>
                     <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
@@ -215,19 +231,21 @@ export default function Home() {
                     </Badge>
                   </div>
                   <CardDescription className="text-gray-600 mb-4 text-sm">
-                    Spacious SUV ideal for group travel and longer journeys. Features premium interior and entertainment
-                    system.
+                    Spacious black SUV ideal for group travel and longer journeys. Features premium interior and
+                    entertainment system.
                   </CardDescription>
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-2xl font-bold text-black">₦200,000</span>
                     <span className="text-sm text-gray-500">per 10 hours</span>
                   </div>
-                  <Button
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={() => handleNavigation("/charter/book")}
-                  >
-                    Book Now
-                  </Button>
+                  <div className="mt-auto">
+                    <Button
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={() => handleNavigation("/charter/book")}
+                    >
+                      Book Now
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -285,7 +303,7 @@ export default function Home() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <Phone className="h-5 w-5 text-primary" />
-                    <span>+234 906 918 3165</span>
+                    <span>+234 913 563 0154 (WhatsApp only)</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Mail className="h-5 w-5 text-primary" />
