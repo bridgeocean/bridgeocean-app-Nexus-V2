@@ -7,9 +7,11 @@ import { Car, Calendar, MapPin, Users, Satellite, Shield, Phone, Mail } from "lu
 
 export default function Home() {
   const openWhatsAppCatalogue = () => {
+    // Opens WhatsApp Business Catalogue
     window.open("https://wa.me/c/2349135630154", "_blank")
   }
 
+  // Function to handle navigation with scroll to top
   const handleNavigation = (url: string) => {
     window.location.href = url
   }
@@ -55,12 +57,12 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex items-center justify-center">
-                <div className="relative h-[400px] w-full bg-gradient-to-br from-red-100 to-red-200 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <Car className="h-24 w-24 text-red-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-bold text-gray-800">Premium Fleet</h3>
-                    <p className="text-gray-600">Professional Transportation</p>
-                  </div>
+                <div className="relative h-[400px] w-full">
+                  <img
+                    src="/placeholder.svg?height=400&width=500&text=Premium+Vehicle"
+                    alt="Premium Vehicle"
+                    className="absolute inset-0 object-cover w-full h-full rounded-lg bg-gray-200"
+                  />
                 </div>
               </div>
             </div>
@@ -165,61 +167,73 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-8">
               {/* Toyota Camry */}
               <Card className="bg-white border border-gray-200 shadow-sm">
-                <CardHeader>
-                  <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center mb-4">
-                    <div className="text-center">
-                      <Car className="h-16 w-16 text-gray-600 mx-auto mb-2" />
-                      <p className="text-gray-700 font-semibold">Toyota Camry 2006</p>
-                      <p className="text-gray-500 text-sm">Black Sedan</p>
-                    </div>
-                  </div>
-                  <CardTitle className="text-lg font-bold">Toyota Camry (2006)</CardTitle>
-                  <CardDescription className="text-gray-600">
-                    Comfortable black sedan perfect for city travel and airport transfers. Features leather seats and
-                    climate control.
-                  </CardDescription>
+                <CardHeader className="p-0">
+                  <img
+                    src="/placeholder.svg?height=200&width=400&text=Toyota+Camry+2006"
+                    alt="Toyota Camry (2006)"
+                    className="w-full h-48 object-cover rounded-t-lg bg-gray-200"
+                  />
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <CardTitle className="text-lg font-bold">Toyota Camry (2006)</CardTitle>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                      Available
+                    </Badge>
+                  </div>
+                  <CardDescription className="text-gray-600 mb-4 text-sm">
+                    Comfortable sedan perfect for city travel and airport transfers. Features leather seats and climate
+                    control.
+                  </CardDescription>
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-2xl font-bold text-black">₦100,000</span>
                     <span className="text-sm text-gray-500">per 10 hours</span>
                   </div>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={openWhatsAppCatalogue}>
-                    Book via WhatsApp
+                  <Button
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={() => handleNavigation("/charter/book")}
+                  >
+                    Book Now
                   </Button>
                 </CardContent>
               </Card>
 
               {/* GMC Terrain */}
               <Card className="bg-white border border-gray-200 shadow-sm">
-                <CardHeader>
-                  <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center mb-4">
-                    <div className="text-center">
-                      <Car className="h-16 w-16 text-gray-600 mx-auto mb-2" />
-                      <p className="text-gray-700 font-semibold">GMC Terrain 2011</p>
-                      <p className="text-gray-500 text-sm">Black SUV</p>
-                    </div>
-                  </div>
-                  <CardTitle className="text-lg font-bold">GMC Terrain (2011)</CardTitle>
-                  <CardDescription className="text-gray-600">
-                    Spacious black SUV ideal for group travel and longer journeys. Features premium interior and
-                    entertainment system.
-                  </CardDescription>
+                <CardHeader className="p-0">
+                  <img
+                    src="/placeholder.svg?height=200&width=400&text=GMC+Terrain+2011"
+                    alt="GMC Terrain (2011)"
+                    className="w-full h-48 object-cover rounded-t-lg bg-gray-200"
+                  />
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <CardTitle className="text-lg font-bold">GMC Terrain (2011)</CardTitle>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                      Available
+                    </Badge>
+                  </div>
+                  <CardDescription className="text-gray-600 mb-4 text-sm">
+                    Spacious SUV ideal for group travel and longer journeys. Features premium interior and entertainment
+                    system.
+                  </CardDescription>
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-2xl font-bold text-black">₦200,000</span>
                     <span className="text-sm text-gray-500">per 10 hours</span>
                   </div>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={openWhatsAppCatalogue}>
-                    Book via WhatsApp
+                  <Button
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={() => handleNavigation("/charter/book")}
+                  >
+                    Book Now
                   </Button>
                 </CardContent>
               </Card>
             </div>
             <div className="text-center">
               <Button onClick={openWhatsAppCatalogue} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
-                View Full Fleet on WhatsApp
+                View Full Fleet
               </Button>
             </div>
           </div>
@@ -237,7 +251,7 @@ export default function Home() {
                 <Button
                   size="lg"
                   className="bg-red-600 hover:bg-red-700 text-white px-8 py-3"
-                  onClick={openWhatsAppCatalogue}
+                  onClick={() => handleNavigation("/charter/partner")}
                 >
                   Emergency Logistics Partnership
                 </Button>
@@ -245,7 +259,7 @@ export default function Home() {
                   size="lg"
                   variant="outline"
                   className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3"
-                  onClick={openWhatsAppCatalogue}
+                  onClick={() => handleNavigation("/register")}
                 >
                   Register Your Vehicle
                 </Button>
@@ -260,41 +274,37 @@ export default function Home() {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-black mb-4">Get In Touch</h2>
               <p className="text-gray-600 max-w-2xl mx-auto">
-                Ready to book? Contact us directly via WhatsApp for immediate assistance.
+                Have questions or need assistance? Our team is here to help.
               </p>
             </div>
-            <div className="max-w-2xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <Card className="bg-white">
-                <CardContent className="p-8">
-                  <div className="space-y-6">
-                    <div className="flex items-center space-x-4">
-                      <Phone className="h-6 w-6 text-red-600" />
-                      <div>
-                        <p className="font-semibold">Phone</p>
-                        <p className="text-gray-600">+234 906 918 3165</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <Mail className="h-6 w-6 text-red-600" />
-                      <div>
-                        <p className="font-semibold">Email</p>
-                        <p className="text-gray-600">bridgeocean@cyberservices.com</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <MapPin className="h-6 w-6 text-red-600" />
-                      <div>
-                        <p className="font-semibold">Location</p>
-                        <p className="text-gray-600">Lagos, Nigeria</p>
-                      </div>
-                    </div>
-                    <Button
-                      className="w-full bg-green-600 hover:bg-green-700 text-white text-lg py-3"
-                      onClick={openWhatsAppCatalogue}
-                    >
-                      📱 Contact via WhatsApp
-                    </Button>
+                <CardHeader>
+                  <CardTitle>Contact Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <Phone className="h-5 w-5 text-primary" />
+                    <span>+234 906 918 3165</span>
                   </div>
+                  <div className="flex items-center space-x-3">
+                    <Mail className="h-5 w-5 text-primary" />
+                    <span>bridgeocean@cyberservices.com</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    <span>Lagos, Nigeria</span>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white">
+                <CardHeader>
+                  <CardTitle>Send Us a Message</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full" onClick={() => handleNavigation("/contact")}>
+                    Contact Form
+                  </Button>
                 </CardContent>
               </Card>
             </div>
