@@ -7,11 +7,9 @@ import { Car, Calendar, MapPin, Users, Satellite, Shield, Phone, Mail } from "lu
 
 export default function Home() {
   const openWhatsAppCatalogue = () => {
-    // Opens WhatsApp Business Catalogue
     window.open("https://wa.me/c/2349135630154", "_blank")
   }
 
-  // Function to handle navigation with scroll to top
   const handleNavigation = (url: string) => {
     window.location.href = url
   }
@@ -57,15 +55,11 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex items-center justify-center">
-                <div className="relative h-[400px] w-full">
-                  <img
-                    src="/images/luxury-car-hero.jpg"
-                    alt="Premium Vehicle"
-                    className="absolute inset-0 object-cover w-full h-full rounded-lg"
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.svg?height=400&width=500&text=Premium+Vehicle"
-                    }}
-                  />
+                <div className="relative h-[400px] w-full bg-gray-200 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <Car className="h-16 w-16 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500">Premium Vehicle</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -171,14 +165,12 @@ export default function Home() {
               {/* Toyota Camry */}
               <Card className="bg-white border border-gray-200 shadow-sm">
                 <CardHeader className="p-0">
-                  <img
-                    src="/images/toyota-camry-new.jpg"
-                    alt="Toyota Camry (2006)"
-                    className="w-full h-48 object-cover rounded-t-lg"
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.svg?height=200&width=400&text=Toyota+Camry+2006"
-                    }}
-                  />
+                  <div className="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
+                    <div className="text-center">
+                      <Car className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500 text-sm">Toyota Camry (2006)</p>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start mb-2">
@@ -207,14 +199,12 @@ export default function Home() {
               {/* GMC Terrain */}
               <Card className="bg-white border border-gray-200 shadow-sm">
                 <CardHeader className="p-0">
-                  <img
-                    src="/images/gmc-terrain-new.jpg"
-                    alt="GMC Terrain (2011)"
-                    className="w-full h-48 object-cover rounded-t-lg"
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.svg?height=200&width=400&text=GMC+Terrain+2011"
-                    }}
-                  />
+                  <div className="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
+                    <div className="text-center">
+                      <Car className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500 text-sm">GMC Terrain (2011)</p>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start mb-2">
