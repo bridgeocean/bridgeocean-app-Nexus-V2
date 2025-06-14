@@ -57,7 +57,7 @@ export default function Home() {
               <div className="flex items-center justify-center">
                 <div className="relative h-[400px] w-full">
                   <img
-                    src="/images/luxury-car-hero.png"
+                    src="/images/luxury-car-hero.jpg"
                     alt="Premium Vehicle"
                     className="absolute inset-0 object-cover w-full h-full rounded-lg"
                   />
@@ -167,8 +167,8 @@ export default function Home() {
               <Card className="bg-white border border-gray-200 shadow-sm">
                 <CardHeader className="p-0">
                   <img
-                    src="/images/toyota-camry-new.png"
-                    alt="Black Toyota Camry 2006"
+                    src="/images/toyota-camry-new.jpg"
+                    alt="Toyota Camry (2006)"
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
                 </CardHeader>
@@ -180,8 +180,8 @@ export default function Home() {
                     </Badge>
                   </div>
                   <CardDescription className="text-gray-600 mb-4 text-sm">
-                    Comfortable black sedan perfect for city travel and airport transfers. Features leather seats and
-                    climate control.
+                    Comfortable sedan perfect for city travel and airport transfers. Features leather seats and climate
+                    control.
                   </CardDescription>
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-2xl font-bold text-black">₦100,000</span>
@@ -200,8 +200,8 @@ export default function Home() {
               <Card className="bg-white border border-gray-200 shadow-sm">
                 <CardHeader className="p-0">
                   <img
-                    src="/images/gmc-terrain-new.png"
-                    alt="Black GMC Terrain 2011"
+                    src="/images/gmc-terrain-new.jpg"
+                    alt="GMC Terrain (2011)"
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
                 </CardHeader>
@@ -213,8 +213,8 @@ export default function Home() {
                     </Badge>
                   </div>
                   <CardDescription className="text-gray-600 mb-4 text-sm">
-                    Spacious black SUV ideal for group travel and longer journeys. Features premium interior and
-                    entertainment system.
+                    Spacious SUV ideal for group travel and longer journeys. Features premium interior and entertainment
+                    system.
                   </CardDescription>
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-2xl font-bold text-black">₦200,000</span>
