@@ -9,9 +9,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Use export mode to completely bypass server-side features and build tracing
-  output: 'export',
-  distDir: 'out',
+  // REMOVE static export - this breaks images
+  // output: 'export',
+  // distDir: 'out',
   trailingSlash: true,
   // Disable all experimental features
   experimental: {},
