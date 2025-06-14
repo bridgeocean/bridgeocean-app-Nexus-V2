@@ -64,6 +64,11 @@ export function MainNav() {
           ))}
         </nav>
         <div className="ml-auto flex items-center space-x-4">
+          <Link href="/admin-login">
+            <span className="text-sm font-medium transition-colors hover:text-primary cursor-pointer">
+              Admin Dashboard
+            </span>
+          </Link>
           <ModeToggle />
           <UserNav />
         </div>

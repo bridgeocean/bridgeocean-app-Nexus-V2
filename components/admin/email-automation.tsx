@@ -5,33 +5,21 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Mail, Send, Clock, CheckCircle, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Mail, Copy, ExternalLink, Info } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
-export function EmailAutomation() {
-  const { toast } = useToast()
-  const [emailSettings, setEmailSettings] = useState({
-    autoBookingConfirmation: true,
-    autoPartnerWelcome: true,
-    autoContactResponse: true,
-    reminderEmails: true,
-  })
+const EMAIL_TEMPLATES = {
+  screening: {
+    subject: "Bridgeocean Driver Application - Bio-data Requirements",
+    body: `Dear [CANDIDATE_NAME],
 
-  const [selectedRecipient, setSelectedRecipient] = useState("")
-  const [attachmentFile, setAttachmentFile] = useState<File | null>(null)
+Thank you for your interest in becoming a Bridgeocean partner driver.
 
-  const emailTemplates = {
-    candidateScreening: {
-      subject: "Bridgeocean Limited - Driver Partnership Opportunity",
-      body: `Dear {{candidateName}},
-
-Thank you for your interest in partnering with Bridgeocean Limited.
-
-We are pleased to invite you to complete our driver onboarding process. Please find below the initial screening requirements:
+To proceed with your application, please provide the following bio-data:
 
 📋 **Bio-Data Required:**
 • Name: 
@@ -71,23 +59,21 @@ Please complete this information and send via WhatsApp to +234 906 918 3165.
 We look forward to building a successful partnership with you.
 
 Best regards,
-
-Bridgeocean Drive
-For
-Bridgeocean Limited`,
-    },
-
-    interviewInvitation: {
-      subject: "Interview Invitation - Bridgeocean Drive Partnership",
-      body: `Dear {{candidateName}},
+Bridgeocean Drive Team
+bridgeocean@cyberservices.com
++234 906 918 3165`,
+  },
+  interview: {
+    subject: "Interview Invitation - Bridgeocean Drive Partnership",
+    body: `Dear [CANDIDATE_NAME],
 
 Congratulations! You have successfully passed our initial screening process.
 
 We are pleased to invite you for an interview to discuss your partnership with Bridgeocean Drive.
 
 📅 **Interview Details:**
-• Date: {{interviewDate}}
-• Time: {{interviewTime}}
+• Date: [INTERVIEW_DATE]
+• Time: [INTERVIEW_TIME]
 • Location: Ajah Office, Lagos
 • Duration: Approximately 30-45 minutes
 • Interviewer: Ms. Yetunde & Mr. Fatai
@@ -115,15 +101,11 @@ If you need to reschedule, please contact us at least 24 hours in advance.
 We look forward to meeting you and discussing this exciting opportunity.
 
 Best regards,
-
-Bridgeocean Drive Team
-For
-Bridgeocean Limited`,
-    },
-
-    firstEmail: {
-      subject: "Congratulations and Next Steps - Bridgeocean Limited",
-      body: `Dear {{candidateName}},
+Bridgeocean Drive Team`,
+  },
+  email1: {
+    subject: "Congratulations and Next Steps - Bridgeocean Limited",
+    body: `Dear [CANDIDATE_NAME],
 
 Thank you once again for your time and participation in the onboarding process. We hope it was an enjoyable experience.
 
@@ -144,26 +126,23 @@ We are pleased to inform you that you have been selected for the next and final 
 Once again, congratulations, and we look forward to building a successful partnership with you.
 
 Best regards,
-
-Bridgeocean Drive
-For
-Bridgeocean Limited`,
-    },
-
-    secondEmail: {
-      subject: "Congratulations and Next Steps: Contract Signing, Caution Fees Payment and Vehicle Pick-up",
-      body: `Dear {{candidateName}},
+Bridgeocean Drive Team
++234 906 918 3165`,
+  },
+  email2: {
+    subject: "Congratulations and Next Steps: Contract Signing, Caution Fees Payment and Vehicle Pick-up",
+    body: `Dear [CANDIDATE_NAME],
 
 Thank you once again for your time and for choosing to partner with Bridgeocean Limited. We hope you had an enjoyable onboarding process.
 
 We are now at the final stage of completing the onboarding process, which includes contract signing and key collection. Please see the important details and steps below:
 
 **Contract Signing and Vehicle Pick-Up:**
-• Date: {{contractDate}}
-• Location: {{contractLocation}}
-• Time: {{contractTime}}
-• Individual to Conduct Signing: {{signingOfficer}}
-• Witness: {{witnessName}}
+• Date: [CONTRACT_DATE]
+• Location: [CONTRACT_LOCATION]
+• Time: [CONTRACT_TIME]
+• Individual to Conduct Signing: [SIGNING_OFFICER]
+• Witness: [WITNESS_NAME]
 
 **Before Arrival for Contract Signing:**
 Please send the signed signature page of the Driver's Manual as a soft copy via WhatsApp (if not already done).
@@ -189,426 +168,347 @@ Any additional information not listed here will be communicated via WhatsApp.
 Once again, congratulations, and we look forward to a positive partnership.
 
 Best regards,
+Bridgeocean Drive Team
++234 906 918 3165`,
+  },
+}
 
-Bridgeocean Drive
-For
-Bridgeocean Limited`,
-    },
+const EMAIL_CLIENTS = [
+  {
+    value: "gmail",
+    label: "Gmail",
+    url: "https://mail.google.com/mail/u/0/#inbox?compose=new",
+    supportsPreFill: true,
+  },
+  {
+    value: "outlook",
+    label: "Outlook",
+    url: "https://outlook.live.com/mail/0/inbox",
+    supportsPreFill: false,
+  },
+  {
+    value: "yahoo",
+    label: "Yahoo Mail",
+    url: "https://mail.yahoo.com/d/compose",
+    supportsPreFill: false,
+  },
+  {
+    value: "mail",
+    label: "Mail.com",
+    url: "https://www.mail.com/",
+    supportsPreFill: false,
+  },
+]
 
-    bookingConfirmation: {
-      subject: "Booking Confirmation - Bridgeocean Charter Services",
-      body: `Dear {{customerName}},
+export function EmailAutomation() {
+  const { toast } = useToast()
+  const [selectedTemplate, setSelectedTemplate] = useState("")
+  const [recipientEmail, setRecipientEmail] = useState("")
+  const [candidateName, setCandidateName] = useState("")
+  const [customSubject, setCustomSubject] = useState("")
+  const [customBody, setCustomBody] = useState("")
+  const [selectedClient, setSelectedClient] = useState("gmail")
+  const [showCopyModal, setShowCopyModal] = useState(false)
+  const [copyContent, setCopyContent] = useState("")
 
-Thank you for booking with Bridgeocean Charter Services!
-
-📋 **Booking Details:**
-• Vehicle: {{vehicle}}
-• Date: {{date}} at {{time}}
-• Pickup: {{pickupLocation}}
-• Destination: {{destination}}
-• Duration: {{duration}} hours
-• Total Cost: {{totalPrice}}
-
-🚗 **What's Next:**
-1. Our driver will contact you 30 minutes before pickup
-2. Please have your ID ready
-3. Our vehicle will arrive at the specified location
-
-📞 **Contact Information:**
-• WhatsApp: +234 906 918 3165
-• Email: bridgeocean@cyberservices.com
-
-**Please note:** Our driving service is limited to Lagos area.
-
-Thank you for choosing Bridgeocean!
-
-Best regards,
-Bridgeocean Team`,
-    },
-
-    partnerWelcome: {
-      subject: "Welcome to Bridgeocean Partner Network!",
-      body: `Dear {{partnerName}},
-
-Welcome to the Bridgeocean Partner Network! 🎉
-
-Your application has been approved and you're now part of our premium logistics network.
-
-📋 **Your Registration Details:**
-• Vehicle: {{vehicleMake}} {{vehicleModel}} ({{vehicleYear}})
-• License Plate: {{licensePlate}}
-• Status: Approved ✅
-
-🚀 **Important Reminders:**
-• **Weekly Inspections:** Every Tuesday at 10am at our Yaba workshop
-• **General Service:** Bi-monthly on the last Saturday of the second month
-• **Remittance:** Due every Sunday (end of our week)
-• **Daily Contribution:** ₦1,000 daily contribution expected
-• **Driving Limit:** Within Lagos only
-• **Vehicle Tracking:** GPS coordinates required for nightly parking
-
-💰 **Financial Information:**
-• Caution fees: ₦350,000 (refundable security deposit)
-• Weekly remittance due every Sunday
-• Daily contribution: ₦1,000 for financial security
-
-📞 **Support:**
-• WhatsApp: +234 906 918 3165
-• You will be added to our drivers' WhatsApp group
-• Private chats always available
-
-**Required Documents Status:**
-• Valid License: ✅
-• LASRRA Card: ✅
-• LASDRI Card: ✅
-• 2 Guarantors: ✅
-• 3 Referees: ✅
-
-Welcome aboard!
-
-Bridgeocean Drive
-For
-Bridgeocean Limited`,
-    },
-
-    contactResponse: {
-      subject: "Thank you for contacting Bridgeocean",
-      body: `Dear {{contactName}},
-
-Thank you for reaching out to Bridgeocean!
-
-We have received your message: "{{message}}"
-
-Our team will review your inquiry and respond within 24 hours. For urgent matters, please contact us directly:
-
-📞 **Immediate Contact:**
-• WhatsApp: +234 906 918 3165
-• Emergency: +234 913 563 0154
-
-🌐 **Our Services:**
-• **Charter Services:** Premium vehicle hire within Lagos
-• **Nexus Emergency Logistics:** Satellite-powered coordination
-• **Partnership Opportunities:** Join our driver network
-
-**Current Fleet:**
-• Toyota Camry (2006): ₦100,000 per 10 hours
-• GMC Terrain (2011): ₦200,000 per 10 hours
-
-**Partnership Requirements:**
-• Valid driving license
-• LASRRA and LASDRI cards
-• 2 Guarantors and 3 Referees
-• ₦350,000 caution fees (refundable)
-• Lagos residence with gated parking
-
-Thank you for your interest in Bridgeocean!
-
-Best regards,
-Customer Service Team
-Bridgeocean Limited`,
-    },
-
-    reminderEmail: {
-      subject: "Reminder: {{reminderType}} - Bridgeocean Limited",
-      body: `Dear {{driverName}},
-
-This is a friendly reminder regarding your upcoming {{reminderType}}.
-
-📅 **Reminder Details:**
-• Type: {{reminderType}}
-• Date: {{reminderDate}}
-• Time: {{reminderTime}}
-• Location: {{reminderLocation}}
-
-**Important Notes:**
-{{#if isInspection}}
-• Weekly inspection at our Yaba workshop
-• Please ensure vehicle is clean and ready
-• Bring all vehicle documents
-{{/if}}
-
-{{#if isService}}
-• Bi-monthly general service
-• ₦1,000 daily contribution helps cover service costs
-• Service typically takes 2-4 hours
-{{/if}}
-
-{{#if isRemittance}}
-• Weekly remittance due every Sunday
-• Calculate from Monday to Sunday
-• Send payment confirmation via WhatsApp
-{{/if}}
-
-📞 **Contact:**
-• WhatsApp: +234 906 918 3165
-• Any questions? Reach out anytime
-
-Thank you for being a valued Bridgeocean partner.
-
-Best regards,
-Bridgeocean Drive
-For
-Bridgeocean Limited`,
-    },
+  const handleTemplateSelect = (templateKey: string) => {
+    setSelectedTemplate(templateKey)
+    const template = EMAIL_TEMPLATES[templateKey]
+    setCustomSubject(template.subject)
+    setCustomBody(template.body)
   }
 
-  const sendTestEmail = async (templateType: string, recipientEmail?: string) => {
-    const template = emailTemplates[templateType]
-    if (!template) return
+  const personalizeEmail = () => {
+    if (!candidateName) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter candidate name to personalize email",
+        variant: "destructive",
+      })
+      return
+    }
 
-    const emailSettings = JSON.parse(localStorage.getItem("bridgeocean_email_settings") || "{}")
-    const fromName = emailSettings.fromName || "Bridgeocean Drive Team"
-    const fromEmail = emailSettings.fromEmail || "bridgeocean@cyberservices.com"
+    const personalizedSubject = customSubject.replace(/\[CANDIDATE_NAME\]/g, candidateName)
+    const personalizedBody = customBody.replace(/\[CANDIDATE_NAME\]/g, candidateName)
 
-    // Get recipient email or use default
-    const toEmail = recipientEmail || "candidate@example.com"
-
-    // Replace template variables with sample data
-    const emailBody = template.body
-      .replace(/{{candidateName}}/g, "John Doe")
-      .replace(/{{interviewDate}}/g, "Monday, June 15, 2025")
-      .replace(/{{interviewTime}}/g, "10:00 AM")
-      .replace(/{{contractDate}}/g, "Friday, June 19, 2025")
-      .replace(/{{contractLocation}}/g, "Ajah Office, Lagos")
-      .replace(/{{contractTime}}/g, "12:00 PM")
-      .replace(/{{signingOfficer}}/g, "Ms. Yetunde")
-      .replace(/{{witnessName}}/g, "Mr. Fatai")
-
-    // Create mailto link
-    const mailtoLink = `mailto:${toEmail}?subject=${encodeURIComponent(template.subject)}&body=${encodeURIComponent(emailBody)}`
-
-    // Open default email client
-    window.open(mailtoLink, "_blank")
+    setCustomSubject(personalizedSubject)
+    setCustomBody(personalizedBody)
 
     toast({
-      title: "Email Client Opened",
-      description: `${templateType} template opened in your default email client`,
+      title: "Email Personalized",
+      description: `Email personalized for ${candidateName}`,
     })
   }
 
-  const toggleAutomation = (setting: string) => {
-    setEmailSettings((prev) => ({
-      ...prev,
-      [setting as keyof typeof prev]: !prev[setting as keyof typeof prev],
-    }))
+  // Improved clipboard function with fallback
+  const copyToClipboard = async (text: string, type: string) => {
+    try {
+      // Try modern clipboard API first
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text)
+        toast({
+          title: "Copied",
+          description: `${type} copied to clipboard`,
+        })
+      } else {
+        // Fallback for older browsers or non-HTTPS
+        fallbackCopyToClipboard(text, type)
+      }
+    } catch (err) {
+      console.error("Clipboard copy failed:", err)
+      // Show the content in a modal for manual copying
+      setCopyContent(text)
+      setShowCopyModal(true)
+      toast({
+        title: "Copy Manually",
+        description: `Please copy the ${type.toLowerCase()} from the popup window`,
+        variant: "destructive",
+      })
+    }
   }
 
+  // Fallback copy method for older browsers
+  const fallbackCopyToClipboard = (text: string, type: string) => {
+    try {
+      const textArea = document.createElement("textarea")
+      textArea.value = text
+      textArea.style.position = "fixed"
+      textArea.style.left = "-999999px"
+      textArea.style.top = "-999999px"
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+
+      const successful = document.execCommand("copy")
+      document.body.removeChild(textArea)
+
+      if (successful) {
+        toast({
+          title: "Copied",
+          description: `${type} copied to clipboard`,
+        })
+      } else {
+        throw new Error("Copy command failed")
+      }
+    } catch (err) {
+      // Final fallback - show content for manual copying
+      setCopyContent(text)
+      setShowCopyModal(true)
+      toast({
+        title: "Copy Manually",
+        description: `Please copy the ${type.toLowerCase()} from the popup window`,
+        variant: "destructive",
+      })
+    }
+  }
+
+  const copyAllEmailContent = () => {
+    const emailContent = `To: ${recipientEmail}\nSubject: ${customSubject}\n\n${customBody}`
+    copyToClipboard(emailContent, "Complete Email")
+  }
+
+  const openEmailClient = () => {
+    if (!recipientEmail || !customSubject || !customBody) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in recipient, subject, and body",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const client = EMAIL_CLIENTS.find((c) => c.value === selectedClient)
+    if (!client) return
+
+    // For Gmail, we can pre-fill the compose window
+    if (selectedClient === "gmail") {
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipientEmail)}&subject=${encodeURIComponent(customSubject)}&body=${encodeURIComponent(customBody)}`
+      window.open(gmailUrl, "_blank")
+      toast({
+        title: "Gmail Opened",
+        description: "Gmail compose window opened with pre-filled content",
+      })
+    } else {
+      // For other clients, just open the client and copy content
+      window.open(client.url, "_blank")
+      copyAllEmailContent()
+    }
+  }
+
+  const selectedClientInfo = EMAIL_CLIENTS.find((c) => c.value === selectedClient)
+
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Mail className="h-5 w-5" />
-            Email Automation Settings
-          </CardTitle>
-          <CardDescription>Configure automated email notifications for your business</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center justify-between space-x-2">
-              <div className="space-y-0.5">
-                <Label>Booking Confirmations</Label>
-                <p className="text-sm text-muted-foreground">Auto-send booking confirmations</p>
-              </div>
-              <Switch
-                checked={emailSettings.autoBookingConfirmation}
-                onCheckedChange={() => toggleAutomation("autoBookingConfirmation")}
-              />
-            </div>
+    <>
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Email Templates */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Email Templates</CardTitle>
+            <CardDescription>Pre-built templates for driver onboarding process</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {Object.entries(EMAIL_TEMPLATES).map(([key, template]) => (
+              <Button
+                key={key}
+                variant={selectedTemplate === key ? "default" : "outline"}
+                className="w-full justify-start text-left h-auto p-4"
+                onClick={() => handleTemplateSelect(key)}
+              >
+                <div className="space-y-1">
+                  <div className="font-medium capitalize flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    {key === "email1"
+                      ? "First Email (Contract Review)"
+                      : key === "email2"
+                        ? "Second Email (Contract Signing)"
+                        : key.replace("_", " ")}
+                  </div>
+                  <div className="text-xs text-muted-foreground">{template.subject}</div>
+                </div>
+              </Button>
+            ))}
+          </CardContent>
+        </Card>
 
-            <div className="flex items-center justify-between space-x-2">
-              <div className="space-y-0.5">
-                <Label>Partner Welcome</Label>
-                <p className="text-sm text-muted-foreground">Welcome new partners</p>
-              </div>
-              <Switch
-                checked={emailSettings.autoPartnerWelcome}
-                onCheckedChange={() => toggleAutomation("autoPartnerWelcome")}
-              />
-            </div>
-
-            <div className="flex items-center justify-between space-x-2">
-              <div className="space-y-0.5">
-                <Label>Contact Responses</Label>
-                <p className="text-sm text-muted-foreground">Auto-respond to contact forms</p>
-              </div>
-              <Switch
-                checked={emailSettings.autoContactResponse}
-                onCheckedChange={() => toggleAutomation("autoContactResponse")}
-              />
-            </div>
-
-            <div className="flex items-center justify-between space-x-2">
-              <div className="space-y-0.5">
-                <Label>Reminder Emails</Label>
-                <p className="text-sm text-muted-foreground">Send booking reminders</p>
-              </div>
-              <Switch
-                checked={emailSettings.reminderEmails}
-                onCheckedChange={() => toggleAutomation("reminderEmails")}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Tabs defaultValue="templates" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="templates">Email Templates</TabsTrigger>
-          <TabsTrigger value="queue">Email Queue</TabsTrigger>
-          <TabsTrigger value="analytics">Email Analytics</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="templates" className="space-y-4">
-          <div className="mb-6 p-4 border rounded-lg bg-gray-50">
-            <h4 className="font-semibold mb-3">Email Composition</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        {/* Email Composer */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Email Composer</CardTitle>
+            <CardDescription>Customize and send emails to candidates</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="recipient">Recipient Email</Label>
+                <Label>Candidate Name</Label>
                 <Input
-                  id="recipient"
+                  placeholder="Enter candidate name"
+                  value={candidateName}
+                  onChange={(e) => setCandidateName(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Recipient Email</Label>
+                <Input
                   type="email"
-                  placeholder="candidate@example.com"
-                  value={selectedRecipient}
-                  onChange={(e) => setSelectedRecipient(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="attachment">Attachment (Optional)</Label>
-                <Input
-                  id="attachment"
-                  type="file"
-                  onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)}
-                  accept=".pdf,.doc,.docx,.jpg,.png"
+                  placeholder="candidate@email.com"
+                  value={recipientEmail}
+                  onChange={(e) => setRecipientEmail(e.target.value)}
                 />
               </div>
             </div>
-            {attachmentFile && (
-              <div className="text-sm text-blue-600">
-                📎 Attachment: {attachmentFile.name} ({Math.round(attachmentFile.size / 1024)}KB)
-                <Button variant="ghost" size="sm" onClick={() => setAttachmentFile(null)} className="ml-2 text-red-500">
-                  Remove
+
+            <div className="space-y-2">
+              <Label>Email Client</Label>
+              <Select value={selectedClient} onValueChange={setSelectedClient}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {EMAIL_CLIENTS.map((client) => (
+                    <SelectItem key={client.value} value={client.value}>
+                      {client.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {selectedClientInfo && (
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    {selectedClientInfo.supportsPreFill
+                      ? "✅ This client supports auto-filling email content"
+                      : "📋 Email content will be copied to clipboard - paste it in your email client"}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Subject</Label>
+                <Button variant="ghost" size="sm" onClick={() => copyToClipboard(customSubject, "Subject")}>
+                  <Copy className="h-4 w-4" />
                 </Button>
               </div>
-            )}
-          </div>
-          <div className="grid gap-4">
-            {Object.entries(emailTemplates).map(([key, template]) => (
-              <Card key={key}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg capitalize">{key.replace(/([A-Z])/g, " $1").trim()}</CardTitle>
-                    <Button variant="outline" size="sm" onClick={() => sendTestEmail(key, selectedRecipient)}>
-                      <Send className="h-4 w-4 mr-2" />
-                      Open in Email Client
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Subject Line</Label>
-                    <Input value={template.subject} readOnly />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Email Body</Label>
-                    <Textarea value={template.body} readOnly rows={8} className="font-mono text-sm" />
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary">customerName</Badge>
-                    <Badge variant="secondary">vehicle</Badge>
-                    <Badge variant="secondary">date</Badge>
-                    <Badge variant="secondary">totalPrice</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
+              <Input value={customSubject} onChange={(e) => setCustomSubject(e.target.value)} />
+            </div>
 
-        <TabsContent value="queue" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Email Queue Status</CardTitle>
-              <CardDescription>Monitor pending and sent emails</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="flex items-center space-x-2">
-                    <Clock className="h-4 w-4 text-yellow-500" />
-                    <div>
-                      <p className="text-sm font-medium">Pending</p>
-                      <p className="text-2xl font-bold">3</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <div>
-                      <p className="text-sm font-medium">Sent Today</p>
-                      <p className="text-2xl font-bold">12</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <AlertCircle className="h-4 w-4 text-red-500" />
-                    <div>
-                      <p className="text-sm font-medium">Failed</p>
-                      <p className="text-2xl font-bold">0</p>
-                    </div>
-                  </div>
-                </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Email Body</Label>
+                <Button variant="ghost" size="sm" onClick={() => copyToClipboard(customBody, "Email body")}>
+                  <Copy className="h-4 w-4" />
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              <Textarea className="min-h-[200px]" value={customBody} onChange={(e) => setCustomBody(e.target.value)} />
+            </div>
 
-        <TabsContent value="analytics" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Email Performance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span>Open Rate</span>
-                    <span className="font-bold">78%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Click Rate</span>
-                    <span className="font-bold">23%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Delivery Rate</span>
-                    <span className="font-bold">99%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex gap-2">
+              <Button onClick={personalizeEmail} variant="outline" className="flex-1">
+                Personalize Email
+              </Button>
+              <Button onClick={openEmailClient} className="flex-1">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open Email Client
+              </Button>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Booking confirmation sent</span>
-                    <span className="text-muted-foreground">2 min ago</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Partner welcome sent</span>
-                    <span className="text-muted-foreground">15 min ago</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Contact response sent</span>
-                    <span className="text-muted-foreground">1 hour ago</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <Button onClick={copyAllEmailContent} variant="outline" className="w-full">
+              <Copy className="h-4 w-4 mr-2" />
+              Copy Complete Email
+            </Button>
+
+            {selectedTemplate && (
+              <div className="mt-4">
+                <Badge variant="secondary">Template: {selectedTemplate}</Badge>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Manual Copy Modal */}
+      {showCopyModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Copy Content Manually</h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowCopyModal(false)}>
+                ✕
+              </Button>
+            </div>
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Please select all the text below and copy it manually (Ctrl+C or Cmd+C):
+              </p>
+              <Textarea
+                value={copyContent}
+                readOnly
+                className="min-h-[300px] font-mono text-sm"
+                onClick={(e) => e.target.select()}
+              />
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => {
+                    const textarea = document.querySelector("textarea[readonly]")
+                    if (textarea) {
+                      textarea.select()
+                    }
+                  }}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Select All Text
+                </Button>
+                <Button onClick={() => setShowCopyModal(false)} className="flex-1">
+                  Done
+                </Button>
+              </div>
+            </div>
           </div>
-        </TabsContent>
-      </Tabs>
-    </div>
+        </div>
+      )}
+    </>
   )
 }

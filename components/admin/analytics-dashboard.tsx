@@ -108,7 +108,7 @@ export function AnalyticsDashboard() {
       const charterBookings = bookings?.length || 0
       const totalCandidates = candidates?.length || 0
       const activeDrivers = drivers?.length || 0
-      const ehailingDrivers = drivers?.filter((d) => d.service_type === "ehailing").length || activeDrivers
+      const ehailingDrivers = drivers?.filter((d: any) => d.service_type === "ehailing").length || activeDrivers
 
       // Calculate revenue (use real data if available)
       let charterRevenue = 0
