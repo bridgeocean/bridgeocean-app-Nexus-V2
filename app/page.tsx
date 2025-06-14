@@ -59,9 +59,12 @@ export default function Home() {
               <div className="flex items-center justify-center">
                 <div className="relative h-[400px] w-full">
                   <img
-                    src="/placeholder.svg?height=400&width=500&text=Premium+Vehicle"
+                    src="/images/luxury-car-hero.jpg"
                     alt="Premium Vehicle"
-                    className="absolute inset-0 object-cover w-full h-full rounded-lg bg-gray-200"
+                    className="absolute inset-0 object-cover w-full h-full rounded-lg"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg?height=400&width=500&text=Premium+Vehicle"
+                    }}
                   />
                 </div>
               </div>
@@ -169,9 +172,12 @@ export default function Home() {
               <Card className="bg-white border border-gray-200 shadow-sm">
                 <CardHeader className="p-0">
                   <img
-                    src="/placeholder.svg?height=200&width=400&text=Toyota+Camry+2006"
+                    src="/images/toyota-camry-new.jpg"
                     alt="Toyota Camry (2006)"
-                    className="w-full h-48 object-cover rounded-t-lg bg-gray-200"
+                    className="w-full h-48 object-cover rounded-t-lg"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg?height=200&width=400&text=Toyota+Camry+2006"
+                    }}
                   />
                 </CardHeader>
                 <CardContent className="p-6">
@@ -202,9 +208,12 @@ export default function Home() {
               <Card className="bg-white border border-gray-200 shadow-sm">
                 <CardHeader className="p-0">
                   <img
-                    src="/placeholder.svg?height=200&width=400&text=GMC+Terrain+2011"
+                    src="/images/gmc-terrain-new.jpg"
                     alt="GMC Terrain (2011)"
-                    className="w-full h-48 object-cover rounded-t-lg bg-gray-200"
+                    className="w-full h-48 object-cover rounded-t-lg"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg?height=200&width=400&text=GMC+Terrain+2011"
+                    }}
                   />
                 </CardHeader>
                 <CardContent className="p-6">
