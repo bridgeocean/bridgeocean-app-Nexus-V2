@@ -9,26 +9,29 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Go back to regular build but with minimal features
-  swcMinify: false,
-  experimental: {
-    outputFileTracingRoot: process.cwd(),
-    outputFileTracing: false,
-  },
-  // Disable problematic features
+  // Use export mode to completely bypass server-side features and build tracing
+  output: 'export',
+  distDir: 'out',
+  trailingSlash: true,
+  // Disable all experimental features
+  experimental: {},
+  // Completely disable webpack optimizations that cause issues
   webpack: (config, { dev, isServer }) => {
+    // Disable all caching and optimization
     config.cache = false;
-    config.optimization = {
-      minimize: false,
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          default: false,
-          vendors: false,
-        },
-      },
+    config.optimization = false;
+    
+    // Disable file watching
+    config.watchOptions = {
+      ignored: /node_modules/,
     };
+    
     return config;
+  },
+  // Disable all Next.js optimizations
+  swcMinify: false,
+  compiler: {
+    removeConsole: false,
   },
 }
 
