@@ -1,16 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
   images: {
     unoptimized: true,
   },
-  // Remove all the complex stuff that's breaking images
-  trailingSlash: true,
+  // Remove any static export settings that might be causing issues
+  // output: 'export', // ← Remove this if present
+  // trailingSlash: true, // ← Remove this if present
 }
 
 export default nextConfig
