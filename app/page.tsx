@@ -57,7 +57,7 @@ export default function Home() {
               <div className="flex items-center justify-center">
                 <div className="relative h-[400px] w-full">
                   <img
-                    src="/images/luxury-car-hero.jpg"
+                    src="/placeholder.svg?height=400&width=500&text=Premium+Vehicle"
                     alt="Premium Vehicle"
                     className="absolute inset-0 object-cover w-full h-full rounded-lg"
                   />
@@ -183,7 +183,7 @@ export default function Home() {
               <Card className="bg-white border border-gray-200 shadow-sm h-full flex flex-col">
                 <CardHeader className="p-0">
                   <img
-                    src="/images/toyota-camry-new.jpg"
+                    src="/placeholder.svg?height=200&width=400&text=Toyota+Camry+2006"
                     alt="Black Toyota Camry 2006"
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
@@ -218,7 +218,7 @@ export default function Home() {
               <Card className="bg-white border border-gray-200 shadow-sm h-full flex flex-col">
                 <CardHeader className="p-0">
                   <img
-                    src="/images/gmc-terrain-new.jpg"
+                    src="/placeholder.svg?height=200&width=400&text=GMC+Terrain+2011"
                     alt="Black GMC Terrain 2011"
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
