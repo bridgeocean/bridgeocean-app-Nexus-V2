@@ -4,6 +4,8 @@ node_modules/
 .git/
 *.log
 .env*
+.env.local
+.env.*.local
 .DS_Store
 # Ignore all complex components
 components/admin/advanced-whatsapp.tsx
